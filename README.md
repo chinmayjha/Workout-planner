@@ -68,7 +68,7 @@ To add a custom SVG for your new exercise, simply add a matching `id` key to the
 **Chinmay Jha**  
 *Student • Web Developer • Freelancer*
 
-I am a 16-year-old web developer from India. I started coding at 11, and I specialize in building fun, functional, and highly polished web projects and user interfaces. 
+I am a 17-year-old web developer from India. I started coding at 11, and I specialize in building fun, functional, and highly polished web projects and user interfaces. 
 
 🌐 **Portfolio:** [chinmayjha.tech](https://chinmayjha.tech)  
 🐙 **GitHub:** [@chinmayjha](https://github.com/chinmayjha)  
