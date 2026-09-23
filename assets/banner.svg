@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400">
+  <defs>
+    <!-- Background Gradients -->
+    <radialGradient id="glowPurple" cx="15%" cy="10%" r="55%">
+      <stop offset="0%" stop-color="#8B7CFF" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#0A0A0F" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="glowMint" cx="85%" cy="80%" r="55%">
+      <stop offset="0%" stop-color="#00E5A0" stop-opacity="0.20" />
+      <stop offset="100%" stop-color="#0A0A0F" stop-opacity="0" />
+    </radialGradient>
+    
+    <!-- Text & Logo Gradient -->
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B7CFF" />
+      <stop offset="100%" stop-color="#00E5A0" />
+    </linearGradient>
+    
+    <!-- Tech Grid Pattern -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+    </pattern>
+
+    <!-- Drop Shadow for floating elements -->
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Deep Background -->
+  <rect width="1200" height="400" fill="#0A0A0F" />
+  
+  <!-- Grid & Glows -->
+  <rect width="1200" height="400" fill="url(#grid)" />
+  <rect width="1200" height="400" fill="url(#glowPurple)" />
+  <rect width="1200" height="400" fill="url(#glowMint)" />
+
+  <!-- Center Content Group -->
+  <g transform="translate(600, 190)">
+    
+    <!-- Logo Icon -->
+    <g transform="translate(0, -65)">
+      <rect x="-40" y="-40" width="80" height="80" rx="20" fill="url(#brandGrad)" opacity="0.1" />
+      <svg x="-28" y="-28" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="url(#brandGrad)" stroke-width="2.2" stroke-linecap="round">
+        <path d="M4 12h16M7 8v8M17 8v8M4 10v4M20 10v4"/>
+      </svg>
+    </g>
+    
+    <!-- Main Title -->
+    <text x="0" y="35" font-family="'Outfit', system-ui, sans-serif" font-size="68" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="-1.5">
+      Workout Planner
+    </text>
+    
+    <!-- Subtitle -->
+    <text x="0" y="75" font-family="'Outfit', system-ui, sans-serif" font-size="22" font-weight="500" fill="#8A8A9A" text-anchor="middle" letter-spacing="1">
+      Build Custom Routines. Crush Your Goals.
+    </text>
+
+  </g>
+
+  <!-- Floating UI Elements (Parallax Effect) -->
+  <!-- Left Metric Box -->
+  <g transform="translate(180, 260)" filter="url(#dropShadow)">
+    <rect x="0" y="0" width="160" height="50" rx="16" fill="#16161F" stroke="#25252F" stroke-width="1.5"/>
+    <!-- Dumbbell icon mini -->
+    <svg x="15" y="15" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B7CFF" stroke-width="2" stroke-linecap="round">
+      <circle cx="12" cy="5" r="2.5"/><path d="M12 8v5l-3 4M12 13l4 5M8 22h2M14 22h2M12 8H7"/>
+    </svg>
+    <text x="45" y="31" font-family="'Outfit', system-ui, sans-serif" font-size="16" font-weight="600" fill="#F2F2F7">Lower Body</text>
+  </g>
+
+  <!-- Right Metric Box -->
+  <g transform="translate(860, 100)" filter="url(#dropShadow)">
+    <rect x="0" y="0" width="140" height="50" rx="16" fill="#16161F" stroke="#25252F" stroke-width="1.5"/>
+    <!-- Fire/Calorie Icon mini -->
+    <svg x="15" y="15" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00E5A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+    </svg>
+    <text x="45" y="31" font-family="'Outfit', system-ui, sans-serif" font-size="18" font-weight="700" fill="#F2F2F7">420 kcal</text>
+  </g>
+</svg>
