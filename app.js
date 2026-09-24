@@ -1014,6 +1014,25 @@
     renderWorkoutIdle();
   });
 
+  document.getElementById("btnSkip").addEventListener("click", () => {
+    // Prevent skipping if not in an active routine
+    if (wo.phase === "idle" || wo.phase === "complete") return;
+
+    // Unpause if the user skips while paused
+    wo.paused = false;
+    document.getElementById("btnPause").textContent = "Pause";
+
+    // Clear visual states
+    document.getElementById("progressFill").classList.remove("glow");
+    document.getElementById("exVisual").classList.remove("pulse-alert");
+
+    // Play a subtle skip beep
+    beep(400, 0.1);
+
+    // Instantly route to the next phase (Work -> Rest, or Rest -> Work)
+    advancePhase();
+  });
+
   /* =========================================================
    DEVELOPER INFO MODULE LOGIC
 ========================================================= */
