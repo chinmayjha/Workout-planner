@@ -1,9 +1,6 @@
 /**
  * Workout Planner Core Logic
  * Built by Chinmay Jha (chinmayjha.tech)
- *
- * Note: Kept everything Vanilla JS to avoid framework bloat.
- * Lifetime stats, haptics, full-screen routing, and drag-and-drop are handled natively.
  */
 (function () {
   "use strict";
@@ -13,6 +10,8 @@
     '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
   const SVG_VOL_OFF =
     '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="1" x2="1" y2="23"></line><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+  const SVG_REST =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>';
 
   const EX_ICONS = {
     pushup:
@@ -86,12 +85,14 @@
     ["cardio", "Cardio"],
     ["full", "Full Body"],
   ];
+
+  // Expanded details for better TTS coaching
   const EXERCISES = [
     {
       id: "pushup",
       name: "Push-Ups",
       cat: "upper",
-      cue: "Straight line, elbows at 45 degrees.",
+      cue: "Keep a straight line from head to heels. Lower until your chest is just above the floor.",
       time: 40,
       tts: "Push ups",
     },
@@ -99,7 +100,7 @@
       id: "diamondpushup",
       name: "Diamond Push-Ups",
       cat: "upper",
-      cue: "Hands form a diamond, target triceps.",
+      cue: "Hands form a diamond under your chest. Keep elbows tight to target your triceps.",
       time: 35,
       tts: "Diamond Push ups",
     },
@@ -107,7 +108,7 @@
       id: "pike",
       name: "Pike Push-Ups",
       cat: "upper",
-      cue: "Hips high, target shoulders.",
+      cue: "Keep your hips high in a V-shape. Lower the top of your head towards the floor.",
       time: 35,
       tts: "Pike Push ups",
     },
@@ -115,7 +116,7 @@
       id: "tricepdip",
       name: "Tricep Dips",
       cat: "upper",
-      cue: "Elbows close, controlled.",
+      cue: "Keep your back close to the bench. Lower until your elbows reach ninety degrees.",
       time: 35,
       tts: "Tricep Dips",
     },
@@ -123,7 +124,7 @@
       id: "plankshoulder",
       name: "Plank Shoulder Taps",
       cat: "upper",
-      cue: "Hips stay still.",
+      cue: "Keep your hips as still as possible. Tap your opposite shoulder with control.",
       time: 30,
       tts: "Plank Shoulder Taps",
     },
@@ -131,7 +132,7 @@
       id: "squat",
       name: "Bodyweight Squats",
       cat: "lower",
-      cue: "Chest up, knees track toes.",
+      cue: "Keep your chest up and drive through your heels. Squat as if sitting in a chair.",
       time: 45,
       tts: "Bodyweight Squats",
     },
@@ -139,7 +140,7 @@
       id: "lunge",
       name: "Alternating Lunges",
       cat: "lower",
-      cue: "Front knee over ankle.",
+      cue: "Step forward and drop your back knee. Keep your front knee directly over your ankle.",
       time: 40,
       tts: "Alternating Lunges",
     },
@@ -147,7 +148,7 @@
       id: "bulgariansplit",
       name: "Bulgarian Split Squats",
       cat: "lower",
-      cue: "Back foot elevated, drop straight down.",
+      cue: "Elevate your back foot on a surface. Drop your hips straight down with control.",
       time: 40,
       tts: "Bulgarian Split Squats",
     },
@@ -155,7 +156,7 @@
       id: "gluteb",
       name: "Glute Bridges",
       cat: "lower",
-      cue: "Squeeze glutes at the top.",
+      cue: "Drive through your heels. Squeeze your glutes hard at the top of the movement.",
       time: 40,
       tts: "Glute Bridges",
     },
@@ -163,7 +164,7 @@
       id: "calfraise",
       name: "Calf Raises",
       cat: "lower",
-      cue: "Slow and controlled.",
+      cue: "Rise up onto your toes as high as you can. Lower down slowly and controlled.",
       time: 30,
       tts: "Calf Raises",
     },
@@ -171,7 +172,7 @@
       id: "wallsit",
       name: "Wall Sit",
       cat: "lower",
-      cue: "Thighs parallel to floor.",
+      cue: "Press your back flat against the wall. Keep your thighs perfectly parallel to the floor.",
       time: 40,
       tts: "Wall Sit",
     },
@@ -179,7 +180,7 @@
       id: "plank",
       name: "Forearm Plank",
       cat: "core",
-      cue: "Belly button to spine.",
+      cue: "Keep your belly button pulled in tight. Maintain a straight line from shoulders to ankles.",
       time: 40,
       tts: "Forearm Plank",
     },
@@ -187,7 +188,7 @@
       id: "hollowbody",
       name: "Hollow Body Hold",
       cat: "core",
-      cue: "Lower back glued to the floor.",
+      cue: "Keep your lower back completely glued to the floor. Extend arms and legs out tight.",
       time: 45,
       tts: "Hollow Body Hold",
     },
@@ -195,7 +196,7 @@
       id: "crunch",
       name: "Crunches",
       cat: "core",
-      cue: "Exhale as you curl up.",
+      cue: "Exhale as you curl your shoulders off the floor. Keep your neck relaxed and look up.",
       time: 35,
       tts: "Crunches",
     },
@@ -203,7 +204,7 @@
       id: "russiantwist",
       name: "Russian Twists",
       cat: "core",
-      cue: "Rotate from the torso.",
+      cue: "Lean back slightly to engage your core. Rotate entirely from your torso, not just your arms.",
       time: 35,
       tts: "Russian Twists",
     },
@@ -211,7 +212,7 @@
       id: "legraise",
       name: "Leg Raises",
       cat: "core",
-      cue: "Lower back stays flat.",
+      cue: "Keep your legs straight and lower back flat. Only lower legs as far as you can control.",
       time: 35,
       tts: "Leg Raises",
     },
@@ -219,7 +220,7 @@
       id: "mountain",
       name: "Mountain Climbers",
       cat: "cardio",
-      cue: "Drive knees fast.",
+      cue: "Drive your knees to your chest quickly. Keep your hips low and core engaged.",
       time: 30,
       tts: "Mountain Climbers",
     },
@@ -227,7 +228,7 @@
       id: "jj",
       name: "Jumping Jacks",
       cat: "cardio",
-      cue: "Full range, steady pace.",
+      cue: "Keep a steady, bouncing pace. Move your arms through a full range of motion.",
       time: 35,
       tts: "Jumping Jacks",
     },
@@ -235,7 +236,7 @@
       id: "skaters",
       name: "Ice Skaters",
       cat: "cardio",
-      cue: "Leap side to side, balance on landing.",
+      cue: "Leap side to side dynamically. Try to balance on one leg softly upon landing.",
       time: 30,
       tts: "Ice Skaters",
     },
@@ -243,7 +244,7 @@
       id: "highknees",
       name: "High Knees",
       cat: "cardio",
-      cue: "Pump arms, stay light.",
+      cue: "Pump your arms to drive the momentum. Bring your knees up to waist height.",
       time: 30,
       tts: "High Knees",
     },
@@ -251,7 +252,7 @@
       id: "burpee",
       name: "Burpees",
       cat: "cardio",
-      cue: "Explosive, controlled landing.",
+      cue: "Drop down, kick back, push up, and explode into a jump. Keep a steady rhythm.",
       time: 30,
       tts: "Burpees",
     },
@@ -259,7 +260,7 @@
       id: "jumpsquat",
       name: "Jump Squats",
       cat: "full",
-      cue: "Soft landing, full extension.",
+      cue: "Explode up from the bottom of the squat. Land softly to protect your knees.",
       time: 30,
       tts: "Jump Squats",
     },
@@ -267,7 +268,7 @@
       id: "sprawls",
       name: "Sprawls",
       cat: "full",
-      cue: "Drop hips to floor, explode up.",
+      cue: "Drop your hips heavily to the floor. Explode back up to your feet instantly.",
       time: 30,
       tts: "Sprawls",
     },
@@ -275,7 +276,7 @@
       id: "bearcrawl",
       name: "Bear Crawl",
       cat: "full",
-      cue: "Knees hover, core tight.",
+      cue: "Keep your knees hovering just an inch off the floor. Keep your back flat like a table.",
       time: 30,
       tts: "Bear Crawl",
     },
@@ -283,7 +284,7 @@
       id: "inchworm",
       name: "Inchworms",
       cat: "full",
-      cue: "Walk hands out slowly.",
+      cue: "Keep your legs straight as you walk your hands out. Walk back up using small steps.",
       time: 35,
       tts: "Inchworms",
     },
@@ -347,18 +348,6 @@
     document.getElementById("ltCalories").textContent = state.stats.calories;
   }
 
-  function enterFullscreen() {
-    const docElm = document.documentElement;
-    if (docElm.requestFullscreen) docElm.requestFullscreen();
-    else if (docElm.webkitRequestFullscreen) docElm.webkitRequestFullscreen();
-  }
-  function exitFullscreen() {
-    if (document.fullscreenElement || document.webkitFullscreenElement) {
-      if (document.exitFullscreen) document.exitFullscreen();
-      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-    }
-  }
-
   function showTab(name) {
     if (name === "plan" && wo.phase !== "idle" && wo.phase !== "complete") {
       const wasPaused = wo.paused;
@@ -378,7 +367,6 @@
       const badge = document.getElementById("activeVisualBadge");
       if (badge) badge.classList.remove("pulse-alert");
       window.speechSynthesis.cancel();
-      exitFullscreen();
       setWoState("idle");
       renderWorkoutIdle();
     }
@@ -411,9 +399,20 @@
     document.getElementById("nameInput").value = state.name;
     openModal("nameModal");
   });
+
+  // Fix for mobile: Require the user to type a name
   document.getElementById("btnSaveName").addEventListener("click", () => {
-    const val = document.getElementById("nameInput").value.trim();
-    state.name = val || "Athlete";
+    const inputEl = document.getElementById("nameInput");
+    const val = inputEl.value.trim();
+
+    if (!val) {
+      inputEl.style.borderColor = "var(--warn)";
+      inputEl.placeholder = "Please enter a name";
+      return;
+    }
+
+    inputEl.style.borderColor = "var(--line)";
+    state.name = val;
     saveState();
     updateGreeting();
     closeModal("nameModal");
@@ -705,7 +704,6 @@
     }
   }
   function speakCue(text) {
-    // Phonetic spellings added to the TTS property so the voice doesn't spell out "P-U-S-H U-P-S"
     if (!state.sound || !("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
     const msg = new SpeechSynthesisUtterance(text);
@@ -787,8 +785,6 @@
       } catch (e) {}
     }
 
-    enterFullscreen();
-
     document.getElementById("activeControls").style.display = "none";
     document.getElementById("bigTimer").textContent = state.prep;
     document.getElementById("activeName").textContent = "Get Ready";
@@ -810,7 +806,7 @@
     document.getElementById("exVisual").classList.remove("pulse-alert");
 
     setWoState("active");
-    wo.phase = "prep"; // Override explicit state for tracker
+    wo.phase = "prep";
 
     wo.tick = setInterval(() => {
       if (!wo.paused) wo.elapsed++;
@@ -856,9 +852,12 @@
       document.getElementById("progressFill").classList.remove("glow");
       document.getElementById("activeName").textContent = "Breathe";
 
-      // Natively resolved logic bug: 'ex' accurately points to the upcoming movement
       document.getElementById("activeCue").textContent = "Up next: " + ex.name;
-      document.getElementById("exVisual").innerHTML = "";
+
+      // Inject Coffee Cup SVG for Rest
+      document.getElementById("exVisual").innerHTML = SVG_REST;
+      document.getElementById("exVisual").style.color = "var(--accent2)";
+
       document.getElementById("activeControls").style.display = "grid";
       document.getElementById("btnAddRest").style.opacity = "1";
       document.getElementById("btnAddRest").disabled = false;
@@ -962,7 +961,6 @@
       } catch (e) {}
     }
 
-    exitFullscreen();
     setWoState("complete");
     speakCue("Workout complete. Great job, " + (state.name || "Athlete"));
 
@@ -1005,7 +1003,6 @@
     document.getElementById("progressFill").classList.remove("glow");
     document.getElementById("exVisual").classList.remove("pulse-alert");
     window.speechSynthesis.cancel();
-    exitFullscreen();
     setWoState("idle");
     renderWorkoutIdle();
   });

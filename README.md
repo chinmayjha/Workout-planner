@@ -9,6 +9,7 @@
 [![Live Demo](https://img.shields.io/badge/Demo-Live_Preview-8B7CFF?style=for-the-badge)](https://workout.chinmayjha.tech)
 [![Author](https://img.shields.io/badge/Author-Chinmay_Jha-00E5A0?style=for-the-badge)](https://chinmayjha.tech)
 
+
 </div>
 
 ## 📖 Overview
@@ -16,13 +17,12 @@ Workout Planner is a highly responsive, glassmorphism-inspired fitness applicati
 
 ## ✨ Key Features
 
-*   **📱 Immersive Fullscreen UI:** Transitions smoothly from a sleek mobile layout to a full-screen, scroll-free dashboard during active workouts using the native Fullscreen API.
-*   **🎧 Smart Audio Coaching:** Utilizes the Web Speech API to address you by name and provide real-time voice cues and form reminders for every exercise.
+*   **🎧 Smart Audio Coaching:** Utilizes the Web Speech API to address you by name and provide real-time voice cues and detailed form reminders for every exercise.
 *   **🫀 Ambient Pulse & Haptics:** Integrates the Web Vibration API and CSS animations for a synchronized pulsing "heartbeat" countdown during the final 3 seconds of intense sets.
 *   **📊 Lifetime Stats Dashboard:** Automatically tracks and saves your total workouts, minutes trained, and calories burned to `localStorage`.
 *   **🛡️ Workout Safety Lock:** Prevents accidental data loss by locking the UI tabs and triggering a warning dialog if you try to leave an active workout.
 *   **🖱️ Drag & Drop Builder:** Effortlessly construct and reorder your daily routine using native HTML5 drag-and-drop functionality.
-*   **🎨 Premium Frosted Glass:** Features a custom CSS `backdrop-filter` UI and 25 unique, minimal SVGs mapped specifically to individual movements.
+*   **🎨 Premium Frosted Glass:** Features a custom CSS `-webkit-backdrop-filter` UI that scales perfectly across Desktop and iOS devices, plus 25 unique, minimal SVGs mapped specifically to individual movements.
 *   **💾 Zero Backend:** 100% client-side logic requiring no databases or external dependencies.
 
 ## 🛠️ Tech Stack
