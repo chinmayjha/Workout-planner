@@ -1,13 +1,13 @@
 <div align="center">
 
+![Workout Planner Banner](assets/banner.svg)
+
 # ⚡️ Workout Planner
 
 **A premium, immersive, zero-dependency workout planner built for the modern web.**
 
 [![Live Demo](https://img.shields.io/badge/Demo-Live_Preview-8B7CFF?style=for-the-badge)](https://workout.chinmayjha.tech)
 [![Author](https://img.shields.io/badge/Author-Chinmay_Jha-00E5A0?style=for-the-badge)](https://chinmayjha.tech)
-
-![Workout Planner Banner](assets/banner.svg)
 
 </div>
 
@@ -16,19 +16,20 @@ Workout Planner is a highly responsive, glassmorphism-inspired fitness applicati
 
 ## ✨ Key Features
 
-*   **📱 Immersive Cross-Device UI:** Transitions smoothly from a sleek mobile layout to a full-screen, scroll-free desktop dashboard.
-*   **🎧 Smart Audio Coaching:** Utilizes the Web Speech API to provide real-time voice cues and form reminders for every exercise.
-*   **🫀 Haptic Feedback:** Integrates the Web Vibration API for a pulsing "heartbeat" countdown during the final seconds of intense sets.
+*   **📱 Immersive Fullscreen UI:** Transitions smoothly from a sleek mobile layout to a full-screen, scroll-free dashboard during active workouts using the native Fullscreen API.
+*   **🎧 Smart Audio Coaching:** Utilizes the Web Speech API to address you by name and provide real-time voice cues and form reminders for every exercise.
+*   **🫀 Ambient Pulse & Haptics:** Integrates the Web Vibration API and CSS animations for a synchronized pulsing "heartbeat" countdown during the final 3 seconds of intense sets.
+*   **📊 Lifetime Stats Dashboard:** Automatically tracks and saves your total workouts, minutes trained, and calories burned to `localStorage`.
+*   **🛡️ Workout Safety Lock:** Prevents accidental data loss by locking the UI tabs and triggering a warning dialog if you try to leave an active workout.
 *   **🖱️ Drag & Drop Builder:** Effortlessly construct and reorder your daily routine using native HTML5 drag-and-drop functionality.
-*   **🔥 Intelligent Metrics:** Automatically calculates estimated total workout time and estimated caloric burn based on MET values for different exercise categories.
-*   **🎨 Custom Stick-Figure SVGs:** Features 25 unique, minimal SVGs mapped specifically to individual movements for immediate visual recognition.
-*   **💾 Zero Backend:** 100% client-side logic. All custom routines, user preferences, and settings are saved instantly to the browser's `localStorage`.
+*   **🎨 Premium Frosted Glass:** Features a custom CSS `backdrop-filter` UI and 25 unique, minimal SVGs mapped specifically to individual movements.
+*   **💾 Zero Backend:** 100% client-side logic requiring no databases or external dependencies.
 
 ## 🛠️ Tech Stack
 This project was built with performance and simplicity in mind, requiring absolutely no build steps, package managers, or external dependencies.
 
-*   **HTML5:** Semantic architecture and native drag-and-drop.
-*   **CSS3:** Custom CSS variables, CSS Grid/Flexbox, glassmorphism UI, cross-browser minimal scrollbars, and keyframe animations.
+*   **HTML5:** Semantic architecture, Web App Manifest, and native drag-and-drop.
+*   **CSS3:** Custom CSS variables, CSS Grid/Flexbox, frosted glass UI, cross-browser minimal scrollbars, and keyframe animations.
 *   **JavaScript (Vanilla ES6):** State management, Web Speech API, Web Vibration API, and DOM manipulation.
 
 ## 🚀 Getting Started
