@@ -17,11 +17,11 @@ Workout Planner is a highly responsive, glassmorphism-inspired fitness applicati
 
 ## ✨ Key Features
 
-*   **🎧 Smart Audio Coaching:** Utilizes the Web Speech API to address you by name and provide real-time voice cues and detailed form reminders for every exercise.
+*   **🎧 Custom Audio Coaching:** Utilizes the Web Speech API to detect your device's native voices. Choose your preferred coach to provide real-time voice cues and detailed form reminders.
+*   **📊 Proportional Stats Tracking:** Automatically tracks your total workouts, minutes trained, and calories burned to `localStorage`. Exiting a workout early calculates and saves your exact effort up to the second.
 *   **🫀 Ambient Pulse & Haptics:** Integrates the Web Vibration API and CSS animations for a synchronized pulsing "heartbeat" countdown during the final 3 seconds of intense sets.
-*   **📊 Lifetime Stats Dashboard:** Automatically tracks and saves your total workouts, minutes trained, and calories burned to `localStorage`.
 *   **🛡️ Workout Safety Lock:** Prevents accidental data loss by locking the UI tabs and triggering a warning dialog if you try to leave an active workout.
-*   **🖱️ Drag & Drop Builder:** Effortlessly construct and reorder your daily routine using native HTML5 drag-and-drop functionality.
+*   **🖱️ Drag & Drop Builder:** Effortlessly construct and reorder your daily routine using native HTML5 drag-and-drop functionality, complete with CSS boundary-limit guards.
 *   **🎨 Premium Frosted Glass:** Features a custom CSS `-webkit-backdrop-filter` UI that scales perfectly across Desktop and iOS devices, plus 25 unique, minimal SVGs mapped specifically to individual movements.
 *   **💾 Zero Backend:** 100% client-side logic requiring no databases or external dependencies.
 
@@ -45,7 +45,7 @@ Since this project has zero dependencies, getting it running locally is incredib
     cd workout-planner
     ```
 3.  **Run the app:**
-    Simply open the `index.html` file in your preferred web browser. No local server is required unless you plan to test specific push notification APIs.
+    Simply open the `index.html` file in your preferred web browser. No local server is required.
 
 ## 🔧 Customization (Adding Exercises)
 
