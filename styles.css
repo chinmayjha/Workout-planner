@@ -92,7 +92,8 @@ h3 {
   font-family: var(--ff-h);
 }
 button,
-input {
+input,
+select {
   font-family: var(--ff-b);
 }
 button {
@@ -107,7 +108,7 @@ button {
   transition: max-width 0.3s ease;
 }
 
-/* Reusable Animations */
+/* Reusable Animations & Limits */
 .hover-elevate {
   transition:
     transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
@@ -149,6 +150,23 @@ button {
 .pulse-alert {
   border-radius: 50%;
   animation: pulseDanger 1s infinite;
+}
+
+@keyframes shakeLimit {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+.shake {
+  animation: shakeLimit 0.3s ease-in-out;
+  border-color: var(--warn) !important;
 }
 
 .text-gradient {
@@ -235,7 +253,8 @@ button {
   animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 .page.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 @keyframes fadeUp {
   from {
@@ -248,7 +267,7 @@ button {
   }
 }
 
-/* Buttons */
+/* Buttons & Inputs */
 .btn {
   border: none;
   border-radius: 16px;
@@ -296,7 +315,25 @@ button {
   background: rgba(255, 107, 74, 0.1);
 }
 
-/* Personalized Dashboard (Mobile Optimized) */
+.custom-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--bg2)
+    url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='%238A8A9A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>")
+    no-repeat right 8px center;
+  padding: 8px 32px 8px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  color: var(--text);
+  outline: none;
+  max-width: 150px;
+  text-overflow: ellipsis;
+}
+.custom-select:focus {
+  border-color: var(--accent);
+}
+
+/* Dashboard & Cards */
 .user-dashboard {
   margin-bottom: 24px;
 }
@@ -336,13 +373,6 @@ button {
   font-family: var(--ff-h);
   font-size: 1.15rem;
   color: var(--text);
-}
-
-/* Plan tab - Library Scroll Pane */
-.library-scroll-pane {
-  max-height: 50vh;
-  overflow-y: auto;
-  padding-bottom: 20px;
 }
 
 .search-bar {
@@ -389,7 +419,20 @@ button {
   margin-top: 4px;
 }
 
-/* Chips */
+/* Scroll behavior for Mobile */
+.library-scroll-pane {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-bottom: 20px;
+  flex: 1;
+}
+#planList {
+  max-height: 45vh;
+  overflow-y: auto;
+  padding-bottom: 20px;
+  flex: 1;
+}
+
 .chips {
   display: flex;
   gap: 10px;
@@ -427,7 +470,7 @@ button {
   border-color: var(--accent);
 }
 
-/* Frosted Exercise Cards */
+/* Exercise List items */
 .ex-card {
   display: flex;
   align-items: center;
@@ -502,7 +545,7 @@ button {
   border-color: var(--accent2);
 }
 
-/* Drag & Drop Plan List */
+/* Drag & Drop List */
 .drag-notice {
   font-size: 0.75rem;
   color: var(--muted);
@@ -594,7 +637,7 @@ button {
   border-radius: 16px;
 }
 
-/* Stepper & Form globally */
+/* Steppers */
 .set-row {
   display: flex;
   justify-content: space-between;
@@ -604,6 +647,7 @@ button {
   border-radius: 16px;
   padding: 16px;
   margin-bottom: 10px;
+  transition: border-color 0.2s;
 }
 .set-row .lbl {
   font-weight: 600;
@@ -618,6 +662,10 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
+  border: 1.5px solid transparent;
+  border-radius: 11px;
+  padding: 2px;
+  transition: border-color 0.3s;
 }
 .stepper button {
   width: 30px;
@@ -638,6 +686,7 @@ button {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+
 .switch {
   width: 46px;
   height: 27px;
@@ -664,6 +713,7 @@ button {
 .switch.on::after {
   transform: translateX(19px);
 }
+
 .field {
   width: 100%;
   text-align: left;
@@ -693,7 +743,7 @@ button {
   border-color: var(--accent);
 }
 
-/* Workout tab */
+/* Workout Phase Screens */
 .wo-state {
   display: none;
 }
@@ -852,43 +902,6 @@ button {
   margin-top: 4px;
 }
 
-/* Footer */
-.app-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 20px;
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin-top: auto;
-}
-.footer-link {
-  color: var(--text);
-  font-weight: 600;
-  text-decoration: none;
-  position: relative;
-  transition: color 0.3s ease;
-}
-.footer-link::after {
-  content: "";
-  position: absolute;
-  width: 100%;
-  transform: scaleX(0);
-  height: 2px;
-  bottom: -3px;
-  left: 0;
-  background-color: var(--accent);
-  transform-origin: bottom right;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.footer-link:hover {
-  color: var(--accent);
-}
-.footer-link:hover::after {
-  transform: scaleX(1);
-  transform-origin: bottom left;
-}
-
 /* Modals */
 .modal-overlay {
   position: fixed;
@@ -957,53 +970,28 @@ button {
   margin: 4px auto 14px;
 }
 
-/* CUSTOM MINIMAL SCROLLBARS */
-.library-scroll-pane,
-.modal-sheet,
-.developer-modal {
-  -ms-overflow-style: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--line) transparent;
-}
-.library-scroll-pane::-webkit-scrollbar,
-.modal-sheet::-webkit-scrollbar,
-.developer-modal::-webkit-scrollbar {
-  display: block;
-  width: 5px;
-}
-.library-scroll-pane::-webkit-scrollbar-track,
-.modal-sheet::-webkit-scrollbar-track,
-.developer-modal::-webkit-scrollbar-track {
-  background: transparent;
-}
-.library-scroll-pane::-webkit-scrollbar-thumb,
-.modal-sheet::-webkit-scrollbar-thumb,
-.developer-modal::-webkit-scrollbar-thumb {
-  background-color: var(--line);
-  border-radius: 10px;
-}
-.library-scroll-pane::-webkit-scrollbar-thumb:hover,
-.modal-sheet::-webkit-scrollbar-thumb:hover,
-.developer-modal::-webkit-scrollbar-thumb:hover {
-  background-color: var(--muted);
-}
-
-/* =========================================================
-   DESKTOP RESPONSIVE LAYOUT
-========================================================= */
+/* Desktop Grid and Dynamic Height Fixes */
 @media (min-width: 768px) {
   .app {
     max-width: 1000px;
     padding: 20px 40px;
   }
   .plan-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
     gap: 40px;
-    align-items: start;
+    align-items: stretch;
+    min-height: calc(100vh - 250px);
   }
-  .library-scroll-pane {
+  .flex-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .custom-scroll {
+    flex: 1;
     max-height: calc(100vh - 350px);
+    overflow-y: auto;
   }
 
   #page-workout.active {
@@ -1067,21 +1055,40 @@ button {
     border-radius: 24px;
     padding-bottom: 24px;
   }
-  .app-footer {
-    flex-direction: row;
-  }
-}
-@media (max-width: 480px) {
-  .app-footer {
-    flex-direction: column;
-    gap: 8px;
-    text-align: center;
-  }
 }
 
-/* =========================================================
-   DEVELOPER INFO MODULE
-========================================================= */
+/* Custom minimal scrollbars */
+.custom-scroll,
+.modal-sheet,
+.developer-modal {
+  -ms-overflow-style: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.custom-scroll::-webkit-scrollbar,
+.modal-sheet::-webkit-scrollbar,
+.developer-modal::-webkit-scrollbar {
+  display: block;
+  width: 5px;
+}
+.custom-scroll::-webkit-scrollbar-track,
+.modal-sheet::-webkit-scrollbar-track,
+.developer-modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scroll::-webkit-scrollbar-thumb,
+.modal-sheet::-webkit-scrollbar-thumb,
+.developer-modal::-webkit-scrollbar-thumb {
+  background-color: var(--line);
+  border-radius: 10px;
+}
+.custom-scroll::-webkit-scrollbar-thumb:hover,
+.modal-sheet::-webkit-scrollbar-thumb:hover,
+.developer-modal::-webkit-scrollbar-thumb:hover {
+  background-color: var(--muted);
+}
+
+/* Developer Overlay - Untouched */
 .developer-info-btn {
   position: fixed;
   bottom: 2rem;
@@ -1261,5 +1268,12 @@ button {
   }
   .developer-modal-content {
     padding: 1.5rem;
+  }
+}
+@media (max-width: 480px) {
+  .app-footer {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
   }
 }

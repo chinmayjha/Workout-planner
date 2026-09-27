@@ -7,7 +7,6 @@
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
 
-    <!-- SEO & Meta Tags -->
     <title>Workout Planner | Build & Track Custom Routines</title>
     <meta
       name="title"
@@ -23,7 +22,6 @@
     <link rel="canonical" href="https://workout.chinmayjha.tech/" />
     <link rel="manifest" href="/manifest.json" />
 
-    <!-- Open Graph / Facebook / Discord -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://workout.chinmayjha.tech/" />
     <meta
@@ -39,7 +37,6 @@
       content="https://workout.chinmayjha.tech/assets/og-image.png"
     />
 
-    <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://workout.chinmayjha.tech/" />
     <meta
@@ -56,7 +53,6 @@
     />
     <meta name="twitter:creator" content="@chinmayjha" />
 
-    <!-- Preload Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -69,12 +65,10 @@
       rel="stylesheet"
     />
 
-    <!-- Inline SVG Favicon -->
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%238B7CFF%22 stroke-width=%222.4%22 stroke-linecap=%22round%22><path d=%22M4 12h16M7 8v8M17 8v8M4 10v4M20 10v4%22/></svg>"
     />
-
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -126,7 +120,6 @@
       <main class="pages">
         <!-- PLAN PAGE -->
         <section class="page active" id="page-plan">
-          <!-- Personalized Lifetime Dashboard -->
           <div class="user-dashboard">
             <div class="user-greeting">
               <h2>
@@ -149,10 +142,9 @@
           </div>
 
           <div class="plan-grid">
-            <!-- Left Column: Library -->
-            <div class="plan-col">
+            <!-- Left Column -->
+            <div class="plan-col flex-col">
               <div class="section-title">Exercise Library</div>
-
               <div class="search-bar">
                 <svg
                   viewBox="0 0 24 24"
@@ -171,13 +163,15 @@
                   placeholder="Search exercises..."
                 />
               </div>
-
               <div class="chips" id="catChips"></div>
-              <div class="library-scroll-pane" id="libraryList"></div>
+              <div
+                class="library-scroll-pane custom-scroll"
+                id="libraryList"
+              ></div>
             </div>
 
-            <!-- Right Column: Active Plan -->
-            <div class="plan-col">
+            <!-- Right Column -->
+            <div class="plan-col flex-col">
               <div class="section-title title-flex">
                 <span>Your Plan</span>
                 <button
@@ -188,7 +182,6 @@
                   Clear All
                 </button>
               </div>
-
               <div class="set-row hover-elevate">
                 <div>
                   <div class="lbl">Rounds</div>
@@ -200,11 +193,11 @@
                   ><button data-step="rounds" data-d="1">+</button>
                 </div>
               </div>
-
               <div class="drag-notice">
                 Hold and drag the ☰ handle to reorder.
               </div>
-              <div id="planList"></div>
+
+              <div id="planList" class="custom-scroll"></div>
 
               <div id="planActions" style="display: none; margin-top: 16px">
                 <button
@@ -435,28 +428,21 @@
         </div>
         <div class="section-title">Feedback</div>
         <div class="set-row">
-          <div class="lbl">Sound & Voice cues</div>
+          <div>
+            <div class="lbl">Voice</div>
+            <div class="desc">Choose your coach</div>
+          </div>
+          <div class="field" style="width: auto; margin-top: 0">
+            <select id="voiceSelect" class="custom-select"></select>
+          </div>
+        </div>
+        <div class="set-row">
+          <div class="lbl">Sound cues</div>
           <button class="switch on" id="toggleSound"></button>
         </div>
         <div class="set-row">
           <div class="lbl">Vibration</div>
           <button class="switch on" id="toggleVibrate"></button>
-        </div>
-        <div class="section-title">Reminders</div>
-        <div class="set-row">
-          <div>
-            <div class="lbl">Daily reminder</div>
-            <div class="desc" id="notifDesc">Notify me to train</div>
-          </div>
-          <button class="switch" id="toggleReminder"></button>
-        </div>
-        <div
-          class="field"
-          id="reminderTimeWrap"
-          style="display: none; margin: 10px 0 0"
-        >
-          <label for="reminderTime">Reminder time</label>
-          <input type="time" id="reminderTime" value="18:00" />
         </div>
         <div class="section-title">Account</div>
         <button class="btn btn-outline hover-elevate" id="btnEditName">
@@ -467,8 +453,8 @@
 
     <!-- DEVELOPER INFO MODULE -->
     <div class="developer-info-btn hover-elevate" id="developerInfoBtn">
-      <span class="developer-avatar">
-        <svg
+      <span class="developer-avatar"
+        ><svg
           width="24"
           height="24"
           viewBox="0 0 24 24"
@@ -479,9 +465,8 @@
           stroke-linejoin="round"
         >
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-          <circle cx="12" cy="7" r="4" />
-        </svg>
-      </span>
+          <circle cx="12" cy="7" r="4" /></svg
+      ></span>
       <span class="developer-tooltip">About Developer</span>
     </div>
 
@@ -541,8 +526,8 @@
             rel="noopener"
             class="developer-link website-link hover-elevate"
           >
-            <span class="link-icon">
-              <svg
+            <span class="link-icon"
+              ><svg
                 width="18"
                 height="18"
                 viewBox="0 0 24 24"
@@ -554,18 +539,17 @@
                 <line x1="2" y1="12" x2="22" y2="12" />
                 <path
                   d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
-                />
-              </svg>
-            </span>
-            <span class="link-text">Visit Website</span>
-            <span class="link-url">chinmayjha.tech</span>
+                /></svg
+            ></span>
+            <span class="link-text">Visit Website</span
+            ><span class="link-url">chinmayjha.tech</span>
           </a>
           <a
             href="mailto:chinmayjha2021@gmail.com"
             class="developer-link email-link hover-elevate"
           >
-            <span class="link-icon">
-              <svg
+            <span class="link-icon"
+              ><svg
                 width="18"
                 height="18"
                 viewBox="0 0 24 24"
@@ -576,11 +560,10 @@
                 <path
                   d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
                 />
-                <polyline points="22,6 12,13 2,6" />
-              </svg>
-            </span>
-            <span class="link-text">Send Email</span>
-            <span class="link-url">chinmayjha2021@gmail.com</span>
+                <polyline points="22,6 12,13 2,6" /></svg
+            ></span>
+            <span class="link-text">Send Email</span
+            ><span class="link-url">chinmayjha2021@gmail.com</span>
           </a>
         </div>
       </div>

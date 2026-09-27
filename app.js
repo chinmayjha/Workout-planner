@@ -5,7 +5,6 @@
 (function () {
   "use strict";
 
-  /* ---------- Icons & Audio SVGs ---------- */
   const SVG_VOL_ON =
     '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>';
   const SVG_VOL_OFF =
@@ -86,7 +85,6 @@
     ["full", "Full Body"],
   ];
 
-  // Expanded details for better TTS coaching
   const EXERCISES = [
     {
       id: "pushup",
@@ -299,11 +297,11 @@
     prep: 5,
     sound: true,
     vibrate: true,
-    reminderOn: false,
-    reminderTime: "18:00",
+    voiceName: "",
     stats: { workouts: 0, minutes: 0, calories: 0 },
   };
   let searchQuery = "";
+  let availableVoices = [];
   let wo = {
     round: 1,
     idx: 0,
@@ -330,14 +328,20 @@
     } catch (e) {}
   }
 
+  function triggerShake(el) {
+    el.classList.remove("shake");
+    void el.offsetWidth;
+    el.classList.add("shake");
+  }
+
   function updateGreeting() {
     const nameEl = document.getElementById("greetingName");
     const timeEl = document.getElementById("greetingTime");
     if (nameEl && timeEl) {
       nameEl.textContent = state.name || "Athlete";
       const hour = new Date().getHours();
-      if (hour < 12) timeEl.textContent = "morning";
-      else if (hour < 18) timeEl.textContent = "afternoon";
+      if (hour >= 5 && hour < 12) timeEl.textContent = "morning";
+      else if (hour >= 12 && hour < 17) timeEl.textContent = "afternoon";
       else timeEl.textContent = "evening";
     }
   }
@@ -351,7 +355,7 @@
   function showTab(name) {
     if (name === "plan" && wo.phase !== "idle" && wo.phase !== "complete") {
       const wasPaused = wo.paused;
-      wo.paused = true; // Pause to prevent ticking during confirm
+      wo.paused = true;
       if (
         !confirm(
           "You have a workout in progress. Are you sure you want to end it and return to the planner?",
@@ -360,17 +364,8 @@
         wo.paused = wasPaused;
         return;
       }
-      // Clean exit
-      clearInterval(wo.timer);
-      clearInterval(wo.tick);
-      document.getElementById("progressFill").classList.remove("glow");
-      const badge = document.getElementById("activeVisualBadge");
-      if (badge) badge.classList.remove("pulse-alert");
-      window.speechSynthesis.cancel();
-      setWoState("idle");
-      renderWorkoutIdle();
+      quitWorkoutLogic();
     }
-
     document
       .querySelectorAll(".tab")
       .forEach((t) => t.classList.toggle("active", t.dataset.tab === name));
@@ -388,6 +383,7 @@
   function closeModal(id) {
     document.getElementById(id).classList.remove("active");
   }
+
   document
     .getElementById("btnOpenSettings")
     .addEventListener("click", () => openModal("settingsModal"));
@@ -400,22 +396,46 @@
     openModal("nameModal");
   });
 
-  // Fix for mobile: Require the user to type a name
   document.getElementById("btnSaveName").addEventListener("click", () => {
     const inputEl = document.getElementById("nameInput");
     const val = inputEl.value.trim();
-
     if (!val) {
       inputEl.style.borderColor = "var(--warn)";
       inputEl.placeholder = "Please enter a name";
       return;
     }
-
     inputEl.style.borderColor = "var(--line)";
     state.name = val;
     saveState();
     updateGreeting();
     closeModal("nameModal");
+  });
+
+  /* ---------- Voices Engine ---------- */
+  function loadVoices() {
+    if (!("speechSynthesis" in window)) return;
+    availableVoices = window.speechSynthesis.getVoices();
+    const select = document.getElementById("voiceSelect");
+    if (!select) return;
+    select.innerHTML = "";
+    availableVoices.forEach((v) => {
+      const opt = document.createElement("option");
+      opt.value = v.name;
+      opt.textContent = v.name.replace(/Microsoft |Google /g, "");
+      if (v.name === state.voiceName) opt.selected = true;
+      select.appendChild(opt);
+    });
+    if (!state.voiceName && availableVoices.length > 0) {
+      state.voiceName = availableVoices[0].name;
+      saveState();
+    }
+  }
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }
+  document.getElementById("voiceSelect").addEventListener("change", (e) => {
+    state.voiceName = e.target.value;
+    saveState();
   });
 
   /* ---------- Library & Search ---------- */
@@ -442,11 +462,11 @@
 
   function renderLibrary() {
     const list = EXERCISES.filter((e) => {
-      const matchCat = activeCat === "all" || e.cat === activeCat;
-      const matchSearch =
-        e.name.toLowerCase().includes(searchQuery) ||
-        e.cue.toLowerCase().includes(searchQuery);
-      return matchCat && matchSearch;
+      return (
+        (activeCat === "all" || e.cat === activeCat) &&
+        (e.name.toLowerCase().includes(searchQuery) ||
+          e.cue.toLowerCase().includes(searchQuery))
+      );
     });
 
     document.getElementById("libraryList").innerHTML =
@@ -454,10 +474,10 @@
         .map((e) => {
           const inPlan = state.plan.some((p) => p.id === e.id);
           return `<div class="ex-card ${inPlan ? "in-plan" : ""}">
-      <div class="ex-icon" style="background:${CAT_COLOR[e.cat]}22;color:${CAT_COLOR[e.cat]}">${getIcon(e)}</div>
-      <div class="ex-info"><h4>${e.name}</h4><p>${e.cue}</p></div>
-      <button class="ex-add hover-elevate ${inPlan ? " added" : ""}" data-add="${e.id}">${inPlan ? "✓" : "+"}</button>
-    </div>`;
+        <div class="ex-icon" style="background:${CAT_COLOR[e.cat]}22;color:${CAT_COLOR[e.cat]}">${getIcon(e)}</div>
+        <div class="ex-info"><h4>${e.name}</h4><p>${e.cue}</p></div>
+        <button class="ex-add hover-elevate ${inPlan ? " added" : ""}" data-add="${e.id}">${inPlan ? "✓" : "+"}</button>
+      </div>`;
         })
         .join("") || '<div class="empty-hint">No exercises found.</div>';
 
@@ -471,6 +491,7 @@
           if (idx > -1) {
             state.plan.splice(idx, 1);
           } else {
+            if (state.plan.length >= 50) return triggerShake(btn.parentElement);
             const ex = EXERCISES.find((x) => x.id === id);
             state.plan.push({ id, time: ex.time });
           }
@@ -519,29 +540,24 @@
       .map((p, i) => {
         const ex = EXERCISES.find((x) => x.id === p.id);
         return `<div class="plan-card pop-in" draggable="true" data-idx="${i}" style="animation-delay: ${i * 0.03}s">
-      <div class="ex-icon" style="width:38px;height:38px;flex:0 0 38px;background:${CAT_COLOR[ex.cat]}22;color:${CAT_COLOR[ex.cat]}">${getIcon(ex)}</div>
-      <div class="ex-info"><h4 style="font-size:.88rem">${ex.name}</h4></div>
-      <div class="plan-time-stepper">
-        <button data-mod="-5" data-idx="${i}">−</button>
-        <span>${p.time}s</span>
-        <button data-mod="5" data-idx="${i}">+</button>
-      </div>
-      <button class="plan-remove" data-remove="${i}">✕</button>
-      <div class="drag-handle">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></svg>
-      </div>
-    </div>`;
+        <div class="ex-icon" style="width:38px;height:38px;flex:0 0 38px;background:${CAT_COLOR[ex.cat]}22;color:${CAT_COLOR[ex.cat]}">${getIcon(ex)}</div>
+        <div class="ex-info"><h4 style="font-size:.88rem">${ex.name}</h4></div>
+        <div class="plan-time-stepper">
+          <button data-mod="-5" data-idx="${i}">−</button><span>${p.time}s</span><button data-mod="5" data-idx="${i}">+</button>
+        </div>
+        <button class="plan-remove" data-remove="${i}">✕</button>
+        <div class="drag-handle"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></svg></div>
+      </div>`;
       })
       .join("");
 
     list.querySelectorAll("[data-mod]").forEach((btn) =>
-      btn.addEventListener("click", (e) => {
+      btn.addEventListener("click", () => {
         const i = +btn.dataset.idx,
-          mod = +btn.dataset.mod;
-        state.plan[i].time = Math.max(
-          5,
-          Math.min(300, state.plan[i].time + mod),
-        );
+          mod = +btn.dataset.mod,
+          next = state.plan[i].time + mod;
+        if (next < 5 || next > 300) return triggerShake(btn.parentElement);
+        state.plan[i].time = next;
         saveState();
         renderPlan();
         renderWorkoutIdle();
@@ -610,31 +626,36 @@
     document
       .getElementById("toggleVibrate")
       .classList.toggle("on", state.vibrate);
-    document
-      .getElementById("toggleReminder")
-      .classList.toggle("on", state.reminderOn);
-    document.getElementById("reminderTimeWrap").style.display = state.reminderOn
-      ? "block"
-      : "none";
-    document.getElementById("reminderTime").value = state.reminderTime;
     updateAudioIcon();
   }
+
   document.querySelectorAll("[data-step]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const key = btn.dataset.step,
         d = +btn.dataset.d;
-      if (key === "rounds")
-        state.rounds = Math.max(1, Math.min(20, state.rounds + d));
-      if (key === "rest")
-        state.rest = Math.max(0, Math.min(180, state.rest + d));
-      if (key === "prep")
-        state.prep = Math.max(0, Math.min(30, state.prep + d));
+      let next;
+      if (key === "rounds") {
+        next = state.rounds + d;
+        if (next < 1 || next > 20) return triggerShake(btn.parentElement);
+        state.rounds = next;
+      }
+      if (key === "rest") {
+        next = state.rest + d;
+        if (next < 0 || next > 180) return triggerShake(btn.parentElement);
+        state.rest = next;
+      }
+      if (key === "prep") {
+        next = state.prep + d;
+        if (next < 0 || next > 30) return triggerShake(btn.parentElement);
+        state.prep = next;
+      }
       saveState();
       renderSettings();
       renderPlan();
       renderWorkoutIdle();
     });
   });
+
   document.getElementById("toggleSound").addEventListener("click", () => {
     state.sound = !state.sound;
     saveState();
@@ -644,37 +665,6 @@
     state.vibrate = !state.vibrate;
     saveState();
     renderSettings();
-  });
-  document
-    .getElementById("toggleReminder")
-    .addEventListener("click", async () => {
-      if (!state.reminderOn) {
-        if ("Notification" in window) {
-          try {
-            const perm = await Notification.requestPermission();
-            if (perm !== "granted") {
-              document.getElementById("notifDesc").textContent =
-                "Permission denied — enable in browser settings.";
-              return;
-            }
-          } catch (e) {
-            document.getElementById("notifDesc").textContent =
-              "Notifications unavailable here.";
-            return;
-          }
-        } else {
-          document.getElementById("notifDesc").textContent =
-            "Not supported in this browser.";
-          return;
-        }
-      }
-      state.reminderOn = !state.reminderOn;
-      saveState();
-      renderSettings();
-    });
-  document.getElementById("reminderTime").addEventListener("change", (e) => {
-    state.reminderTime = e.target.value;
-    saveState();
   });
 
   /* ---------- Sound, Voice & Haptics ---------- */
@@ -707,14 +697,19 @@
     if (!state.sound || !("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
     const msg = new SpeechSynthesisUtterance(text);
+    if (state.voiceName && availableVoices.length > 0) {
+      const v = availableVoices.find((x) => x.name === state.voiceName);
+      if (v) msg.voice = v;
+    }
     msg.rate = 1.05;
     msg.pitch = 1.0;
     window.speechSynthesis.speak(msg);
   }
-  document.getElementById("btnMute").addEventListener("click", (e) => {
+  document.getElementById("btnMute").addEventListener("click", () => {
     state.sound = !state.sound;
     saveState();
     updateAudioIcon();
+    if (!state.sound) window.speechSynthesis.cancel();
   });
 
   /* ---------- Workout Engine ---------- */
@@ -732,8 +727,7 @@
     const rates = { cardio: 10, full: 9, lower: 8, upper: 6, core: 5 };
     state.plan.forEach((p) => {
       const ex = EXERCISES.find((x) => x.id === p.id);
-      const rate = rates[ex.cat] || 6;
-      cals += (p.time / 60) * rate;
+      cals += (p.time / 60) * (rates[ex.cat] || 6);
     });
     return Math.round(cals * state.rounds);
   }
@@ -755,6 +749,7 @@
         m + ":" + String(s).padStart(2, "0");
     }
   }
+
   function setWoState(name) {
     document
       .querySelectorAll(".wo-state")
@@ -777,7 +772,6 @@
       tick: null,
       pauseCount: 0,
     };
-
     if (state.sound && !audioCtx) {
       try {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -807,19 +801,14 @@
 
     setWoState("active");
     wo.phase = "prep";
-
     wo.tick = setInterval(() => {
       if (!wo.paused) wo.elapsed++;
     }, 1000);
     runPhaseTimer();
   }
 
-  function currentExercise() {
-    return EXERCISES.find((x) => x.id === state.plan[wo.idx].id);
-  }
-
   function loadPhaseUI() {
-    const ex = currentExercise();
+    const ex = EXERCISES.find((x) => x.id === state.plan[wo.idx].id);
     document.getElementById("roundTag").textContent =
       "ROUND " + wo.round + "/" + state.rounds;
     document.getElementById("exVisual").classList.remove("pulse-alert");
@@ -839,7 +828,6 @@
       document.getElementById("activeControls").style.display = "grid";
       document.getElementById("btnAddRest").style.opacity = ".35";
       document.getElementById("btnAddRest").disabled = true;
-
       speakCue(ex.tts + ". " + ex.cue);
     } else if (wo.phase === "rest") {
       wo.timeLeft = state.rest;
@@ -851,17 +839,12 @@
         "var(--accent2)";
       document.getElementById("progressFill").classList.remove("glow");
       document.getElementById("activeName").textContent = "Breathe";
-
       document.getElementById("activeCue").textContent = "Up next: " + ex.name;
-
-      // Inject Coffee Cup SVG for Rest
       document.getElementById("exVisual").innerHTML = SVG_REST;
       document.getElementById("exVisual").style.color = "var(--accent2)";
-
       document.getElementById("activeControls").style.display = "grid";
       document.getElementById("btnAddRest").style.opacity = "1";
       document.getElementById("btnAddRest").disabled = false;
-
       speakCue("Rest. Up next, " + ex.tts);
     }
     document.getElementById("bigTimer").textContent = wo.timeLeft;
@@ -869,8 +852,8 @@
   }
 
   function updateProgress() {
-    const pct = wo.phaseTotal > 0 ? (wo.timeLeft / wo.phaseTotal) * 100 : 0;
-    document.getElementById("progressFill").style.width = pct + "%";
+    document.getElementById("progressFill").style.width =
+      (wo.phaseTotal > 0 ? (wo.timeLeft / wo.phaseTotal) * 100 : 0) + "%";
   }
 
   function runPhaseTimer() {
@@ -885,15 +868,12 @@
       updateProgress();
 
       const visual = document.getElementById("exVisual");
-
       if (wo.timeLeft > 0 && wo.timeLeft <= 3) {
         beep(600, 0.15);
         vibrate([100, 50, 100]);
-        if (wo.phase === "work" && !visual.classList.contains("pulse-alert")) {
+        if (wo.phase === "work" && !visual.classList.contains("pulse-alert"))
           visual.classList.add("pulse-alert");
-        }
       }
-
       if (wo.timeLeft <= 0) {
         beep(820, 0.5);
         vibrate([150, 60, 150]);
@@ -937,7 +917,6 @@
     const m = Math.floor(wo.elapsed / 60),
       s = wo.elapsed % 60;
 
-    // Save Lifetime Stats
     state.stats.workouts += 1;
     state.stats.minutes += Math.round(wo.elapsed / 60);
     state.stats.calories += estCalories();
@@ -952,15 +931,6 @@
       state.rounds +
       " round" +
       (state.rounds > 1 ? "s" : "");
-
-    if ("Notification" in window && Notification.permission === "granted") {
-      try {
-        new Notification("Workout complete 🎉", {
-          body: "You trained for " + m + "m " + s + "s.",
-        });
-      } catch (e) {}
-    }
-
     setWoState("complete");
     speakCue("Workout complete. Great job, " + (state.name || "Athlete"));
 
@@ -979,12 +949,31 @@
     }
   }
 
+  function quitWorkoutLogic() {
+    clearInterval(wo.timer);
+    clearInterval(wo.tick);
+    document.getElementById("progressFill").classList.remove("glow");
+    document.getElementById("exVisual").classList.remove("pulse-alert");
+    window.speechSynthesis.cancel();
+
+    if (wo.elapsed > 0) {
+      state.stats.workouts += 1;
+      state.stats.minutes += Math.round(wo.elapsed / 60);
+      const earnedCals = Math.round(
+        (wo.elapsed / Math.max(estTotalSeconds(), 1)) * estCalories(),
+      );
+      state.stats.calories += earnedCals;
+      saveState();
+      updateLifetimeStats();
+    }
+    setWoState("idle");
+    renderWorkoutIdle();
+  }
+
   document.getElementById("btnPause").addEventListener("click", (e) => {
     wo.paused = !wo.paused;
     e.target.textContent = wo.paused ? "Resume" : "Pause";
-    if (wo.paused && wo.phase === "work") {
-      wo.pauseCount++;
-    }
+    if (wo.paused && wo.phase === "work") wo.pauseCount++;
   });
 
   document.getElementById("btnAddRest").addEventListener("click", () => {
@@ -997,15 +986,23 @@
     }
   });
 
-  document.getElementById("btnQuit").addEventListener("click", () => {
-    clearInterval(wo.timer);
-    clearInterval(wo.tick);
+  document.getElementById("btnSkip").addEventListener("click", () => {
+    if (wo.phase === "idle" || wo.phase === "complete") return;
+    wo.paused = false;
+    document.getElementById("btnPause").textContent = "Pause";
     document.getElementById("progressFill").classList.remove("glow");
     document.getElementById("exVisual").classList.remove("pulse-alert");
     window.speechSynthesis.cancel();
-    setWoState("idle");
-    renderWorkoutIdle();
+    beep(400, 0.1);
+
+    clearInterval(wo.timer);
+    advancePhase();
+    runPhaseTimer();
   });
+
+  document
+    .getElementById("btnQuit")
+    .addEventListener("click", quitWorkoutLogic);
   document
     .getElementById("btnStartWorkout")
     .addEventListener("click", startWorkout);
@@ -1014,28 +1011,9 @@
     renderWorkoutIdle();
   });
 
-  document.getElementById("btnSkip").addEventListener("click", () => {
-    // Prevent skipping if not in an active routine
-    if (wo.phase === "idle" || wo.phase === "complete") return;
-
-    // Unpause if the user skips while paused
-    wo.paused = false;
-    document.getElementById("btnPause").textContent = "Pause";
-
-    // Clear visual states
-    document.getElementById("progressFill").classList.remove("glow");
-    document.getElementById("exVisual").classList.remove("pulse-alert");
-
-    // Play a subtle skip beep
-    beep(400, 0.1);
-
-    // Instantly route to the next phase (Work -> Rest, or Rest -> Work)
-    advancePhase();
-  });
-
   /* =========================================================
-   DEVELOPER INFO MODULE LOGIC
-========================================================= */
+     DEVELOPER INFO MODULE LOGIC
+  ========================================================= */
   const developerInfoBtn = document.getElementById("developerInfoBtn");
   const developerModal = document.getElementById("developerModal");
   const developerOverlay = document.getElementById("developerOverlay");
@@ -1050,7 +1028,6 @@
       document.body.style.overflow = "hidden";
     }, 10);
   }
-
   function closeDeveloperModal() {
     developerModal.classList.remove("active");
     developerOverlay.classList.remove("active");
@@ -1067,17 +1044,15 @@
     closeDeveloperBtn.addEventListener("click", closeDeveloperModal);
   if (developerOverlay)
     developerOverlay.addEventListener("click", closeDeveloperModal);
-
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && developerModal.classList.contains("active")) {
+    if (e.key === "Escape" && developerModal.classList.contains("active"))
       closeDeveloperModal();
-    }
   });
 
   /* ---------- Init ---------- */
   document.getElementById("currentYear").textContent = new Date().getFullYear();
-
   loadState();
+  loadVoices();
   updateGreeting();
   updateLifetimeStats();
   renderCats();
@@ -1085,7 +1060,5 @@
   renderPlan();
   renderSettings();
   renderWorkoutIdle();
-  if (!state.name) {
-    openModal("nameModal");
-  }
+  if (!state.name) openModal("nameModal");
 })();
