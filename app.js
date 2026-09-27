@@ -297,11 +297,9 @@
     prep: 5,
     sound: true,
     vibrate: true,
-    voiceName: "",
-    stats: { workouts: 0, minutes: 0, calories: 0 },
+    stats: { workouts: 0, time: 0, calories: 0 }, // 'time' stores raw seconds
   };
   let searchQuery = "";
-  let availableVoices = [];
   let wo = {
     round: 1,
     idx: 0,
@@ -314,12 +312,20 @@
     tick: null,
     pauseCount: 0,
   };
+  let wakeLock = null;
 
   const LS_KEY = "forge_state_v6";
   function loadState() {
     try {
       const raw = localStorage.getItem(LS_KEY);
-      if (raw) Object.assign(state, JSON.parse(raw));
+      if (raw) {
+        Object.assign(state, JSON.parse(raw));
+        // Migration safeguard: if they had 'minutes', convert to 'time' (seconds)
+        if (state.stats.minutes !== undefined && !state.stats.time) {
+          state.stats.time = state.stats.minutes * 60;
+          delete state.stats.minutes;
+        }
+      }
     } catch (e) {}
   }
   function saveState() {
@@ -328,10 +334,44 @@
     } catch (e) {}
   }
 
+  /* ---------- Features & Utilities ---------- */
   function triggerShake(el) {
     el.classList.remove("shake");
     void el.offsetWidth;
     el.classList.add("shake");
+    setTimeout(() => el.classList.remove("shake"), 300);
+  }
+
+  function setThemeColor(hex) {
+    const meta = document.getElementById("themeColorMeta");
+    if (meta) meta.setAttribute("content", hex);
+  }
+
+  async function requestWakeLock() {
+    if ("wakeLock" in navigator) {
+      try {
+        wakeLock = await navigator.wakeLock.request("screen");
+      } catch (err) {}
+    }
+  }
+  function releaseWakeLock() {
+    if (wakeLock !== null) {
+      wakeLock.release().then(() => (wakeLock = null));
+    }
+  }
+  document.addEventListener("visibilitychange", async () => {
+    if (wakeLock !== null && document.visibilityState === "visible")
+      requestWakeLock();
+  });
+
+  function formatLifetimeTime(totalSeconds) {
+    if (!totalSeconds) return "0s";
+    if (totalSeconds < 60) return totalSeconds + "s";
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    if (h > 0) return `${h}h ${m}m`;
+    const s = totalSeconds % 60;
+    return `${m}m ${s}s`;
   }
 
   function updateGreeting() {
@@ -347,9 +387,13 @@
   }
 
   function updateLifetimeStats() {
-    document.getElementById("ltWorkouts").textContent = state.stats.workouts;
-    document.getElementById("ltMinutes").textContent = state.stats.minutes;
-    document.getElementById("ltCalories").textContent = state.stats.calories;
+    document.getElementById("ltWorkouts").textContent =
+      state.stats.workouts || 0;
+    document.getElementById("ltTime").textContent = formatLifetimeTime(
+      state.stats.time || 0,
+    );
+    document.getElementById("ltCalories").textContent =
+      state.stats.calories || 0;
   }
 
   function showTab(name) {
@@ -384,6 +428,13 @@
     document.getElementById(id).classList.remove("active");
   }
 
+  // Click overlay to close
+  document.querySelectorAll(".modal-overlay").forEach((overlay) => {
+    overlay.addEventListener("mousedown", (e) => {
+      if (e.target === overlay) overlay.classList.remove("active");
+    });
+  });
+
   document
     .getElementById("btnOpenSettings")
     .addEventListener("click", () => openModal("settingsModal"));
@@ -409,33 +460,6 @@
     saveState();
     updateGreeting();
     closeModal("nameModal");
-  });
-
-  /* ---------- Voices Engine ---------- */
-  function loadVoices() {
-    if (!("speechSynthesis" in window)) return;
-    availableVoices = window.speechSynthesis.getVoices();
-    const select = document.getElementById("voiceSelect");
-    if (!select) return;
-    select.innerHTML = "";
-    availableVoices.forEach((v) => {
-      const opt = document.createElement("option");
-      opt.value = v.name;
-      opt.textContent = v.name.replace(/Microsoft |Google /g, "");
-      if (v.name === state.voiceName) opt.selected = true;
-      select.appendChild(opt);
-    });
-    if (!state.voiceName && availableVoices.length > 0) {
-      state.voiceName = availableVoices[0].name;
-      saveState();
-    }
-  }
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.onvoiceschanged = loadVoices;
-  }
-  document.getElementById("voiceSelect").addEventListener("change", (e) => {
-    state.voiceName = e.target.value;
-    saveState();
   });
 
   /* ---------- Library & Search ---------- */
@@ -697,10 +721,6 @@
     if (!state.sound || !("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
     const msg = new SpeechSynthesisUtterance(text);
-    if (state.voiceName && availableVoices.length > 0) {
-      const v = availableVoices.find((x) => x.name === state.voiceName);
-      if (v) msg.voice = v;
-    }
     msg.rate = 1.05;
     msg.pitch = 1.0;
     window.speechSynthesis.speak(msg);
@@ -779,6 +799,9 @@
       } catch (e) {}
     }
 
+    requestWakeLock();
+    setThemeColor("#8B7CFF"); // Accent Color for Prep
+
     document.getElementById("activeControls").style.display = "none";
     document.getElementById("bigTimer").textContent = state.prep;
     document.getElementById("activeName").textContent = "Get Ready";
@@ -814,6 +837,7 @@
     document.getElementById("exVisual").classList.remove("pulse-alert");
 
     if (wo.phase === "work") {
+      setThemeColor("#FF6B4A"); // Warn Color for Work
       wo.timeLeft = state.plan[wo.idx].time;
       wo.phaseTotal = wo.timeLeft;
       document.getElementById("phaseTag").textContent = "WORK";
@@ -830,6 +854,7 @@
       document.getElementById("btnAddRest").disabled = true;
       speakCue(ex.tts + ". " + ex.cue);
     } else if (wo.phase === "rest") {
+      setThemeColor("#00E5A0"); // Accent2 Color for Rest
       wo.timeLeft = state.rest;
       wo.phaseTotal = Math.max(state.rest, 1);
       document.getElementById("phaseTag").textContent = "REST";
@@ -911,15 +936,17 @@
   function finishWorkout() {
     clearInterval(wo.timer);
     clearInterval(wo.tick);
+    releaseWakeLock();
+    setThemeColor("#0A0A0F"); // Revert theme
     document.getElementById("progressFill").classList.remove("glow");
     document.getElementById("exVisual").classList.remove("pulse-alert");
 
     const m = Math.floor(wo.elapsed / 60),
       s = wo.elapsed % 60;
 
-    state.stats.workouts += 1;
-    state.stats.minutes += Math.round(wo.elapsed / 60);
-    state.stats.calories += estCalories();
+    state.stats.workouts = (state.stats.workouts || 0) + 1;
+    state.stats.time = (state.stats.time || 0) + wo.elapsed;
+    state.stats.calories = (state.stats.calories || 0) + estCalories();
     saveState();
     updateLifetimeStats();
 
@@ -933,36 +960,24 @@
       (state.rounds > 1 ? "s" : "");
     setWoState("complete");
     speakCue("Workout complete. Great job, " + (state.name || "Athlete"));
-
-    if (wo.pauseCount >= 3 && state.rest < 60) {
-      setTimeout(() => {
-        if (
-          confirm(
-            "You paused quite a bit today. Would you like to automatically increase your default rest time by 15 seconds for future workouts?",
-          )
-        ) {
-          state.rest += 15;
-          saveState();
-          renderSettings();
-        }
-      }, 1500);
-    }
   }
 
   function quitWorkoutLogic() {
     clearInterval(wo.timer);
     clearInterval(wo.tick);
+    releaseWakeLock();
+    setThemeColor("#0A0A0F"); // Revert theme
     document.getElementById("progressFill").classList.remove("glow");
     document.getElementById("exVisual").classList.remove("pulse-alert");
     window.speechSynthesis.cancel();
 
     if (wo.elapsed > 0) {
-      state.stats.workouts += 1;
-      state.stats.minutes += Math.round(wo.elapsed / 60);
+      state.stats.workouts = (state.stats.workouts || 0) + 1;
+      state.stats.time = (state.stats.time || 0) + wo.elapsed;
       const earnedCals = Math.round(
         (wo.elapsed / Math.max(estTotalSeconds(), 1)) * estCalories(),
       );
-      state.stats.calories += earnedCals;
+      state.stats.calories = (state.stats.calories || 0) + earnedCals;
       saveState();
       updateLifetimeStats();
     }
@@ -1052,7 +1067,6 @@
   /* ---------- Init ---------- */
   document.getElementById("currentYear").textContent = new Date().getFullYear();
   loadState();
-  loadVoices();
   updateGreeting();
   updateLifetimeStats();
   renderCats();

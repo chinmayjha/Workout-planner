@@ -246,11 +246,14 @@ button {
 .pages {
   flex: 1;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 .page {
   display: none;
   padding: 0 20px 20px;
   animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  flex: 1;
 }
 .page.active {
   display: flex;
@@ -313,24 +316,6 @@ button {
 }
 .btn-text:hover {
   background: rgba(255, 107, 74, 0.1);
-}
-
-.custom-select {
-  appearance: none;
-  -webkit-appearance: none;
-  background: var(--bg2)
-    url("data:image/svg+xml;utf8,<svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='%238A8A9A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>")
-    no-repeat right 8px center;
-  padding: 8px 32px 8px 12px;
-  border: 1.5px solid var(--line);
-  border-radius: 10px;
-  color: var(--text);
-  outline: none;
-  max-width: 150px;
-  text-overflow: ellipsis;
-}
-.custom-select:focus {
-  border-color: var(--accent);
 }
 
 /* Dashboard & Cards */
@@ -748,7 +733,9 @@ button {
   display: none;
 }
 .wo-state.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 .summary-card {
@@ -980,6 +967,7 @@ button {
     display: flex;
     gap: 40px;
     align-items: stretch;
+    flex: 1;
     min-height: calc(100vh - 250px);
   }
   .flex-col {
@@ -1088,7 +1076,51 @@ button {
   background-color: var(--muted);
 }
 
-/* Developer Overlay - Untouched */
+/* Footer */
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 20px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: auto;
+}
+.footer-link {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.3s ease;
+}
+.footer-link::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: -3px;
+  left: 0;
+  background-color: var(--accent);
+  transform-origin: bottom right;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.footer-link:hover {
+  color: var(--accent);
+}
+.footer-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+@media (max-width: 480px) {
+  .app-footer {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}
+
+/* Developer Overlay */
 .developer-info-btn {
   position: fixed;
   bottom: 2rem;
@@ -1268,12 +1300,5 @@ button {
   }
   .developer-modal-content {
     padding: 1.5rem;
-  }
-}
-@media (max-width: 480px) {
-  .app-footer {
-    flex-direction: column;
-    gap: 8px;
-    text-align: center;
   }
 }

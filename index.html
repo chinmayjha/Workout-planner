@@ -18,7 +18,10 @@
     />
     <meta name="author" content="Chinmay Jha" />
     <meta name="robots" content="index, follow" />
-    <meta name="theme-color" content="#0A0A0F" />
+
+    <!-- Dynamic Theme Color ID added for JS manipulation -->
+    <meta name="theme-color" content="#0A0A0F" id="themeColorMeta" />
+
     <link rel="canonical" href="https://workout.chinmayjha.tech/" />
     <link rel="manifest" href="/manifest.json" />
 
@@ -133,7 +136,7 @@
                 <span class="lbl">Workouts</span><b id="ltWorkouts">0</b>
               </div>
               <div class="stat-badge">
-                <span class="lbl">Minutes</span><b id="ltMinutes">0</b>
+                <span class="lbl">Time</span><b id="ltTime">0s</b>
               </div>
               <div class="stat-badge">
                 <span class="lbl">Calories</span><b id="ltCalories">0</b>
@@ -428,16 +431,7 @@
         </div>
         <div class="section-title">Feedback</div>
         <div class="set-row">
-          <div>
-            <div class="lbl">Voice</div>
-            <div class="desc">Choose your coach</div>
-          </div>
-          <div class="field" style="width: auto; margin-top: 0">
-            <select id="voiceSelect" class="custom-select"></select>
-          </div>
-        </div>
-        <div class="set-row">
-          <div class="lbl">Sound cues</div>
+          <div class="lbl">Sound & Voice cues</div>
           <button class="switch on" id="toggleSound"></button>
         </div>
         <div class="set-row">
