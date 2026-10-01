@@ -320,7 +320,6 @@
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
         Object.assign(state, JSON.parse(raw));
-        // Migration safeguard: if they had 'minutes', convert to 'time' (seconds)
         if (state.stats.minutes !== undefined && !state.stats.time) {
           state.stats.time = state.stats.minutes * 60;
           delete state.stats.minutes;
@@ -364,6 +363,223 @@
       requestWakeLock();
   });
 
+  /* ---------- PWA Install Logic ---------- */
+  let deferredPrompt;
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const installBtn = document.getElementById("btnInstallApp");
+    if (installBtn) installBtn.style.display = "block";
+  });
+
+  document
+    .getElementById("btnInstallApp")
+    .addEventListener("click", async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === "accepted") {
+          document.getElementById("btnInstallApp").style.display = "none";
+        }
+        deferredPrompt = null;
+      }
+    });
+
+  /* ---------- Custom Confetti Engine ---------- */
+  function fireConfetti() {
+    const canvas = document.getElementById("confettiCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    const colors = ["#8B7CFF", "#00E5A0", "#FF6B4A", "#5CC8FF"];
+
+    for (let i = 0; i < 120; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        vx: (Math.random() - 0.5) * 4,
+        vy: Math.random() * 5 + 3,
+        size: Math.random() * 8 + 6,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rot: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 10,
+      });
+    }
+
+    let tick = 0;
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let active = false;
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.rotSpeed;
+        if (p.y < canvas.height) active = true;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rot * Math.PI) / 180);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        ctx.restore();
+      });
+      tick++;
+      if (active && tick < 300) {
+        requestAnimationFrame(render);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+    render();
+  }
+
+  /* ---------- Canvas Story Image Generator ---------- */
+  document
+    .getElementById("btnShareStats")
+    .addEventListener("click", async (e) => {
+      const btn = e.target;
+      const originalText = btn.innerHTML;
+      btn.textContent = "Generating...";
+
+      // Allow UI to paint before heavy canvas operations
+      await new Promise((r) => setTimeout(r, 50));
+
+      const canvas = document.createElement("canvas");
+      canvas.width = 1080;
+      canvas.height = 1920;
+      const ctx = canvas.getContext("2d");
+
+      // Background
+      ctx.fillStyle = "#0A0A0F";
+      ctx.fillRect(0, 0, 1080, 1920);
+
+      // Purple Gradient Top Left
+      const g1 = ctx.createRadialGradient(200, 200, 0, 200, 200, 900);
+      g1.addColorStop(0, "rgba(139,124,255,0.18)");
+      g1.addColorStop(1, "transparent");
+      ctx.fillStyle = g1;
+      ctx.fillRect(0, 0, 1080, 1920);
+
+      // Mint Gradient Bottom Right
+      const g2 = ctx.createRadialGradient(880, 1720, 0, 880, 1720, 900);
+      g2.addColorStop(0, "rgba(0,229,160,0.12)");
+      g2.addColorStop(1, "transparent");
+      ctx.fillStyle = g2;
+      ctx.fillRect(0, 0, 1080, 1920);
+
+      ctx.textAlign = "center";
+
+      // Header
+      ctx.font = 'bold 85px "Space Grotesk", sans-serif';
+      ctx.fillStyle = "#F2F2F7";
+      ctx.fillText("WORKOUT CRUSHED", 540, 300);
+
+      ctx.font = '50px "Outfit", sans-serif';
+      ctx.fillStyle = "#8B7CFF";
+      ctx.fillText((state.name || "Athlete") + "'s Session", 540, 380);
+
+      // Dynamic Badge Logic
+      const cats = state.plan.map((p) => {
+        const ex = EXERCISES.find((x) => x.id === p.id);
+        return ex ? ex.cat : "full";
+      });
+
+      let dominantCat = "full";
+      if (cats.length > 0) {
+        dominantCat = cats
+          .sort(
+            (a, b) =>
+              cats.filter((v) => v === a).length -
+              cats.filter((v) => v === b).length,
+          )
+          .pop();
+      }
+
+      const badgeNames = {
+        upper: "🔥 UPPER BODY",
+        lower: "🦵 LOWER BODY",
+        core: "💪 CORE DOMINANT",
+        cardio: "⚡️ CARDIO BURN",
+        full: "🌪️ FULL BODY",
+      };
+      const badgeColors = {
+        upper: "#8B7CFF",
+        lower: "#00E5A0",
+        core: "#FF6B4A",
+        cardio: "#FFC55C",
+        full: "#5CC8FF",
+      };
+
+      // Draw Badge
+      ctx.fillStyle = badgeColors[dominantCat] + "33"; // 20% opacity background
+      if (ctx.roundRect) {
+        ctx.beginPath();
+        ctx.roundRect(290, 440, 500, 75, 37);
+        ctx.fill();
+      } else {
+        ctx.fillRect(290, 440, 500, 75); // Fallback for ancient browsers
+      }
+
+      ctx.fillStyle = badgeColors[dominantCat];
+      ctx.font = 'bold 36px "Outfit", sans-serif';
+      ctx.fillText(badgeNames[dominantCat], 540, 492);
+
+      // Glass Panels
+      function drawPanel(x, y, val, lbl, color) {
+        ctx.fillStyle = "rgba(22, 22, 31, 0.7)";
+        if (ctx.roundRect) {
+          ctx.beginPath();
+          ctx.roundRect(x, y, 800, 240, 40);
+          ctx.fill();
+          ctx.strokeStyle = "#25252F";
+          ctx.lineWidth = 4;
+          ctx.stroke();
+        } else {
+          ctx.fillRect(x, y, 800, 240);
+        }
+
+        ctx.font = 'bold 110px "Space Grotesk", sans-serif';
+        ctx.fillStyle = color;
+        ctx.fillText(val, x + 400, y + 135);
+
+        ctx.font = 'bold 36px "Outfit", sans-serif';
+        ctx.fillStyle = "#8A8A9A";
+        ctx.fillText(lbl, x + 400, y + 200);
+      }
+
+      const totalSecs = wo.elapsed || estTotalSeconds();
+      const m = Math.floor(totalSecs / 60);
+      const s = totalSecs % 60;
+      const timeStr = m + "m " + s + "s";
+
+      drawPanel(140, 650, timeStr, "TOTAL TIME", "#00E5A0");
+      drawPanel(
+        140,
+        930,
+        estCalories() + " kcal",
+        "CALORIES BURNED",
+        "#FF6B4A",
+      );
+      drawPanel(140, 1210, state.plan.length, "EXERCISES COMPLETED", "#8B7CFF");
+
+      // Watermark
+      ctx.font = 'bold 32px "Outfit", sans-serif';
+      ctx.fillStyle = "rgba(138, 138, 154, 0.5)";
+      ctx.fillText("workout.chinmayjha.tech", 540, 1820);
+
+      // Trigger Download
+      const link = document.createElement("a");
+      link.download = "workout-summary.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+
+      btn.textContent = "Downloaded! ✓";
+      setTimeout(() => (btn.innerHTML = originalText), 2500);
+    });
+
+  /* ---------- Core Logic ---------- */
   function formatLifetimeTime(totalSeconds) {
     if (!totalSeconds) return "0s";
     if (totalSeconds < 60) return totalSeconds + "s";
@@ -428,7 +644,7 @@
     document.getElementById(id).classList.remove("active");
   }
 
-  // Click overlay to close
+  // Click overlay to close modals
   document.querySelectorAll(".modal-overlay").forEach((overlay) => {
     overlay.addEventListener("mousedown", (e) => {
       if (e.target === overlay) overlay.classList.remove("active");
@@ -960,6 +1176,9 @@
       (state.rounds > 1 ? "s" : "");
     setWoState("complete");
     speakCue("Workout complete. Great job, " + (state.name || "Athlete"));
+
+    // Trigger celebratory physics
+    fireConfetti();
   }
 
   function quitWorkoutLogic() {

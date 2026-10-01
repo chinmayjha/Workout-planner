@@ -75,6 +75,9 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <!-- Confetti Physics Canvas overlay -->
+    <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+
     <div class="app">
       <header class="header">
         <div class="brand">
@@ -334,9 +337,27 @@
               <div class="num" id="statTime">0:00</div>
               <div class="lbl">Total Time</div>
             </div>
-            <button class="btn btn-primary hover-elevate" id="btnBackHome">
-              Done
-            </button>
+
+            <div
+              style="
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                width: 100%;
+                margin-top: 10px;
+              "
+            >
+              <button
+                class="btn btn-ghost hover-elevate"
+                id="btnShareStats"
+                style="color: var(--accent)"
+              >
+                📸 Share
+              </button>
+              <button class="btn btn-primary hover-elevate" id="btnBackHome">
+                Done
+              </button>
+            </div>
           </div>
         </section>
       </main>
@@ -406,7 +427,25 @@
             ✕
           </button>
         </div>
-        <div class="section-title" style="margin-top: 0">Timing</div>
+
+        <div class="section-title" style="margin-top: 0">App & Account</div>
+        <button
+          class="btn btn-primary hover-elevate"
+          id="btnInstallApp"
+          style="
+            display: none;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #0a0a0f;
+          "
+        >
+          📲 Install App to Home Screen
+        </button>
+        <button class="btn btn-outline hover-elevate" id="btnEditName">
+          Change name
+        </button>
+
+        <div class="section-title">Timing</div>
         <div class="set-row">
           <div>
             <div class="lbl">Rest between exercises</div>
@@ -429,6 +468,7 @@
             ><button data-step="prep" data-d="1">+</button>
           </div>
         </div>
+
         <div class="section-title">Feedback</div>
         <div class="set-row">
           <div class="lbl">Sound & Voice cues</div>
@@ -438,10 +478,6 @@
           <div class="lbl">Vibration</div>
           <button class="switch on" id="toggleVibrate"></button>
         </div>
-        <div class="section-title">Account</div>
-        <button class="btn btn-outline hover-elevate" id="btnEditName">
-          Change name
-        </button>
       </div>
     </div>
 

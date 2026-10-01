@@ -92,8 +92,7 @@ h3 {
   font-family: var(--ff-h);
 }
 button,
-input,
-select {
+input {
   font-family: var(--ff-b);
 }
 button {
@@ -106,6 +105,17 @@ button {
   display: flex;
   flex-direction: column;
   transition: max-width 0.3s ease;
+}
+
+/* Confetti Physics Layer */
+.confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
 }
 
 /* Reusable Animations & Limits */
@@ -250,10 +260,10 @@ button {
   flex-direction: column;
 }
 .page {
+  flex: 1;
   display: none;
   padding: 0 20px 20px;
   animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  flex: 1;
 }
 .page.active {
   display: flex;
@@ -957,6 +967,43 @@ button {
   margin: 4px auto 14px;
 }
 
+/* Footer */
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 20px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: auto;
+}
+.footer-link {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.3s ease;
+}
+.footer-link::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: -3px;
+  left: 0;
+  background-color: var(--accent);
+  transform-origin: bottom right;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.footer-link:hover {
+  color: var(--accent);
+}
+.footer-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
 /* Desktop Grid and Dynamic Height Fixes */
 @media (min-width: 768px) {
   .app {
@@ -1045,6 +1092,14 @@ button {
   }
 }
 
+@media (max-width: 480px) {
+  .app-footer {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}
+
 /* Custom minimal scrollbars */
 .custom-scroll,
 .modal-sheet,
@@ -1076,51 +1131,7 @@ button {
   background-color: var(--muted);
 }
 
-/* Footer */
-.app-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 20px;
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin-top: auto;
-}
-.footer-link {
-  color: var(--text);
-  font-weight: 600;
-  text-decoration: none;
-  position: relative;
-  transition: color 0.3s ease;
-}
-.footer-link::after {
-  content: "";
-  position: absolute;
-  width: 100%;
-  transform: scaleX(0);
-  height: 2px;
-  bottom: -3px;
-  left: 0;
-  background-color: var(--accent);
-  transform-origin: bottom right;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.footer-link:hover {
-  color: var(--accent);
-}
-.footer-link:hover::after {
-  transform: scaleX(1);
-  transform-origin: bottom left;
-}
-@media (max-width: 480px) {
-  .app-footer {
-    flex-direction: column;
-    gap: 8px;
-    text-align: center;
-  }
-}
-
-/* Developer Overlay */
+/* Developer Overlay - Untouched */
 .developer-info-btn {
   position: fixed;
   bottom: 2rem;
