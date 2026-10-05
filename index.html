@@ -73,8 +73,33 @@
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%238B7CFF%22 stroke-width=%222.4%22 stroke-linecap=%22round%22><path d=%22M4 12h16M7 8v8M17 8v8M4 10v4M20 10v4%22/></svg>"
     />
     <link rel="stylesheet" href="styles.css" />
+    <meta property="og:site_name" content="Workout Planner" />
+    <meta
+      property="og:image:alt"
+      content="Workout Planner: build routines, run the interval timer, track streaks"
+    />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Workout Planner",
+        "url": "https://workout.chinmayjha.tech/",
+        "applicationCategory": "HealthApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "description": "Free workout planner with a voice-guided interval timer, streaks and a 30-day activity heatmap. Works in any browser."
+      }
+    </script>
   </head>
   <body>
+    <noscript
+      ><p style="padding: 2rem; text-align: center">
+        Workout Planner needs JavaScript to run. Please enable it and reload.
+      </p></noscript
+    >
     <!-- Confetti Physics Canvas overlay -->
     <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
 
@@ -260,7 +285,12 @@
               <span class="status-tag" id="roundTag" style="color: var(--muted)"
                 >ROUND 1/1</span
               >
-              <button class="mute-inline hover-elevate" id="btnMute"></button>
+              <button
+                class="mute-inline hover-elevate"
+                id="btnMute"
+                type="button"
+                aria-label="Mute or unmute sound"
+              ></button>
             </div>
             <div class="active-inner">
               <span class="status-tag" id="phaseTag">GET READY</span>
@@ -371,7 +401,7 @@
                 id="pfEdit"
                 type="button"
               >
-                Change name
+                Edit name &amp; weight
               </button>
             </div>
           </div>
@@ -479,6 +509,17 @@
             autocomplete="off"
           />
         </div>
+        <div class="field" style="margin-top: 10px">
+          <input
+            id="weightInput"
+            type="number"
+            inputmode="decimal"
+            min="25"
+            max="250"
+            step="0.1"
+            placeholder="Weight in kg (optional, for calories)"
+          />
+        </div>
         <button
           class="btn btn-primary hover-elevate"
           id="btnSaveName"
@@ -542,33 +583,72 @@
 
         <div class="section-title">Feedback</div>
         <div class="set-row">
-          <div class="lbl">All sound</div>
-          <button class="switch on" id="toggleSound"></button>
-        </div>
-        <div class="set-row sub">
-          <div>
-            <div class="lbl">Announcements</div>
-            <div class="desc">"Next up: Push-Ups"</div>
+          <div class="lbl">
+            <button
+              type="button"
+              class="exp-btn"
+              id="btnSoundExpand"
+              aria-expanded="false"
+              aria-controls="soundSub"
+            >
+              All sound
+              <svg
+                class="chev"
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.4"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
           </div>
-          <button class="switch on" id="toggleAnnounce" type="button"></button>
+          <button
+            class="switch on"
+            id="toggleSound"
+            type="button"
+            aria-label="All sound"
+          ></button>
         </div>
-        <div class="set-row sub">
-          <div>
-            <div class="lbl">Form coaching</div>
-            <div class="desc">"Keep your back flat..."</div>
+        <div class="sub-wrap" id="soundSub">
+          <div class="set-row sub">
+            <div>
+              <div class="lbl">Announcements</div>
+              <div class="desc">"Next up: Push-Ups"</div>
+            </div>
+            <button
+              class="switch on"
+              id="toggleAnnounce"
+              type="button"
+            ></button>
           </div>
-          <button class="switch on" id="toggleCoach" type="button"></button>
-        </div>
-        <div class="set-row sub">
-          <div>
-            <div class="lbl">Pacing &amp; chimes</div>
-            <div class="desc">Beeps and the halfway cue</div>
+          <div class="set-row sub">
+            <div>
+              <div class="lbl">Form coaching</div>
+              <div class="desc">"Keep your back flat..."</div>
+            </div>
+            <button class="switch on" id="toggleCoach" type="button"></button>
           </div>
-          <button class="switch on" id="toggleChimes" type="button"></button>
+          <div class="set-row sub">
+            <div>
+              <div class="lbl">Pacing &amp; chimes</div>
+              <div class="desc">Beeps and the halfway cue</div>
+            </div>
+            <button class="switch on" id="toggleChimes" type="button"></button>
+          </div>
         </div>
         <div class="set-row">
           <div class="lbl">Vibration</div>
-          <button class="switch on" id="toggleVibrate"></button>
+          <button
+            class="switch on"
+            id="toggleVibrate"
+            type="button"
+            aria-label="Vibration"
+          ></button>
         </div>
       </div>
     </div>

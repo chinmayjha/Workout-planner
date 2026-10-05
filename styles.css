@@ -1632,3 +1632,92 @@ kbd {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* ---------- Fixes: layout, help popup, sound options, a11y ---------- */
+@media (min-width: 768px) {
+  .plan-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .plan-col {
+    min-width: 0;
+  }
+}
+.library-scroll-pane {
+  scrollbar-gutter: stable;
+}
+#helpModal {
+  align-items: center;
+}
+#helpModal .modal-sheet {
+  width: min(450px, 90vw);
+  max-width: 450px;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1.5px solid var(--line);
+  border-radius: 24px;
+  box-shadow: var(--shadow-md);
+  padding: 24px 20px;
+  opacity: 0;
+  transform: scale(0.95);
+  transition:
+    opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+    transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+#helpModal.active .modal-sheet {
+  opacity: 1;
+  transform: scale(1);
+}
+#helpModal .vid-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.exp-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  cursor: pointer;
+}
+.exp-btn .chev {
+  transition: transform 0.25s;
+}
+.exp-btn[aria-expanded="true"] .chev {
+  transform: rotate(180deg);
+}
+.sub-wrap {
+  display: none;
+}
+.sub-wrap.open {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+.switch:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+:focus-visible {
+  outline: 2px solid var(--accent2);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

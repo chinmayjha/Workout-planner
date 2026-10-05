@@ -2,81 +2,125 @@
 
 ![Workout Planner Banner](assets/banner.svg)
 
-# ⚡️ Workout Planner
+# Workout Planner
 
-**A premium, immersive, zero-dependency workout planner built for the modern web.**
+**A fast, zero-dependency workout planner and voice-guided interval timer that runs in any browser.**
 
 [![Live Demo](https://img.shields.io/badge/Demo-Live_Preview-8B7CFF?style=for-the-badge)](https://workout.chinmayjha.tech)
 [![Author](https://img.shields.io/badge/Author-Chinmay_Jha-00E5A0?style=for-the-badge)](https://chinmayjha.tech)
 
-
 </div>
 
-## 📖 Overview
+## Overview
 
-Workout Planner is a highly responsive, glassmorphism-inspired fitness application designed to help users build custom routines, track rest times, and crush their fitness goals. Built entirely with Vanilla web technologies, it features an intelligent adaptive rest algorithm, voice coaching, native drag-and-drop mechanics, and a fluid, app-like experience across all devices.
+Build a routine from a 25-exercise library, run it with a hands-free timer and voice coach, then watch your streak and 30-day activity heatmap grow. Everything runs in the browser with vanilla HTML, CSS and JavaScript. There is no backend, no account and no tracking: your data stays on your device.
 
-## ✨ Key Features
+## Features
 
-- **📸 Native Story Exporter:** Generates a custom, high-resolution (1080x1920) summary image of your completed workout directly via the HTML5 Canvas API—perfect for Instagram or WhatsApp stories.
-- **🎉 Custom Physics Engine:** Rewards completed workouts with an ultra-lightweight, 40-line zero-dependency CSS/Canvas confetti explosion.
-- **📲 Progressive Web App (PWA):** Features a built-in `beforeinstallprompt` listener, allowing users to seamlessly install the app directly to their home screen.
-- **📱 Immersive Dynamic Themes:** Transitions your mobile browser's native URL bar theme color instantly to match your active workout phase (Prep, Work, Rest).
-- **⚡️ Wake Lock Integration:** Utilizes the `navigator.wakeLock` API to ensure your phone screen never goes to sleep while a workout timer is actively running.
-- **🎧 Smart Audio Coaching:** Utilizes the native Web Speech API to provide real-time voice cues, phase changes, and detailed form reminders.
-- **📊 Proportional Stats Tracking:** Automatically tracks your total workouts, calories burned, and total time trained down to the exact second. Exiting a workout early calculates and saves your proportional effort.
+**Planning**
+- Exercise library with search and category filters, drag-and-drop ordering, and per-exercise time.
+- Strength moves (push-ups, squats, lunges and similar) can switch to **Reps** mode with a target rep count. Holds and cardio stay timed.
+- Adjustable rounds, rest, prep time and an adaptive rest button.
 
-## 🛠️ Tech Stack
+**Workout**
+- Prep, work and rest phases with a live timer, progress bar and phase colours.
+- Voice coaching split into three switches: **Announcements**, **Form coaching** and **Pacing & chimes** (beeps and a halfway cue on timed exercises of 20s or more).
+- Screen wake lock keeps the display on during a workout.
+- Ending early still saves your time and calories and takes you to the share screen.
+- "How did that feel?" rating (Light / Hard / Brutal) after every session.
 
-This project was built with performance and simplicity in mind.
+**Profile**
+- Lifetime stats, current and best streak, and a 30-day heatmap with tap/hover details.
+- **Streak Savers:** earn 1 for every 5 completed workouts (max 3). A saver automatically covers missed days so a streak survives, but only when it can cover the whole gap.
+- JSON backup (export / import) and a hold-to-confirm "clear all data" button.
+- Optional body weight to scale calorie estimates.
 
-- **HTML5:** Semantic architecture, Web App Manifest, `<canvas>` data rendering, and native drag-and-drop.
-- **CSS3:** Custom CSS variables, CSS Grid/Flexbox, frosted glass UI, cross-browser minimal scrollbars, and keyframe animations.
-- **JavaScript (Vanilla ES6):** State management, Custom Physics, Web Speech API, Wake Lock API, and native DOM manipulation.
+**Share**
+- Generates a 1080x1920 story image (Canvas API) with your time, calories, exercises and rating. Uses the native share sheet on supported phones and downloads the image elsewhere.
 
-## 🚀 Getting Started
+**Keyboard shortcuts**
 
-Since this project has zero dependencies, getting it running locally is incredibly simple.
+| Key | Action |
+| --- | --- |
+| `Space` | Pause / resume (or mark reps done) |
+| `→` | Skip phase |
+| `M` | Mute / unmute |
+| `Esc` | Close a popup, or ask to end the workout |
+| `?` | Open help and the form video glossary |
 
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/chinmayjha/workout-planner.git](https://github.com/chinmayjha/workout-planner.git)
-    ```
-2.  **Open the project folder:**
-    ```bash
-    cd workout-planner
-    ```
-3.  **Run the app:**
-    Simply open the `index.html` file in your preferred web browser. No local server is required.
+## How streaks work
 
-## 🔧 Customization (Adding Exercises)
+- A day counts once its sessions add up to at least 60 seconds. Dates use your local timezone.
+- Several sessions in one day count as one active day.
+- A workout earns Saver progress only if it is completed, lasts at least 60 seconds, and covers at least half its planned time.
+- Savers are applied when you open the app, not at midnight.
 
-You can easily expand the application's library by modifying the `EXERCISES` array in `app.js`.
+## Project structure
+
+```
+index.html        page markup (Plan, Workout and Profile tabs, modals)
+styles.css        all styling
+app.js            planner, workout engine, audio, share card, shortcuts
+js/store.js       saved data, migration, local-date logging, streak engine
+js/profile.js     Profile tab: heatmap, savers, backup, clear data
+manifest.json     PWA manifest
+assets/           banner, social image and app icons
+404.html          not-found page
+```
+
+## Your data
+
+Everything is stored in your browser's `localStorage` (`forge_state_v6` for the planner and settings, `workout_state_v7` for sessions and streaks). Nothing is sent anywhere. Use **Profile > Backup** to export before clearing browser data or switching devices.
+
+## Getting started
+
+```bash
+git clone https://github.com/chinmayjha/Workout-planner.git
+cd Workout-planner
+```
+
+Open `index.html` in a browser. No build step or server is required.
+
+## Deployment
+
+The site is hosted on GitHub Pages. To use a custom subdomain, add a `CNAME` record pointing to `chinmayjha.github.io` at your DNS provider and put the domain in the repository's `CNAME` file.
+
+## Adding exercises
+
+Add an object to the `EXERCISES` array in `app.js`:
 
 ```javascript
 {
-  id: 'new-exercise',
-  name: 'Your New Exercise',
-  cat: 'upper', // Options: upper, lower, core, cardio, full
-  cue: 'A brief tip for form and execution.',
-  time: 45, // Default time in seconds
-  tts: 'Phonetic spelling for the voice coach'
+  id: "new-exercise",
+  name: "Your New Exercise",
+  cat: "upper", // upper, lower, core, cardio, full
+  cue: "A brief tip for form and execution.",
+  time: 45, // default seconds
+  tts: "How the voice coach should say the name"
 }
 ```
 
-To add a custom SVG for your new exercise, simply add a matching `id` key to the `EX_ICONS` object in `app.js`.
+Add a matching key to `EX_ICONS` for a custom icon. To allow Reps mode, add its `id` to the `REPS_OK` set.
 
-## 👨‍💻 About the Author
+## Roadmap
 
-**Chinmay Jha**  
+- New visual identity and workout screen, light/dark theme switch
+- Offline support (service worker) and installable app polish
+- Landing page and per-exercise pages for search
+- Routine presets, a workout generator, saved routines and share links
+- Touch-friendly drag reordering and a drift-proof timer
+
+## About the Author
+
+**Chinmay Jha**
 _Student • Web Developer • Freelancer_
 
 I am a 17-year-old web developer from India. I started coding at 11, and I specialize in building fun, functional, and highly polished web projects and user interfaces.
 
-🌐 **Portfolio:** [chinmayjha.tech](https://chinmayjha.tech)  
-🐙 **GitHub:** [@chinmayjha](https://github.com/chinmayjha)  
-✉️ **Email:** contact@chinmayjha.tech
+Portfolio: [chinmayjha.tech](https://chinmayjha.tech)
+GitHub: [@chinmayjha](https://github.com/chinmayjha)
+Email: contact@chinmayjha.tech
 
-## 📄 License
+## License
 
-This project is open-source and available under the [MIT License](LICENSE). Feel free to fork, modify, and use it in your own projects!
+Released under the [MIT License](LICENSE). Feel free to fork, modify, and use it in your own projects.

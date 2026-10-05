@@ -288,8 +288,24 @@
     },
   ];
 
-  const HOLDS = new Set(["plank", "hollowbody", "wallsit"]);
-  const canRep = (ex) => !HOLDS.has(ex.id);
+  // Only strength moves can be counted in reps; holds and cardio stay timed.
+  const REPS_OK = new Set([
+    "pushup",
+    "diamondpushup",
+    "pike",
+    "tricepdip",
+    "squat",
+    "lunge",
+    "bulgariansplit",
+    "gluteb",
+    "calfraise",
+    "crunch",
+    "russiantwist",
+    "legraise",
+    "jumpsquat",
+    "burpee",
+  ]);
+  const canRep = (ex) => REPS_OK.has(ex.id);
   const RPE_LABEL = { 1: "Light", 2: "Hard", 3: "Brutal" };
   const RPE_COLOR = { 1: "#00E5A0", 2: "#FFC55C", 3: "#FF6B4A" };
 
@@ -301,6 +317,7 @@
     rest: 30,
     prep: 5,
     sound: true,
+    weight: null,
     audio: { announce: true, coach: true, chimes: true },
     vibrate: true,
     stats: { workouts: 0, time: 0, calories: 0 }, // 'time' stores raw seconds
@@ -908,7 +925,7 @@
         <div class="ex-icon" style="width:38px;height:38px;flex:0 0 38px;background:${CAT_COLOR[ex.cat]}22;color:${CAT_COLOR[ex.cat]}">${getIcon(ex)}</div>
         <div class="ex-info"><h4 style="font-size:.88rem">${ex.name}</h4></div>
         ${canRep(ex) ? `<button class="mode-btn" data-mode="${i}" type="button" aria-label="Switch ${ex.name} between time and reps">${p.mode === "reps" ? "Reps" : "Time"}</button>` : ""}
-        ${canRep(ex) && p.mode === "reps" ? `<span class="reps-est">~${p.time}s</span>` : `<div class="plan-time-stepper"><button data-mod="-5" data-idx="${i}">−</button><span>${p.time}s</span><button data-mod="5" data-idx="${i}">+</button></div>`}
+        ${canRep(ex) && p.mode === "reps" ? `<div class="plan-time-stepper"><button data-rmod="-1" data-idx="${i}" aria-label="Fewer reps">−</button><span>${p.reps || 12} reps</span><button data-rmod="1" data-idx="${i}" aria-label="More reps">+</button></div>` : `<div class="plan-time-stepper"><button data-mod="-5" data-idx="${i}">−</button><span>${p.time}s</span><button data-mod="5" data-idx="${i}">+</button></div>`}
         <button class="plan-remove" data-remove="${i}">✕</button>
         <div class="drag-handle"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></svg></div>
       </div>`;
@@ -928,10 +945,20 @@
       }),
     );
 
+    list.querySelectorAll("[data-rmod]").forEach((btn) =>
+      btn.addEventListener("click", () => {
+        const p = state.plan[+btn.dataset.idx];
+        p.reps = Math.min(100, Math.max(1, (p.reps || 12) + +btn.dataset.rmod));
+        saveState();
+        renderPlan();
+      }),
+    );
+
     list.querySelectorAll("[data-mode]").forEach((btn) =>
       btn.addEventListener("click", () => {
         const p = state.plan[+btn.dataset.mode];
         p.mode = p.mode === "reps" ? "time" : "reps";
+        if (p.mode === "reps") p.reps = p.reps || 12;
         saveState();
         renderPlan();
       }),
@@ -1103,7 +1130,9 @@
       const ex = EXERCISES.find((x) => x.id === p.id);
       cals += (p.time / 60) * (rates[ex.cat] || 6);
     });
-    return Math.round(cals * state.rounds);
+    return Math.round(
+      cals * state.rounds * (state.weight ? state.weight / 70 : 1),
+    );
   }
 
   function renderWorkoutIdle() {
@@ -1206,13 +1235,20 @@
       document.getElementById("btnDone").style.display = wo.reps
         ? "block"
         : "none";
-      document.getElementById("phaseTag").textContent = "WORK";
+      document.getElementById("phaseTag").textContent = wo.reps
+        ? "REPS"
+        : "WORK";
       document.getElementById("phaseTag").style.color = "var(--warn)";
       document.getElementById("bigTimer").style.color = "var(--warn)";
       document.getElementById("progressFill").style.background = "var(--warn)";
       document.getElementById("progressFill").classList.add("glow");
       document.getElementById("activeName").textContent = ex.name;
-      document.getElementById("activeCue").textContent = ex.cue;
+      document.getElementById("activeCue").textContent = wo.reps
+        ? "Do " +
+          (state.plan[wo.idx].reps || 12) +
+          " clean reps, then tap Done. " +
+          ex.cue
+        : ex.cue;
       document.getElementById("exVisual").innerHTML = getIcon(ex);
       document.getElementById("exVisual").style.color = CAT_COLOR[ex.cat];
       document.getElementById("activeControls").style.display = "grid";
@@ -1260,6 +1296,7 @@
 
   function runPhaseTimer() {
     clearInterval(wo.timer);
+    if (wo.phase === "complete" || wo.phase === "idle") return;
     wo.timer = setInterval(() => {
       if (wo.paused) return;
       if (wo.phase === "work" && wo.reps) {
@@ -1350,7 +1387,7 @@
         start: wo.startedAt,
         secs: wo.elapsed,
         cals: estCalories(),
-        complete: true,
+        complete: wo.elapsed >= 60 && wo.elapsed >= 0.5 * estTotalSeconds(),
         exDone: state.plan.length * state.rounds,
         exTotal: state.plan.length * state.rounds,
         rounds: state.rounds,
@@ -1394,7 +1431,7 @@
     document.getElementById("exVisual").classList.remove("pulse-alert");
     stopSpeech();
 
-    if (wo.elapsed >= 30) {
+    if (wo.elapsed >= 10) {
       state.stats.workouts = (state.stats.workouts || 0) + 1;
       state.stats.time = (state.stats.time || 0) + wo.elapsed;
       const earnedCals = Math.round(
@@ -1432,6 +1469,8 @@
           ":" +
           String(wo.elapsed % 60).padStart(2, "0");
         setWoState("complete");
+        speakCue("Nice work, " + (state.name || "Athlete"), "announce");
+        fireConfetti();
         setTimeout(() => openModal("rpeModal"), 800);
         return;
       }
@@ -1467,7 +1506,7 @@
 
     clearInterval(wo.timer);
     advancePhase();
-    runPhaseTimer();
+    if (wo.phase !== "complete" && wo.phase !== "idle") runPhaseTimer();
   });
 
   document.getElementById("btnQuit").addEventListener("click", openQuitConfirm);
@@ -1526,9 +1565,12 @@
     );
     Object.keys(all).forEach((id) => {
       const el = document.getElementById(id);
-      el.classList.toggle("on", !!all[id]);
+      const isSub = id in SWITCH_MAP;
+      const on = !!all[id] && (!isSub || state.sound);
+      el.classList.toggle("on", on);
+      el.disabled = isSub && !state.sound;
       el.setAttribute("role", "switch");
-      el.setAttribute("aria-checked", String(!!all[id]));
+      el.setAttribute("aria-checked", String(on));
       el.setAttribute(
         "aria-label",
         el.parentElement.querySelector(".lbl").textContent.trim(),
@@ -1563,6 +1605,36 @@
   document
     .getElementById("btnRpeSkip")
     .addEventListener("click", () => closeModal("rpeModal"));
+  const tabEls = [...document.querySelectorAll(".tab")];
+  document.querySelector(".tabs").setAttribute("role", "tablist");
+  const syncTabs = () =>
+    tabEls.forEach((t) => {
+      t.setAttribute("role", "tab");
+      t.setAttribute("aria-selected", String(t.classList.contains("active")));
+    });
+  tabEls.forEach((t) => t.addEventListener("click", syncTabs));
+  syncTabs();
+
+  const soundSub = document.getElementById("soundSub");
+  const btnSoundExpand = document.getElementById("btnSoundExpand");
+  btnSoundExpand.addEventListener("click", () => {
+    const open = soundSub.classList.toggle("open");
+    btnSoundExpand.setAttribute("aria-expanded", String(open));
+  });
+
+  const weightInput = document.getElementById("weightInput");
+  document.getElementById("btnSaveName").addEventListener("click", () => {
+    const v = weightInput.value.trim();
+    if (v === "") state.weight = null;
+    else {
+      const n = parseFloat(v);
+      if (n >= 25 && n <= 250) state.weight = Math.round(n * 10) / 10;
+    }
+    saveState();
+  });
+  document
+    .getElementById("btnEditName")
+    .addEventListener("click", () => (weightInput.value = state.weight || ""));
   document
     .getElementById("btnHelp")
     .addEventListener("click", () => openModal("helpModal"));
