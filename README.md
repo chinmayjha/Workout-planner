@@ -9,6 +9,7 @@
 [![Live Demo](https://img.shields.io/badge/Demo-Live_Preview-8B7CFF?style=for-the-badge)](https://workout.chinmayjha.tech)
 [![Author](https://img.shields.io/badge/Author-Chinmay_Jha-00E5A0?style=for-the-badge)](https://chinmayjha.tech)
 
+
 </div>
 
 ## 📖 Overview
@@ -17,22 +18,20 @@ Workout Planner is a highly responsive, glassmorphism-inspired fitness applicati
 
 ## ✨ Key Features
 
-- **⏱️ Smart Reps vs. Time Engine:** Toggle dynamic exercises between a countdown timer or a Reps-based stopwatch.
-- **👑 Profile Dashboard & Heatmap:** Tracks your fitness journey with a 30-day GitHub-style activity heatmap, rank progression, and Duolingo-style "Streak Savers."
-- **📸 Native Story Exporter:** Generates a custom, high-resolution (1080x1920) summary image of your completed workout directly via the HTML5 Canvas API, featuring your session stats and Intensity Rating (RPE).
-- **⌨️ Global Keyboard Shortcuts:** Control your session instantly with `Space` (Pause/Done), `→` (Skip), `M` (Mute), and `Esc` (Quit), plus a built-in searchable YouTube video glossary for exercise form.
+- **📸 Native Story Exporter:** Generates a custom, high-resolution (1080x1920) summary image of your completed workout directly via the HTML5 Canvas API—perfect for Instagram or WhatsApp stories.
 - **🎉 Custom Physics Engine:** Rewards completed workouts with an ultra-lightweight, 40-line zero-dependency CSS/Canvas confetti explosion.
 - **📲 Progressive Web App (PWA):** Features a built-in `beforeinstallprompt` listener, allowing users to seamlessly install the app directly to their home screen.
 - **📱 Immersive Dynamic Themes:** Transitions your mobile browser's native URL bar theme color instantly to match your active workout phase (Prep, Work, Rest).
 - **⚡️ Wake Lock Integration:** Utilizes the `navigator.wakeLock` API to ensure your phone screen never goes to sleep while a workout timer is actively running.
-- **🎧 Granular Audio Coaching:** Mix and match your native Web Speech API cues, with distinct toggles for Announcements, Form Cues, and Pacing Chimes (including a "Halfway" cue).
+- **🎧 Smart Audio Coaching:** Utilizes the native Web Speech API to provide real-time voice cues, phase changes, and detailed form reminders.
+- **📊 Proportional Stats Tracking:** Automatically tracks your total workouts, calories burned, and total time trained down to the exact second. Exiting a workout early calculates and saves your proportional effort.
 
 ## 🛠️ Tech Stack
 
 This project was built with performance and simplicity in mind.
 
 - **HTML5:** Semantic architecture, Web App Manifest, `<canvas>` data rendering, and native drag-and-drop.
-- **CSS3:** Custom CSS variables, CSS Grid/Flexbox, frosted glass UI, cross-browser minimal scrollbars, and strict scroll-locks.
+- **CSS3:** Custom CSS variables, CSS Grid/Flexbox, frosted glass UI, cross-browser minimal scrollbars, and keyframe animations.
 - **JavaScript (Vanilla ES6):** State management, Custom Physics, Web Speech API, Wake Lock API, and native DOM manipulation.
 
 ## 🚀 Getting Started
@@ -59,10 +58,8 @@ You can easily expand the application's library by modifying the `EXERCISES` arr
   id: 'new-exercise',
   name: 'Your New Exercise',
   cat: 'upper', // Options: upper, lower, core, cardio, full
-  type: 'dynamic', // Options: dynamic (Reps/Time toggle), hold (Time only)
   cue: 'A brief tip for form and execution.',
   time: 45, // Default time in seconds
-  reps: 15, // Default rep count
   tts: 'Phonetic spelling for the voice coach'
 }
 ```

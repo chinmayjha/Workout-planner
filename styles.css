@@ -36,10 +36,7 @@ html {
   scroll-padding-top: env(safe-area-inset-top, 0px);
 }
 
-/* Scroll Locks & Base */
-body.no-scroll {
-  overflow: hidden;
-}
+/* MAIN SCROLLBAR */
 html,
 body {
   scrollbar-width: thin;
@@ -95,8 +92,7 @@ h3 {
   font-family: var(--ff-h);
 }
 button,
-input,
-select {
+input {
   font-family: var(--ff-b);
 }
 button {
@@ -111,6 +107,7 @@ button {
   transition: max-width 0.3s ease;
 }
 
+/* Confetti Physics Layer */
 .confetti-canvas {
   position: fixed;
   top: 0;
@@ -121,7 +118,7 @@ button {
   z-index: 9999;
 }
 
-/* Reusable */
+/* Reusable Animations & Limits */
 .hover-elevate {
   transition:
     transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
@@ -134,9 +131,7 @@ button {
 .hover-elevate:active {
   transform: translateY(0) scale(0.98);
 }
-.pop-in {
-  animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
+
 @keyframes popIn {
   0% {
     transform: scale(0.95);
@@ -147,6 +142,10 @@ button {
     opacity: 1;
   }
 }
+.pop-in {
+  animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 @keyframes pulseDanger {
   0% {
     box-shadow: 0 0 0 0 rgba(255, 107, 74, 0.4);
@@ -162,6 +161,7 @@ button {
   border-radius: 50%;
   animation: pulseDanger 1s infinite;
 }
+
 @keyframes shakeLimit {
   0%,
   100% {
@@ -178,6 +178,7 @@ button {
   animation: shakeLimit 0.3s ease-in-out;
   border-color: var(--warn) !important;
 }
+
 .text-gradient {
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   -webkit-background-clip: text;
@@ -186,7 +187,7 @@ button {
   letter-spacing: -0.02em;
 }
 
-/* Header & Nav */
+/* Header & Navigation */
 .header {
   display: flex;
   justify-content: space-between;
@@ -311,11 +312,6 @@ button {
 }
 .btn-danger {
   color: var(--warn);
-  border-color: rgba(255, 107, 74, 0.3);
-}
-.btn-danger:hover {
-  background: rgba(255, 107, 74, 0.1);
-  border-color: var(--warn);
 }
 .btn-text {
   background: transparent;
@@ -323,6 +319,7 @@ button {
   color: var(--warn);
   font-size: 0.8rem;
   font-weight: 600;
+  cursor: pointer;
   padding: 4px 8px;
   border-radius: 6px;
   transition: background 0.2s;
@@ -331,7 +328,10 @@ button {
   background: rgba(255, 107, 74, 0.1);
 }
 
-/* Dashboard & UI Tools */
+/* Dashboard & Cards */
+.user-dashboard {
+  margin-bottom: 24px;
+}
 .user-greeting h2 {
   font-size: 1.5rem;
   letter-spacing: -0.02em;
@@ -369,6 +369,7 @@ button {
   font-size: 1.15rem;
   color: var(--text);
 }
+
 .search-bar {
   display: flex;
   align-items: center;
@@ -392,6 +393,10 @@ button {
   color: var(--text);
   font-size: 0.95rem;
 }
+.search-bar input::placeholder {
+  color: var(--muted);
+}
+
 .title-flex {
   display: flex;
   justify-content: space-between;
@@ -405,8 +410,11 @@ button {
   font-weight: 700;
   margin: 18px 0 10px;
 }
+.section-title:first-child {
+  margin-top: 4px;
+}
 
-/* Scrollers */
+/* Scroll behavior for Mobile */
 .library-scroll-pane {
   max-height: 50vh;
   overflow-y: auto;
@@ -419,12 +427,14 @@ button {
   padding-bottom: 20px;
   flex: 1;
 }
+
 .chips {
   display: flex;
   gap: 10px;
   overflow-x: auto;
   padding: 4px 0 8px;
   margin-bottom: 16px;
+  -ms-overflow-style: none;
   scrollbar-width: none;
 }
 .chips::-webkit-scrollbar {
@@ -441,8 +451,10 @@ button {
   font-weight: 600;
   white-space: nowrap;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 .chip:hover {
+  transform: translateY(-2px);
   border-color: rgba(139, 124, 255, 0.5);
   background: rgba(139, 124, 255, 0.1);
   color: var(--text);
@@ -453,7 +465,7 @@ button {
   border-color: var(--accent);
 }
 
-/* Plan Cards & Mode Toggle */
+/* Exercise List items */
 .ex-card {
   display: flex;
   align-items: center;
@@ -466,14 +478,18 @@ button {
   padding: 12px;
   margin-bottom: 10px;
   transition:
-    transform 0.2s,
-    box-shadow 0.2s,
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
     border-color 0.3s,
     background 0.3s;
 }
 .ex-card.in-plan {
   background: rgba(139, 124, 255, 0.1);
   border-color: rgba(139, 124, 255, 0.4);
+}
+.ex-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 .ex-icon {
   width: 44px;
@@ -483,6 +499,10 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.ex-icon svg {
+  width: 23px;
+  height: 23px;
 }
 .ex-info {
   flex: 1;
@@ -520,6 +540,7 @@ button {
   border-color: var(--accent2);
 }
 
+/* Drag & Drop List */
 .drag-notice {
   font-size: 0.75rem;
   color: var(--muted);
@@ -529,6 +550,7 @@ button {
 .plan-card {
   background: rgba(22, 22, 31, 0.55);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1.5px solid var(--line);
   border-radius: 16px;
   padding: 12px;
@@ -537,9 +559,8 @@ button {
   align-items: center;
   gap: 10px;
   transition:
-    transform 0.2s,
-    box-shadow 0.2s;
-  flex-wrap: wrap;
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .plan-card.dragging {
   opacity: 0.4;
@@ -548,40 +569,10 @@ button {
 .plan-card.drag-over {
   border-top: 2px solid var(--accent);
 }
-.plan-card .core-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
+.plan-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
-
-.plan-mode-toggle {
-  display: flex;
-  background: var(--bg);
-  border-radius: 8px;
-  overflow: hidden;
-  margin: 8px 0 0 54px;
-  border: 1px solid var(--line);
-}
-.plan-mode-toggle button {
-  flex: 1;
-  font-size: 0.75rem;
-  padding: 4px 10px;
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  font-weight: 600;
-  transition: all 0.2s;
-}
-.plan-mode-toggle button.active {
-  background: var(--line);
-  color: var(--text);
-}
-.plan-mode-toggle button.locked {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .plan-time-stepper {
   display: flex;
   align-items: center;
@@ -627,6 +618,10 @@ button {
   border: none;
   font-size: 1.1rem;
   padding: 4px;
+  transition: transform 0.2s;
+}
+.plan-remove:hover {
+  transform: scale(1.1);
 }
 .empty-hint {
   text-align: center;
@@ -637,7 +632,7 @@ button {
   border-radius: 16px;
 }
 
-/* Settings / Form Elements */
+/* Steppers */
 .set-row {
   display: flex;
   justify-content: space-between;
@@ -647,6 +642,7 @@ button {
   border-radius: 16px;
   padding: 16px;
   margin-bottom: 10px;
+  transition: border-color 0.2s;
 }
 .set-row .lbl {
   font-weight: 600;
@@ -674,6 +670,10 @@ button {
   background: var(--bg2);
   color: var(--text);
   font-size: 1rem;
+  transition: background 0.2s;
+}
+.stepper button:hover {
+  background: var(--line);
 }
 .stepper span {
   min-width: 34px;
@@ -681,6 +681,7 @@ button {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+
 .switch {
   width: 46px;
   height: 27px;
@@ -707,10 +708,20 @@ button {
 .switch.on::after {
   transform: translateX(19px);
 }
+
 .field {
   width: 100%;
   text-align: left;
   margin-top: 2px;
+}
+.field label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+  font-weight: 600;
 }
 .field input {
   width: 100%;
@@ -721,12 +732,13 @@ button {
   color: var(--text);
   font-size: 1rem;
   outline: none;
+  transition: border-color 0.2s;
 }
 .field input:focus {
   border-color: var(--accent);
 }
 
-/* Workout Screen */
+/* Workout Phase Screens */
 .wo-state {
   display: none;
 }
@@ -738,6 +750,8 @@ button {
 }
 .summary-card {
   background: rgba(22, 22, 31, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1.5px solid var(--line);
   border-radius: 18px;
   padding: 20px;
@@ -756,6 +770,7 @@ button {
 .summary-card .row b {
   font-family: var(--ff-h);
 }
+
 .progress-track {
   height: 5px;
   background: var(--line);
@@ -884,120 +899,13 @@ button {
   margin-top: 4px;
 }
 
-/* Profile Page New Elements */
-.profile-header {
-  text-align: center;
-  padding: 10px 0 20px;
-}
-.profile-rank {
-  color: var(--accent);
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  margin-top: 4px;
-}
-.streak-box {
-  background: rgba(22, 22, 31, 0.55);
-  backdrop-filter: blur(12px);
-  border: 1.5px solid var(--line);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 24px;
-  display: flex;
-  justify-content: space-around;
-  text-align: center;
-}
-.streak-box .val {
-  font-family: var(--ff-h);
-  font-size: 1.6rem;
-  color: var(--text);
-}
-.streak-box .lbl {
-  font-size: 0.7rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-top: 4px;
-}
-
-/* Heatmap Grid */
-.heatmap-container {
-  background: rgba(22, 22, 31, 0.55);
-  backdrop-filter: blur(12px);
-  border: 1.5px solid var(--line);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 24px;
-}
-.heatmap-grid {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 6px;
-  margin-top: 16px;
-}
-.hm-cell {
-  aspect-ratio: 1;
-  border-radius: 4px;
-  background: var(--line);
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-.hm-cell:hover {
-  transform: scale(1.1);
-  z-index: 2;
-}
-.hm-cell[data-lvl="1"] {
-  background: rgba(139, 124, 255, 0.4);
-}
-.hm-cell[data-lvl="2"] {
-  background: var(--accent);
-  box-shadow: 0 0 8px var(--accent);
-}
-.hm-tooltip {
-  position: absolute;
-  bottom: 130%;
-  left: 50%;
-  transform: translateX(-50%) scale(0.9);
-  opacity: 0;
-  pointer-events: none;
-  background: rgba(22, 22, 31, 0.95);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--line);
-  padding: 8px 12px;
-  border-radius: 8px;
-  color: var(--text);
-  font-size: 0.75rem;
-  white-space: nowrap;
-  transition: all 0.2s;
-  z-index: 10;
-  font-family: var(--ff-b);
-  font-weight: 500;
-  text-align: center;
-  box-shadow: var(--shadow-sm);
-}
-.hm-tooltip::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 6px;
-  border-style: solid;
-  border-color: var(--line) transparent transparent transparent;
-}
-.hm-cell:hover .hm-tooltip {
-  opacity: 1;
-  transform: translateX(-50%) scale(1);
-}
-
 /* Modals */
 .modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: none;
   align-items: flex-end;
   justify-content: center;
@@ -1040,77 +948,63 @@ button {
   height: 32px;
   border-radius: 10px;
   color: var(--text);
+  font-size: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-/* Intensity Modal specifically */
-.rpe-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
-  margin-top: 10px;
+#nameModal .modal-sheet {
+  text-align: center;
 }
-.rpe-btn {
-  background: var(--bg);
-  border: 1.5px solid var(--line);
-  padding: 20px 10px;
+.logo-mark {
+  width: 56px;
+  height: 56px;
   border-radius: 16px;
-  font-size: 1rem;
-  color: var(--text);
-  font-weight: 600;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-.rpe-btn:hover {
-  border-color: var(--accent);
-  background: rgba(139, 124, 255, 0.1);
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px auto 14px;
 }
 
-/* Glossary & Shortcuts */
-.shortcut-list {
-  margin-bottom: 24px;
-}
-.sc-row {
+/* Footer */
+.app-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--line);
+  padding: 24px 20px;
   font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: auto;
 }
-.sc-row kbd {
-  background: var(--card);
-  border: 1px solid var(--line);
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-family: var(--ff-b);
-  font-weight: 600;
-  color: var(--accent);
-  font-size: 0.75rem;
-}
-.glossary-item {
-  padding: 14px;
-  background: var(--card);
-  border: 1.5px solid var(--line);
-  border-radius: 12px;
-  margin-bottom: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  text-decoration: none;
+.footer-link {
   color: var(--text);
-  transition: all 0.2s;
+  font-weight: 600;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.3s ease;
 }
-.glossary-item:hover {
-  border-color: var(--warn);
-  background: rgba(255, 107, 74, 0.05);
-  transform: translateY(-2px);
+.footer-link::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: -3px;
+  left: 0;
+  background-color: var(--accent);
+  transform-origin: bottom right;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.footer-link:hover {
+  color: var(--accent);
+}
+.footer-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
 }
 
-/* Desktop Grid */
+/* Desktop Grid and Dynamic Height Fixes */
 @media (min-width: 768px) {
   .app {
     max-width: 1000px;
@@ -1128,6 +1022,7 @@ button {
     display: flex;
     flex-direction: column;
   }
+
   .custom-scroll {
     flex: 1;
     max-height: calc(100vh - 350px);
@@ -1188,11 +1083,6 @@ button {
     margin: 20px auto 0;
   }
 
-  #page-profile {
-    max-width: 600px;
-    margin: 0 auto;
-    width: 100%;
-  }
   .modal-overlay {
     align-items: center;
   }
@@ -1210,63 +1100,38 @@ button {
   }
 }
 
-/* Scrollbars */
+/* Custom minimal scrollbars */
 .custom-scroll,
-.modal-sheet {
+.modal-sheet,
+.developer-modal {
+  -ms-overflow-style: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
 }
 .custom-scroll::-webkit-scrollbar,
-.modal-sheet::-webkit-scrollbar {
+.modal-sheet::-webkit-scrollbar,
+.developer-modal::-webkit-scrollbar {
   display: block;
   width: 5px;
 }
 .custom-scroll::-webkit-scrollbar-track,
-.modal-sheet::-webkit-scrollbar-track {
+.modal-sheet::-webkit-scrollbar-track,
+.developer-modal::-webkit-scrollbar-track {
   background: transparent;
 }
 .custom-scroll::-webkit-scrollbar-thumb,
-.modal-sheet::-webkit-scrollbar-thumb {
+.modal-sheet::-webkit-scrollbar-thumb,
+.developer-modal::-webkit-scrollbar-thumb {
   background-color: var(--line);
   border-radius: 10px;
 }
-
-/* Footers & FABs */
-.app-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px 20px;
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin-top: auto;
-}
-.footer-link {
-  color: var(--text);
-  font-weight: 600;
-  text-decoration: none;
-  position: relative;
-}
-.footer-link::after {
-  content: "";
-  position: absolute;
-  width: 100%;
-  transform: scaleX(0);
-  height: 2px;
-  bottom: -3px;
-  left: 0;
-  background-color: var(--accent);
-  transition: transform 0.3s;
-  transform-origin: bottom right;
-}
-.footer-link:hover {
-  color: var(--accent);
-}
-.footer-link:hover::after {
-  transform: scaleX(1);
-  transform-origin: bottom left;
+.custom-scroll::-webkit-scrollbar-thumb:hover,
+.modal-sheet::-webkit-scrollbar-thumb:hover,
+.developer-modal::-webkit-scrollbar-thumb:hover {
+  background-color: var(--muted);
 }
 
+/* Developer Overlay - Untouched */
 .developer-info-btn {
   position: fixed;
   bottom: 2rem;
@@ -1279,48 +1144,31 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
   z-index: 100;
   color: var(--text);
+  box-shadow: var(--shadow-sm);
 }
 .developer-tooltip {
   position: absolute;
   right: 75px;
-  opacity: 0;
-  pointer-events: none;
+  top: 50%;
+  transform: translateY(-50%);
   background: var(--text);
   color: var(--bg);
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: 600;
   white-space: nowrap;
-  transition: all 0.3s;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
 }
 .developer-info-btn:hover .developer-tooltip {
   opacity: 1;
-  transform: translateX(-10px);
+  transform: translateY(-50%) translateX(-10px);
 }
-
-.fab-btn {
-  position: fixed;
-  bottom: 2rem;
-  left: 2rem;
-  width: 60px;
-  height: 60px;
-  background: rgba(22, 22, 31, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1.5px solid var(--line);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 100;
-  color: var(--text);
-  font-family: var(--ff-h);
-  font-size: 1.6rem;
-}
-/* Developer Overlay & Modal */
 .developer-overlay {
   position: fixed;
   top: 0;
@@ -1329,6 +1177,7 @@ button {
   height: 100vh;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -1355,7 +1204,9 @@ button {
   z-index: 1600;
   opacity: 0;
   pointer-events: none;
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition:
+    opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+    transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   color: var(--text);
 }
 .developer-modal.active {
@@ -1429,12 +1280,6 @@ button {
   border-radius: 16px;
   text-decoration: none;
   color: var(--text);
-  transition: all 0.2s;
-}
-.developer-link:hover {
-  background: rgba(139, 124, 255, 0.1);
-  border-color: var(--accent);
-  transform: translateY(-2px);
 }
 .link-icon {
   display: flex;
@@ -1451,6 +1296,15 @@ button {
   color: var(--muted);
 }
 @media (max-width: 600px) {
+  .developer-info-btn {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 50px;
+    height: 50px;
+  }
+  .developer-tooltip {
+    display: none;
+  }
   .developer-modal {
     width: 92vw;
     padding: 0;
