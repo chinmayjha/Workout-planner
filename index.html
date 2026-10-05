@@ -135,7 +135,6 @@
               </h2>
               <p>Let's build your routine for today.</p>
             </div>
-            
           </div>
 
           <div class="plan-grid">
@@ -275,6 +274,13 @@
                 style="display: none"
               >
                 <button
+                  class="btn btn-primary btn-sm full hover-elevate"
+                  id="btnDone"
+                  type="button"
+                >
+                  Done ✓
+                </button>
+                <button
                   class="btn btn-ghost btn-sm hover-elevate"
                   id="btnPause"
                 >
@@ -317,7 +323,9 @@
                 />
               </svg>
             </div>
-            <h2 style="text-align: center">Workout Complete</h2>
+            <h2 style="text-align: center" id="completeTitle">
+              Workout Complete
+            </h2>
             <p
               style="text-align: center; color: var(--muted); margin-top: 4px"
               id="completeSub"
@@ -358,26 +366,39 @@
             <div class="pf-avatar" id="pfAvatar">A</div>
             <div>
               <h2 id="pfName">Athlete</h2>
-              <button class="btn btn-ghost btn-sm pf-edit" id="pfEdit" type="button">Change name</button>
+              <button
+                class="btn btn-ghost btn-sm pf-edit"
+                id="pfEdit"
+                type="button"
+              >
+                Change name
+              </button>
             </div>
           </div>
           <div class="lifetime-stats">
-              <div class="stat-badge">
-                <span class="lbl">Workouts</span><b id="ltWorkouts">0</b>
-              </div>
-              <div class="stat-badge">
-                <span class="lbl">Time</span><b id="ltTime">0s</b>
-              </div>
-              <div class="stat-badge">
-                <span class="lbl">Calories</span><b id="ltCalories">0</b>
-              </div>
+            <div class="stat-badge">
+              <span class="lbl">Workouts</span><b id="ltWorkouts">0</b>
             </div>
+            <div class="stat-badge">
+              <span class="lbl">Time</span><b id="ltTime">0s</b>
+            </div>
+            <div class="stat-badge">
+              <span class="lbl">Calories</span><b id="ltCalories">0</b>
+            </div>
+          </div>
           <div class="section-title">Streak</div>
           <div class="streak-card">
-            <div class="sc-main"><b id="stCur">0</b><span>day streak</span></div>
+            <div class="sc-main">
+              <b id="stCur">0</b><span>day streak</span>
+            </div>
             <div class="sc-side">
               <div><b id="stBest">0</b><span>best</span></div>
-              <div class="savers" id="stSavers" role="img" aria-label="0 of 3 streak savers"></div>
+              <div
+                class="savers"
+                id="stSavers"
+                role="img"
+                aria-label="0 of 3 streak savers"
+              ></div>
             </div>
             <span class="sc-next" id="stNext"></span>
           </div>
@@ -388,12 +409,27 @@
           </div>
           <div class="section-title">Backup</div>
           <div class="backup-row">
-            <button class="btn btn-ghost btn-sm" id="btnExport" type="button">Export</button>
-            <button class="btn btn-ghost btn-sm" id="btnImport" type="button">Import</button>
+            <button class="btn btn-ghost btn-sm" id="btnExport" type="button">
+              Export
+            </button>
+            <button class="btn btn-ghost btn-sm" id="btnImport" type="button">
+              Import
+            </button>
           </div>
-          <input type="file" id="importFile" accept="application/json,.json" hidden />
+          <input
+            type="file"
+            id="importFile"
+            accept="application/json,.json"
+            hidden
+          />
           <div class="section-title">Danger zone</div>
-          <button class="btn btn-outline btn-danger wipe" id="btnWipe" type="button"><span>Hold to clear all data</span></button>
+          <button
+            class="btn btn-outline btn-danger wipe"
+            id="btnWipe"
+            type="button"
+          >
+            <span>Hold to clear all data</span>
+          </button>
         </section>
       </main>
 
@@ -510,15 +546,24 @@
           <button class="switch on" id="toggleSound"></button>
         </div>
         <div class="set-row sub">
-          <div><div class="lbl">Announcements</div><div class="desc">"Next up: Push-Ups"</div></div>
+          <div>
+            <div class="lbl">Announcements</div>
+            <div class="desc">"Next up: Push-Ups"</div>
+          </div>
           <button class="switch on" id="toggleAnnounce" type="button"></button>
         </div>
         <div class="set-row sub">
-          <div><div class="lbl">Form coaching</div><div class="desc">"Keep your back flat..."</div></div>
+          <div>
+            <div class="lbl">Form coaching</div>
+            <div class="desc">"Keep your back flat..."</div>
+          </div>
           <button class="switch on" id="toggleCoach" type="button"></button>
         </div>
         <div class="set-row sub">
-          <div><div class="lbl">Pacing &amp; chimes</div><div class="desc">Beeps and the halfway cue</div></div>
+          <div>
+            <div class="lbl">Pacing &amp; chimes</div>
+            <div class="desc">Beeps and the halfway cue</div>
+          </div>
           <button class="switch on" id="toggleChimes" type="button"></button>
         </div>
         <div class="set-row">
@@ -528,36 +573,148 @@
       </div>
     </div>
 
-    <button class="developer-info-btn help-btn hover-elevate" id="btnHelp" type="button" aria-label="Help and shortcuts">
+    <button
+      class="developer-info-btn help-btn hover-elevate"
+      id="btnHelp"
+      type="button"
+      aria-label="Help and shortcuts"
+    >
       ?<span class="developer-tooltip">Help &amp; Shortcuts</span>
     </button>
 
     <div class="modal-overlay" id="helpModal">
-      <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <div
+        class="modal-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="helpTitle"
+      >
         <div class="modal-head">
           <h2 id="helpTitle">Help &amp; Shortcuts</h2>
-          <button class="modal-close hover-elevate" id="btnCloseHelp" type="button" aria-label="Close">✕</button>
+          <button
+            class="modal-close hover-elevate"
+            id="btnCloseHelp"
+            type="button"
+            aria-label="Close"
+          >
+            ✕
+          </button>
         </div>
         <div class="kbd-section">
-          <div class="section-title" style="margin-top: 0">Keyboard shortcuts</div>
-          <div class="set-row"><div class="lbl">Pause / resume</div><kbd>Space</kbd></div>
-          <div class="set-row"><div class="lbl">Skip phase</div><kbd>→</kbd></div>
-          <div class="set-row"><div class="lbl">Mute / unmute</div><kbd>M</kbd></div>
-          <div class="set-row"><div class="lbl">End workout / close</div><kbd>Esc</kbd></div>
-          <div class="set-row"><div class="lbl">Open this help</div><kbd>?</kbd></div>
+          <div class="section-title" style="margin-top: 0">
+            Keyboard shortcuts
+          </div>
+          <div class="set-row">
+            <div class="lbl">Pause / resume / reps done</div>
+            <kbd>Space</kbd>
+          </div>
+          <div class="set-row">
+            <div class="lbl">Skip phase</div>
+            <kbd>→</kbd>
+          </div>
+          <div class="set-row">
+            <div class="lbl">Mute / unmute</div>
+            <kbd>M</kbd>
+          </div>
+          <div class="set-row">
+            <div class="lbl">End workout / close</div>
+            <kbd>Esc</kbd>
+          </div>
+          <div class="set-row">
+            <div class="lbl">Open this help</div>
+            <kbd>?</kbd>
+          </div>
         </div>
         <div class="section-title">Form video glossary</div>
         <div class="vid-list" id="vidList"></div>
       </div>
     </div>
 
+    <div class="modal-overlay" id="rpeModal">
+      <div
+        class="modal-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="rpeTitle"
+      >
+        <h2 id="rpeTitle" style="font-size: 1.2rem; text-align: center">
+          How did that feel?
+        </h2>
+        <div class="rpe-row">
+          <button class="rpe-btn hover-elevate" data-rpe="1" type="button">
+            <svg
+              viewBox="0 0 48 48"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <circle cx="24" cy="24" r="20" />
+              <circle cx="17" cy="20" r="2" fill="currentColor" />
+              <circle cx="31" cy="20" r="2" fill="currentColor" />
+              <path d="M15 29q9 9 18 0" /></svg
+            ><span>Light</span>
+          </button>
+          <button class="rpe-btn hover-elevate" data-rpe="2" type="button">
+            <svg
+              viewBox="0 0 48 48"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <circle cx="24" cy="24" r="20" />
+              <circle cx="17" cy="21" r="2" fill="currentColor" />
+              <circle cx="31" cy="21" r="2" fill="currentColor" />
+              <path d="M16 32h16M38 8q4 5 0 7q-4-2 0-7" /></svg
+            ><span>Hard</span>
+          </button>
+          <button class="rpe-btn hover-elevate" data-rpe="3" type="button">
+            <svg
+              viewBox="0 0 48 48"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <circle cx="24" cy="24" r="20" />
+              <path
+                d="M13 16l6 6M19 16l-6 6M29 16l6 6M35 16l-6 6M17 35q7-8 14 0"
+              /></svg
+            ><span>Brutal</span>
+          </button>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="btnRpeSkip" type="button">
+          Skip
+        </button>
+      </div>
+    </div>
+
     <div class="modal-overlay" id="quitModal">
-      <div class="modal-sheet" role="alertdialog" aria-modal="true" aria-labelledby="quitTitle">
+      <div
+        class="modal-sheet"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="quitTitle"
+      >
         <h2 id="quitTitle" style="font-size: 1.2rem">End this workout?</h2>
-        <p style="color: var(--muted); font-size: 0.9rem; margin: 6px 0 18px">Your time so far will still be saved to your stats.</p>
+        <p style="color: var(--muted); font-size: 0.9rem; margin: 6px 0 18px">
+          Your time so far will still be saved to your stats.
+        </p>
         <div class="backup-row">
-          <button class="btn btn-ghost" id="btnKeepGoing" type="button">Keep going</button>
-          <button class="btn btn-outline btn-danger" id="btnConfirmQuit" type="button">End workout</button>
+          <button class="btn btn-ghost" id="btnKeepGoing" type="button">
+            Keep going
+          </button>
+          <button
+            class="btn btn-outline btn-danger"
+            id="btnConfirmQuit"
+            type="button"
+          >
+            End workout
+          </button>
         </div>
       </div>
     </div>

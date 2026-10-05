@@ -20,7 +20,9 @@
   function dateKey(when, rollHour) {
     var d = new Date(when === undefined ? Date.now() : when);
     if (rollHour) d = new Date(d.getTime() - rollHour * 3600000);
-    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+    return (
+      d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate())
+    );
   }
   // Whole-day index from a key. Built on Date.UTC so DST can never shift it.
   function dayNum(key) {
@@ -29,7 +31,13 @@
   }
   function keyFromNum(n) {
     var d = new Date(n * 86400000);
-    return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate());
+    return (
+      d.getUTCFullYear() +
+      "-" +
+      pad(d.getUTCMonth() + 1) +
+      "-" +
+      pad(d.getUTCDate())
+    );
   }
 
   function defaults() {
@@ -65,7 +73,9 @@
     if (typeof o.vibrate === "boolean") s.vibrate = o.vibrate;
     if (Array.isArray(o.plan)) {
       s.plan = o.plan
-        .filter(function (p) { return p && typeof p.id === "string"; })
+        .filter(function (p) {
+          return p && typeof p.id === "string";
+        })
         .slice(0, 50)
         .map(function (p) {
           var item = {
@@ -73,7 +83,8 @@
             time: Math.min(300, Math.max(5, num(p.time, 30))),
             mode: p.mode === "reps" ? "reps" : "time",
           };
-          if (item.mode === "reps" && num(p.reps, 0)) item.reps = Math.min(200, p.reps);
+          if (item.mode === "reps" && num(p.reps, 0))
+            item.reps = Math.min(200, p.reps);
           return item;
         });
     }
@@ -110,7 +121,9 @@
         s.streak.progress = Math.min(SAVER_EVERY - 1, num(t.progress, 0));
         s.streak.completed = num(t.completed, 0);
         if (Array.isArray(t.frozen)) {
-          s.streak.frozen = t.frozen.filter(function (k) { return /^\d{4}-\d{2}-\d{2}$/.test(k); });
+          s.streak.frozen = t.frozen.filter(function (k) {
+            return /^\d{4}-\d{2}-\d{2}$/.test(k);
+          });
         }
       }
     } else {
@@ -119,7 +132,8 @@
       s.base.workouts = num(st.workouts, 0);
       s.base.time = num(st.time, 0) || num(st.minutes, 0) * 60;
       s.base.calories = num(st.calories, 0);
-      if (o.sound === false) s.audio = { announce: false, coach: false, chimes: false };
+      if (o.sound === false)
+        s.audio = { announce: false, coach: false, chimes: false };
     }
     return s;
   }
@@ -157,7 +171,8 @@
   }
   function importJSON(text) {
     var o = JSON.parse(text); // throws on bad input; the caller shows the error
-    if (!o || typeof o !== "object" || Array.isArray(o)) throw new Error("Not a backup file");
+    if (!o || typeof o !== "object" || Array.isArray(o))
+      throw new Error("Not a backup file");
     return migrate(o);
   }
 
@@ -165,14 +180,22 @@
      exDone, exTotal, rounds, rpe }. Returns the saver earned (true/false). */
   function logSession(s, r) {
     var k = dateKey(r.start, s.rollHour); // credited to the day it started
-    var day = s.log[k] || (s.log[k] = { sessions: 0, secs: 0, cals: 0, completed: 0 });
+    var day =
+      s.log[k] || (s.log[k] = { sessions: 0, secs: 0, cals: 0, completed: 0 });
     day.sessions++;
     day.secs += r.secs;
     day.cals += r.cals;
     if (r.complete) day.completed++;
     s.history.unshift({
-      t: r.start, d: k, secs: r.secs, cals: r.cals, done: !!r.complete,
-      ex: r.exDone, of: r.exTotal, rounds: r.rounds, rpe: r.rpe || null,
+      t: r.start,
+      d: k,
+      secs: r.secs,
+      cals: r.cals,
+      done: !!r.complete,
+      ex: r.exDone,
+      of: r.exTotal,
+      rounds: r.rounds,
+      rpe: r.rpe || null,
     });
     s.history.length = Math.min(s.history.length, 60);
     var earned = false;
@@ -201,13 +224,17 @@
       if (s.log[k].secs >= MIN_ACTIVE_SECS) active[dayNum(k)] = true;
     });
     var frozen = {};
-    s.streak.frozen.forEach(function (k) { frozen[dayNum(k)] = true; });
+    s.streak.frozen.forEach(function (k) {
+      frozen[dayNum(k)] = true;
+    });
     var used = [];
 
     var last = -Infinity;
-    Object.keys(active).concat(Object.keys(frozen)).forEach(function (n) {
-      if (+n > last && +n <= t) last = +n;
-    });
+    Object.keys(active)
+      .concat(Object.keys(frozen))
+      .forEach(function (n) {
+        if (+n > last && +n <= t) last = +n;
+      });
     var missed = last === -Infinity ? 0 : t - 1 - last;
     if (missed > 0 && missed <= s.streak.savers) {
       for (var n = last + 1; n <= t - 1; n++) {
@@ -229,9 +256,19 @@
   }
 
   var api = {
-    KEY: KEY, dateKey: dateKey, dayNum: dayNum, keyFromNum: keyFromNum, defaults: defaults, migrate: migrate,
-    load: load, save: save, clearAll: clearAll, exportJSON: exportJSON,
-    importJSON: importJSON, logSession: logSession, settle: settle,
+    KEY: KEY,
+    dateKey: dateKey,
+    dayNum: dayNum,
+    keyFromNum: keyFromNum,
+    defaults: defaults,
+    migrate: migrate,
+    load: load,
+    save: save,
+    clearAll: clearAll,
+    exportJSON: exportJSON,
+    importJSON: importJSON,
+    logSession: logSession,
+    settle: settle,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.Store = api;

@@ -288,6 +288,11 @@
     },
   ];
 
+  const HOLDS = new Set(["plank", "hollowbody", "wallsit"]);
+  const canRep = (ex) => !HOLDS.has(ex.id);
+  const RPE_LABEL = { 1: "Light", 2: "Hard", 3: "Brutal" };
+  const RPE_COLOR = { 1: "#00E5A0", 2: "#FFC55C", 3: "#FF6B4A" };
+
   /* ---------- State & Routing ---------- */
   let state = {
     name: "",
@@ -314,6 +319,14 @@
     pauseCount: 0,
   };
   let wakeLock = null;
+  let lastSession = {
+    complete: true,
+    secs: 0,
+    cals: 0,
+    exDone: 0,
+    exTotal: 0,
+    rpe: null,
+  };
 
   const LS_KEY = "forge_state_v6";
   function loadState() {
@@ -444,6 +457,43 @@
     render();
   }
 
+  function drawFace(ctx, k, x, y, r, col) {
+    ctx.save();
+    ctx.strokeStyle = col;
+    ctx.fillStyle = col;
+    ctx.lineWidth = r / 10;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.stroke();
+    const ex = r * 0.35,
+      ey = y - r * 0.2,
+      q = r * 0.14;
+    [-1, 1].forEach((s) => {
+      const cx = x + s * ex;
+      ctx.beginPath();
+      if (k === 3) {
+        ctx.moveTo(cx - q, ey - q);
+        ctx.lineTo(cx + q, ey + q);
+        ctx.moveTo(cx + q, ey - q);
+        ctx.lineTo(cx - q, ey + q);
+        ctx.stroke();
+      } else {
+        ctx.arc(cx, ey, r * 0.08, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    });
+    ctx.beginPath();
+    if (k === 1)
+      ctx.arc(x, y + r * 0.05, r * 0.5, 0.2 * Math.PI, 0.8 * Math.PI);
+    else if (k === 2) {
+      ctx.moveTo(x - r * 0.4, y + r * 0.35);
+      ctx.lineTo(x + r * 0.4, y + r * 0.35);
+    } else ctx.arc(x, y + r * 0.65, r * 0.4, 1.15 * Math.PI, 1.85 * Math.PI);
+    ctx.stroke();
+    ctx.restore();
+  }
+
   /* ---------- Canvas Story Image Generator ---------- */
   document
     .getElementById("btnShareStats")
@@ -454,6 +504,7 @@
 
       // Allow UI to paint before heavy canvas operations
       await new Promise((r) => setTimeout(r, 50));
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
 
       const canvas = document.createElement("canvas");
       canvas.width = 1080;
@@ -483,7 +534,11 @@
       // Header
       ctx.font = 'bold 85px "Space Grotesk", sans-serif';
       ctx.fillStyle = "#F2F2F7";
-      ctx.fillText("WORKOUT CRUSHED", 540, 300);
+      ctx.fillText(
+        lastSession.complete ? "WORKOUT CRUSHED" : "SESSION LOGGED",
+        540,
+        300,
+      );
 
       ctx.font = '50px "Outfit", sans-serif';
       ctx.fillStyle = "#8B7CFF";
@@ -496,15 +551,15 @@
       });
 
       let dominantCat = "full";
-      if (cats.length > 0) {
-        dominantCat = cats
-          .sort(
-            (a, b) =>
-              cats.filter((v) => v === a).length -
-              cats.filter((v) => v === b).length,
-          )
-          .pop();
-      }
+      const counts = {};
+      cats.forEach((c) => (counts[c] = (counts[c] || 0) + 1));
+      let best = 0;
+      Object.keys(counts).forEach((c) => {
+        if (counts[c] > best) {
+          best = counts[c];
+          dominantCat = c;
+        }
+      });
 
       const badgeNames = {
         upper: "🔥 UPPER BODY",
@@ -558,7 +613,7 @@
         ctx.fillText(lbl, x + 400, y + 200);
       }
 
-      const totalSecs = wo.elapsed || estTotalSeconds();
+      const totalSecs = lastSession.secs;
       const m = Math.floor(totalSecs / 60);
       const s = totalSecs % 60;
       const timeStr = m + "m " + s + "s";
@@ -567,24 +622,66 @@
       drawPanel(
         140,
         930,
-        estCalories() + " kcal",
+        lastSession.cals + " kcal",
         "CALORIES BURNED",
         "#FF6B4A",
       );
-      drawPanel(140, 1210, state.plan.length, "EXERCISES COMPLETED", "#8B7CFF");
+      drawPanel(
+        140,
+        1210,
+        lastSession.complete
+          ? String(lastSession.exDone)
+          : lastSession.exDone + " / " + lastSession.exTotal,
+        "EXERCISES DONE",
+        "#8B7CFF",
+      );
+
+      if (lastSession.rpe) {
+        drawFace(
+          ctx,
+          lastSession.rpe,
+          440,
+          1590,
+          60,
+          RPE_COLOR[lastSession.rpe],
+        );
+        ctx.font = 'bold 40px "Outfit", sans-serif';
+        ctx.fillStyle = RPE_COLOR[lastSession.rpe];
+        ctx.fillText(
+          "FELT " + RPE_LABEL[lastSession.rpe].toUpperCase(),
+          660,
+          1604,
+        );
+      }
 
       // Watermark
       ctx.font = 'bold 32px "Outfit", sans-serif';
       ctx.fillStyle = "rgba(138, 138, 154, 0.5)";
       ctx.fillText("workout.chinmayjha.tech", 540, 1820);
 
-      // Trigger Download
-      const link = document.createElement("a");
-      link.download = "workout-summary.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-
-      btn.textContent = "Downloaded! ✓";
+      const blob = await new Promise((r) => canvas.toBlob(r, "image/png"));
+      const file = new File([blob], "workout-summary.png", {
+        type: "image/png",
+      });
+      let label = null;
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file] });
+          label = "Shared ✓";
+        } catch (err) {
+          if (err && err.name === "AbortError") label = "";
+        }
+      }
+      if (label === null) {
+        const link = document.createElement("a");
+        link.download = "workout-summary.png";
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        label = "Downloaded! ✓";
+      }
+      if (label) btn.textContent = label;
+      else btn.innerHTML = originalText;
       setTimeout(() => (btn.innerHTML = originalText), 2500);
     });
 
@@ -633,7 +730,7 @@
         wo.paused = wasPaused;
         return;
       }
-      quitWorkoutLogic();
+      quitWorkoutLogic(true);
     }
     document
       .querySelectorAll(".tab")
@@ -810,9 +907,8 @@
         return `<div class="plan-card pop-in" draggable="true" data-idx="${i}" style="animation-delay: ${i * 0.03}s">
         <div class="ex-icon" style="width:38px;height:38px;flex:0 0 38px;background:${CAT_COLOR[ex.cat]}22;color:${CAT_COLOR[ex.cat]}">${getIcon(ex)}</div>
         <div class="ex-info"><h4 style="font-size:.88rem">${ex.name}</h4></div>
-        <div class="plan-time-stepper">
-          <button data-mod="-5" data-idx="${i}">−</button><span>${p.time}s</span><button data-mod="5" data-idx="${i}">+</button>
-        </div>
+        ${canRep(ex) ? `<button class="mode-btn" data-mode="${i}" type="button" aria-label="Switch ${ex.name} between time and reps">${p.mode === "reps" ? "Reps" : "Time"}</button>` : ""}
+        ${canRep(ex) && p.mode === "reps" ? `<span class="reps-est">~${p.time}s</span>` : `<div class="plan-time-stepper"><button data-mod="-5" data-idx="${i}">−</button><span>${p.time}s</span><button data-mod="5" data-idx="${i}">+</button></div>`}
         <button class="plan-remove" data-remove="${i}">✕</button>
         <div class="drag-handle"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="16" x2="20" y2="16"/></svg></div>
       </div>`;
@@ -829,6 +925,15 @@
         saveState();
         renderPlan();
         renderWorkoutIdle();
+      }),
+    );
+
+    list.querySelectorAll("[data-mode]").forEach((btn) =>
+      btn.addEventListener("click", () => {
+        const p = state.plan[+btn.dataset.mode];
+        p.mode = p.mode === "reps" ? "time" : "reps";
+        saveState();
+        renderPlan();
       }),
     );
 
@@ -1092,6 +1197,15 @@
       wo.timeLeft = state.plan[wo.idx].time;
       wo.phaseTotal = wo.timeLeft;
       wo.halfDone = false;
+      wo.reps = canRep(ex) && state.plan[wo.idx].mode === "reps";
+      if (wo.reps) {
+        wo.timeLeft = 0;
+        wo.phaseTotal = 1;
+        wo.repsElapsed = 0;
+      }
+      document.getElementById("btnDone").style.display = wo.reps
+        ? "block"
+        : "none";
       document.getElementById("phaseTag").textContent = "WORK";
       document.getElementById("phaseTag").style.color = "var(--warn)";
       document.getElementById("bigTimer").style.color = "var(--warn)";
@@ -1113,6 +1227,8 @@
       setThemeColor("#00E5A0"); // Accent2 Color for Rest
       wo.timeLeft = state.rest;
       wo.phaseTotal = Math.max(state.rest, 1);
+      wo.reps = false;
+      document.getElementById("btnDone").style.display = "none";
       document.getElementById("phaseTag").textContent = "REST";
       document.getElementById("phaseTag").style.color = "var(--accent2)";
       document.getElementById("bigTimer").style.color = "var(--accent2)";
@@ -1128,19 +1244,31 @@
       document.getElementById("btnAddRest").disabled = false;
       speakCue("Rest. Up next, " + ex.tts, "announce");
     }
-    document.getElementById("bigTimer").textContent = wo.timeLeft;
+    document.getElementById("bigTimer").textContent =
+      wo.reps && wo.phase === "work" ? "0:00" : wo.timeLeft;
     updateProgress();
   }
 
   function updateProgress() {
     document.getElementById("progressFill").style.width =
-      (wo.phaseTotal > 0 ? (wo.timeLeft / wo.phaseTotal) * 100 : 0) + "%";
+      (wo.reps && wo.phase === "work"
+        ? 100
+        : wo.phaseTotal > 0
+          ? (wo.timeLeft / wo.phaseTotal) * 100
+          : 0) + "%";
   }
 
   function runPhaseTimer() {
     clearInterval(wo.timer);
     wo.timer = setInterval(() => {
       if (wo.paused) return;
+      if (wo.phase === "work" && wo.reps) {
+        wo.repsElapsed++;
+        const rm = Math.floor(wo.repsElapsed / 60);
+        document.getElementById("bigTimer").textContent =
+          rm + ":" + String(wo.repsElapsed % 60).padStart(2, "0");
+        return;
+      }
       wo.timeLeft--;
       document.getElementById("bigTimer").textContent = Math.max(
         0,
@@ -1152,6 +1280,7 @@
         wo.phase === "work" &&
         wo.phaseTotal >= 20 &&
         !wo.halfDone &&
+        !wo.reps &&
         wo.timeLeft > 0 &&
         wo.timeLeft <= Math.floor(wo.phaseTotal / 2)
       ) {
@@ -1243,9 +1372,20 @@
 
     // Trigger celebratory physics
     fireConfetti();
+    document.getElementById("completeTitle").textContent = "Workout Complete";
+    const total = state.plan.length * state.rounds;
+    lastSession = {
+      complete: true,
+      secs: wo.elapsed,
+      cals: estCalories(),
+      exDone: total,
+      exTotal: total,
+      rpe: null,
+    };
+    setTimeout(() => openModal("rpeModal"), 800);
   }
 
-  function quitWorkoutLogic() {
+  function quitWorkoutLogic(silent) {
     clearInterval(wo.timer);
     clearInterval(wo.tick);
     releaseWakeLock();
@@ -1273,6 +1413,28 @@
           exTotal: state.plan.length * state.rounds,
           rounds: state.rounds,
         });
+      if (!silent) {
+        const done = (wo.round - 1) * state.plan.length + wo.idx;
+        const total = state.plan.length * state.rounds;
+        lastSession = {
+          complete: false,
+          secs: wo.elapsed,
+          cals: earnedCals,
+          exDone: done,
+          exTotal: total,
+          rpe: null,
+        };
+        document.getElementById("completeTitle").textContent = "Session Saved";
+        document.getElementById("completeSub").textContent =
+          done + " of " + total + " exercises";
+        document.getElementById("statTime").textContent =
+          Math.floor(wo.elapsed / 60) +
+          ":" +
+          String(wo.elapsed % 60).padStart(2, "0");
+        setWoState("complete");
+        setTimeout(() => openModal("rpeModal"), 800);
+        return;
+      }
     }
     setWoState("idle");
     renderWorkoutIdle();
@@ -1387,6 +1549,21 @@
       `<a class="vid-link" href="https://www.youtube.com/results?search_query=${encodeURIComponent(e.name + " proper form")}" target="_blank" rel="noopener noreferrer"><span>${e.name}</span><span aria-hidden="true">↗</span></a>`,
   ).join("");
   document
+    .getElementById("btnDone")
+    .addEventListener("click", () =>
+      document.getElementById("btnSkip").click(),
+    );
+  document.querySelectorAll("[data-rpe]").forEach((b) =>
+    b.addEventListener("click", () => {
+      lastSession.rpe = +b.dataset.rpe;
+      if (window.Profile) Profile.rate(lastSession.rpe);
+      closeModal("rpeModal");
+    }),
+  );
+  document
+    .getElementById("btnRpeSkip")
+    .addEventListener("click", () => closeModal("rpeModal"));
+  document
     .getElementById("btnHelp")
     .addEventListener("click", () => openModal("helpModal"));
   document
@@ -1438,7 +1615,9 @@
     } else if (activeWorkout() && e.key === " ") {
       e.preventDefault();
       if (t.blur) t.blur();
-      document.getElementById("btnPause").click();
+      document
+        .getElementById(wo.reps && wo.phase === "work" ? "btnDone" : "btnPause")
+        .click();
     } else if (activeWorkout() && e.key === "ArrowRight") {
       e.preventDefault();
       document.getElementById("btnSkip").click();
