@@ -20,7 +20,7 @@
     <meta name="robots" content="index, follow" />
 
     <!-- Dynamic Theme Color ID added for JS manipulation -->
-    <meta name="theme-color" content="#0A0A0F" id="themeColorMeta" />
+    <meta name="theme-color" content="#0E0E0C" id="themeColorMeta" />
 
     <link rel="canonical" href="https://workout.chinmayjha.tech/" />
     <link rel="manifest" href="/manifest.json" />
@@ -56,21 +56,9 @@
     />
     <meta name="twitter:creator" content="@chinmayjha" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="preload"
-      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Space+Grotesk:wght@700&display=swap"
-      as="style"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Space+Grotesk:wght@700&display=swap"
-      rel="stylesheet"
-    />
-
     <link
       rel="icon"
-      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%238B7CFF%22 stroke-width=%222.4%22 stroke-linecap=%22round%22><path d=%22M4 12h16M7 8v8M17 8v8M4 10v4M20 10v4%22/></svg>"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23D7FF3A%22 stroke-width=%222.4%22 stroke-linecap=%22round%22><path d=%22M4 12h16M7 8v8M17 8v8M4 10v4M20 10v4%22/></svg>"
     />
     <link rel="stylesheet" href="styles.css" />
     <meta property="og:site_name" content="Workout Planner" />
@@ -92,6 +80,29 @@
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
         "description": "Free workout planner with a voice-guided interval timer, streaks and a 30-day activity heatmap. Works in any browser."
       }
+    </script>
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="fonts/big-shoulders-display-latin-800-normal.woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="fonts/instrument-sans-latin-400-normal.woff2"
+      crossorigin
+    />
+    <script>
+      try {
+        var t = JSON.parse(
+          localStorage.getItem("forge_state_v6") || "{}",
+        ).theme;
+        if (t === "light" || t === "dark")
+          document.documentElement.dataset.theme = t;
+      } catch (e) {}
     </script>
   </head>
   <body>
@@ -581,6 +592,21 @@
           </div>
         </div>
 
+        <div class="section-title">Appearance</div>
+        <div
+          class="theme-seg"
+          id="themeSeg"
+          role="radiogroup"
+          aria-label="Theme"
+        >
+          <button type="button" role="radio" data-theme-set="system">
+            System
+          </button>
+          <button type="button" role="radio" data-theme-set="dark">Dark</button>
+          <button type="button" role="radio" data-theme-set="light">
+            Light
+          </button>
+        </div>
         <div class="section-title">Feedback</div>
         <div class="set-row">
           <div class="lbl">
