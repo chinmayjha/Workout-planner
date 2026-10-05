@@ -296,6 +296,7 @@
     rest: 30,
     prep: 5,
     sound: true,
+    audio: { announce: true, coach: true, chimes: true },
     vibrate: true,
     stats: { workouts: 0, time: 0, calories: 0 }, // 'time' stores raw seconds
   };
@@ -319,7 +320,15 @@
     try {
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
-        Object.assign(state, JSON.parse(raw));
+        const saved = JSON.parse(raw);
+        Object.assign(state, saved);
+        state.audio = Object.assign(
+          { announce: true, coach: true, chimes: true },
+          saved.audio,
+        );
+        state.plan = (Array.isArray(state.plan) ? state.plan : []).filter((p) =>
+          EXERCISES.some((x) => x.id === (p && p.id)),
+        );
         if (state.stats.minutes !== undefined && !state.stats.time) {
           state.stats.time = state.stats.minutes * 60;
           delete state.stats.minutes;
@@ -613,7 +622,7 @@
   }
 
   function showTab(name) {
-    if (name === "plan" && wo.phase !== "idle" && wo.phase !== "complete") {
+    if (name !== "workout" && wo.phase !== "idle" && wo.phase !== "complete") {
       const wasPaused = wo.paused;
       wo.paused = true;
       if (
@@ -637,17 +646,36 @@
   document
     .querySelectorAll(".tab")
     .forEach((t) => t.addEventListener("click", () => showTab(t.dataset.tab)));
+  let quitPrevPaused = false;
+  let lastFocus = null;
+  function syncLock() {
+    document.body.classList.toggle(
+      "modal-open",
+      !!document.querySelector(".modal-overlay.active"),
+    );
+  }
   function openModal(id) {
-    document.getElementById(id).classList.add("active");
+    const el = document.getElementById(id);
+    lastFocus = document.activeElement;
+    el.classList.add("active");
+    syncLock();
+    const f = el.querySelector("button, input");
+    if (f) setTimeout(() => f.focus(), 50);
   }
   function closeModal(id) {
-    document.getElementById(id).classList.remove("active");
+    const el = document.getElementById(id);
+    if (!el.classList.contains("active")) return;
+    el.classList.remove("active");
+    syncLock();
+    if (id === "quitModal") wo.paused = quitPrevPaused;
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
 
-  // Click overlay to close modals
+  // Click overlay to close modals (the first-run name prompt stays until a name is set)
   document.querySelectorAll(".modal-overlay").forEach((overlay) => {
     overlay.addEventListener("mousedown", (e) => {
-      if (e.target === overlay) overlay.classList.remove("active");
+      if (e.target === overlay && (overlay.id !== "nameModal" || state.name))
+        closeModal(overlay.id);
     });
   });
 
@@ -867,6 +895,7 @@
       .getElementById("toggleVibrate")
       .classList.toggle("on", state.vibrate);
     updateAudioIcon();
+    renderSwitches();
   }
 
   document.querySelectorAll("[data-step]").forEach((btn) => {
@@ -910,7 +939,7 @@
   /* ---------- Sound, Voice & Haptics ---------- */
   let audioCtx = null;
   function beep(freq, dur) {
-    if (!state.sound) return;
+    if (!state.sound || !state.audio.chimes) return;
     try {
       if (!audioCtx)
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -933,9 +962,13 @@
       } catch (e) {}
     }
   }
-  function speakCue(text) {
-    if (!state.sound || !("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
+  function stopSpeech() {
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  }
+  function speakCue(text, kind) {
+    if (!text || !state.sound || !("speechSynthesis" in window)) return;
+    if (kind && !state.audio[kind]) return;
+    stopSpeech();
     const msg = new SpeechSynthesisUtterance(text);
     msg.rate = 1.05;
     msg.pitch = 1.0;
@@ -945,7 +978,7 @@
     state.sound = !state.sound;
     saveState();
     updateAudioIcon();
-    if (!state.sound) window.speechSynthesis.cancel();
+    if (!state.sound) stopSpeech();
   });
 
   /* ---------- Workout Engine ---------- */
@@ -1008,6 +1041,7 @@
       tick: null,
       pauseCount: 0,
     };
+    wo.startedAt = Date.now();
     if (state.sound && !audioCtx) {
       try {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1030,6 +1064,7 @@
         (state.name || "Athlete") +
         ". First up, " +
         firstEx.tts,
+      "announce",
     );
 
     document.getElementById("phaseTag").textContent = "STARTING";
@@ -1056,6 +1091,7 @@
       setThemeColor("#FF6B4A"); // Warn Color for Work
       wo.timeLeft = state.plan[wo.idx].time;
       wo.phaseTotal = wo.timeLeft;
+      wo.halfDone = false;
       document.getElementById("phaseTag").textContent = "WORK";
       document.getElementById("phaseTag").style.color = "var(--warn)";
       document.getElementById("bigTimer").style.color = "var(--warn)";
@@ -1068,7 +1104,11 @@
       document.getElementById("activeControls").style.display = "grid";
       document.getElementById("btnAddRest").style.opacity = ".35";
       document.getElementById("btnAddRest").disabled = true;
-      speakCue(ex.tts + ". " + ex.cue);
+      speakCue(
+        [state.audio.announce ? ex.tts : "", state.audio.coach ? ex.cue : ""]
+          .filter(Boolean)
+          .join(". "),
+      );
     } else if (wo.phase === "rest") {
       setThemeColor("#00E5A0"); // Accent2 Color for Rest
       wo.timeLeft = state.rest;
@@ -1086,7 +1126,7 @@
       document.getElementById("activeControls").style.display = "grid";
       document.getElementById("btnAddRest").style.opacity = "1";
       document.getElementById("btnAddRest").disabled = false;
-      speakCue("Rest. Up next, " + ex.tts);
+      speakCue("Rest. Up next, " + ex.tts, "announce");
     }
     document.getElementById("bigTimer").textContent = wo.timeLeft;
     updateProgress();
@@ -1107,6 +1147,17 @@
         wo.timeLeft,
       );
       updateProgress();
+
+      if (
+        wo.phase === "work" &&
+        wo.phaseTotal >= 20 &&
+        !wo.halfDone &&
+        wo.timeLeft > 0 &&
+        wo.timeLeft <= Math.floor(wo.phaseTotal / 2)
+      ) {
+        wo.halfDone = true;
+        speakCue("Halfway there", "chimes");
+      }
 
       const visual = document.getElementById("exVisual");
       if (wo.timeLeft > 0 && wo.timeLeft <= 3) {
@@ -1165,6 +1216,16 @@
     state.stats.calories = (state.stats.calories || 0) + estCalories();
     saveState();
     updateLifetimeStats();
+    if (window.Profile)
+      Profile.record({
+        start: wo.startedAt,
+        secs: wo.elapsed,
+        cals: estCalories(),
+        complete: true,
+        exDone: state.plan.length * state.rounds,
+        exTotal: state.plan.length * state.rounds,
+        rounds: state.rounds,
+      });
 
     document.getElementById("statTime").textContent =
       m + ":" + String(s).padStart(2, "0");
@@ -1175,7 +1236,10 @@
       " round" +
       (state.rounds > 1 ? "s" : "");
     setWoState("complete");
-    speakCue("Workout complete. Great job, " + (state.name || "Athlete"));
+    speakCue(
+      "Workout complete. Great job, " + (state.name || "Athlete"),
+      "announce",
+    );
 
     // Trigger celebratory physics
     fireConfetti();
@@ -1188,9 +1252,9 @@
     setThemeColor("#0A0A0F"); // Revert theme
     document.getElementById("progressFill").classList.remove("glow");
     document.getElementById("exVisual").classList.remove("pulse-alert");
-    window.speechSynthesis.cancel();
+    stopSpeech();
 
-    if (wo.elapsed > 0) {
+    if (wo.elapsed >= 30) {
       state.stats.workouts = (state.stats.workouts || 0) + 1;
       state.stats.time = (state.stats.time || 0) + wo.elapsed;
       const earnedCals = Math.round(
@@ -1199,6 +1263,16 @@
       state.stats.calories = (state.stats.calories || 0) + earnedCals;
       saveState();
       updateLifetimeStats();
+      if (window.Profile)
+        Profile.record({
+          start: wo.startedAt,
+          secs: wo.elapsed,
+          cals: earnedCals,
+          complete: false,
+          exDone: (wo.round - 1) * state.plan.length + wo.idx,
+          exTotal: state.plan.length * state.rounds,
+          rounds: state.rounds,
+        });
     }
     setWoState("idle");
     renderWorkoutIdle();
@@ -1226,7 +1300,7 @@
     document.getElementById("btnPause").textContent = "Pause";
     document.getElementById("progressFill").classList.remove("glow");
     document.getElementById("exVisual").classList.remove("pulse-alert");
-    window.speechSynthesis.cancel();
+    stopSpeech();
     beep(400, 0.1);
 
     clearInterval(wo.timer);
@@ -1234,9 +1308,7 @@
     runPhaseTimer();
   });
 
-  document
-    .getElementById("btnQuit")
-    .addEventListener("click", quitWorkoutLogic);
+  document.getElementById("btnQuit").addEventListener("click", openQuitConfirm);
   document
     .getElementById("btnStartWorkout")
     .addEventListener("click", startWorkout);
@@ -1278,9 +1350,99 @@
     closeDeveloperBtn.addEventListener("click", closeDeveloperModal);
   if (developerOverlay)
     developerOverlay.addEventListener("click", closeDeveloperModal);
+
+  /* ---------- Audio switches, help hub, quit confirm, shortcuts ---------- */
+  const SWITCH_MAP = {
+    toggleAnnounce: "announce",
+    toggleCoach: "coach",
+    toggleChimes: "chimes",
+  };
+  function renderSwitches() {
+    const all = { toggleSound: state.sound, toggleVibrate: state.vibrate };
+    Object.keys(SWITCH_MAP).forEach(
+      (id) => (all[id] = state.audio[SWITCH_MAP[id]]),
+    );
+    Object.keys(all).forEach((id) => {
+      const el = document.getElementById(id);
+      el.classList.toggle("on", !!all[id]);
+      el.setAttribute("role", "switch");
+      el.setAttribute("aria-checked", String(!!all[id]));
+      el.setAttribute(
+        "aria-label",
+        el.parentElement.querySelector(".lbl").textContent.trim(),
+      );
+    });
+  }
+  Object.keys(SWITCH_MAP).forEach((id) =>
+    document.getElementById(id).addEventListener("click", () => {
+      const k = SWITCH_MAP[id];
+      state.audio[k] = !state.audio[k];
+      saveState();
+      renderSwitches();
+    }),
+  );
+
+  document.getElementById("vidList").innerHTML = EXERCISES.map(
+    (e) =>
+      `<a class="vid-link" href="https://www.youtube.com/results?search_query=${encodeURIComponent(e.name + " proper form")}" target="_blank" rel="noopener noreferrer"><span>${e.name}</span><span aria-hidden="true">↗</span></a>`,
+  ).join("");
+  document
+    .getElementById("btnHelp")
+    .addEventListener("click", () => openModal("helpModal"));
+  document
+    .getElementById("btnCloseHelp")
+    .addEventListener("click", () => closeModal("helpModal"));
+
+  const activeWorkout = () => ["prep", "work", "rest"].includes(wo.phase);
+  function openQuitConfirm() {
+    if (!activeWorkout()) return;
+    if (document.getElementById("quitModal").classList.contains("active"))
+      return;
+    quitPrevPaused = wo.paused;
+    wo.paused = true;
+    openModal("quitModal");
+  }
+  document
+    .getElementById("btnKeepGoing")
+    .addEventListener("click", () => closeModal("quitModal"));
+  document.getElementById("btnConfirmQuit").addEventListener("click", () => {
+    closeModal("quitModal");
+    quitWorkoutLogic();
+  });
+
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && developerModal.classList.contains("active"))
-      closeDeveloperModal();
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === "Escape") {
+      if (developerModal.classList.contains("active"))
+        return closeDeveloperModal();
+      const open = document.querySelector(".modal-overlay.active");
+      if (open) {
+        if (open.id !== "nameModal" || state.name) closeModal(open.id);
+        return;
+      }
+      return openQuitConfirm();
+    }
+    const t = e.target;
+    const tag = (t.tagName || "").toLowerCase();
+    if (tag === "input" || tag === "textarea" || t.isContentEditable) return;
+    const modalOpen =
+      document.querySelector(".modal-overlay.active") ||
+      developerModal.classList.contains("active");
+    if (e.key === "?") {
+      if (!modalOpen) openModal("helpModal");
+      return;
+    }
+    if (modalOpen) return;
+    if (e.key.toLowerCase() === "m") {
+      document.getElementById("btnMute").click();
+    } else if (activeWorkout() && e.key === " ") {
+      e.preventDefault();
+      if (t.blur) t.blur();
+      document.getElementById("btnPause").click();
+    } else if (activeWorkout() && e.key === "ArrowRight") {
+      e.preventDefault();
+      document.getElementById("btnSkip").click();
+    }
   });
 
   /* ---------- Init ---------- */
