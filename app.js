@@ -70,8 +70,8 @@
   }
 
   const CAT_COLOR = {
-    upper: "#8B7CFF",
-    lower: "#00E5A0",
+    upper: "#D7FF3A",
+    lower: "#5CC8FF",
     core: "#FF6B4A",
     cardio: "#FFC55C",
     full: "#5CC8FF",
@@ -289,6 +289,10 @@
   ];
 
   // Only strength moves can be counted in reps; holds and cardio stay timed.
+  const UP =
+    '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>';
+  const DOWN =
+    '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
   const REPS_OK = new Set([
     "pushup",
     "diamondpushup",
@@ -307,7 +311,7 @@
   ]);
   const canRep = (ex) => REPS_OK.has(ex.id);
   const RPE_LABEL = { 1: "Light", 2: "Hard", 3: "Brutal" };
-  const RPE_COLOR = { 1: "#00E5A0", 2: "#FFC55C", 3: "#FF6B4A" };
+  const RPE_COLOR = { 1: "#5CC8FF", 2: "#FFC55C", 3: "#FF6B4A" };
 
   /* ---------- State & Routing ---------- */
   let state = {
@@ -317,6 +321,7 @@
     rest: 30,
     prep: 5,
     sound: true,
+    theme: "system",
     weight: null,
     audio: { announce: true, coach: true, chimes: true },
     vibrate: true,
@@ -380,6 +385,13 @@
     setTimeout(() => el.classList.remove("shake"), 300);
   }
 
+  function baseThemeColor() {
+    return (
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--bg")
+        .trim() || "#0E0E0C"
+    );
+  }
   function setThemeColor(hex) {
     const meta = document.getElementById("themeColorMeta");
     if (meta) meta.setAttribute("content", hex);
@@ -433,7 +445,7 @@
     canvas.height = window.innerHeight;
 
     const particles = [];
-    const colors = ["#8B7CFF", "#00E5A0", "#FF6B4A", "#5CC8FF"];
+    const colors = ["#D7FF3A", "#5CC8FF", "#FF6B4A", "#5CC8FF"];
 
     for (let i = 0; i < 120; i++) {
       particles.push({
@@ -521,7 +533,12 @@
 
       // Allow UI to paint before heavy canvas operations
       await new Promise((r) => setTimeout(r, 50));
-      if (document.fonts && document.fonts.ready) await document.fonts.ready;
+      if (document.fonts && document.fonts.ready)
+        await Promise.all([
+          document.fonts.load('800 60px "Big Shoulders Display"'),
+          document.fonts.load('700 40px "Instrument Sans"'),
+          document.fonts.ready,
+        ]);
 
       const canvas = document.createElement("canvas");
       canvas.width = 1080;
@@ -549,7 +566,7 @@
       ctx.textAlign = "center";
 
       // Header
-      ctx.font = 'bold 85px "Space Grotesk", sans-serif';
+      ctx.font = 'bold 85px "Big Shoulders Display", sans-serif';
       ctx.fillStyle = "#F2F2F7";
       ctx.fillText(
         lastSession.complete ? "WORKOUT CRUSHED" : "SESSION LOGGED",
@@ -557,8 +574,8 @@
         300,
       );
 
-      ctx.font = '50px "Outfit", sans-serif';
-      ctx.fillStyle = "#8B7CFF";
+      ctx.font = '50px "Instrument Sans", sans-serif';
+      ctx.fillStyle = "#D7FF3A";
       ctx.fillText((state.name || "Athlete") + "'s Session", 540, 380);
 
       // Dynamic Badge Logic
@@ -586,8 +603,8 @@
         full: "🌪️ FULL BODY",
       };
       const badgeColors = {
-        upper: "#8B7CFF",
-        lower: "#00E5A0",
+        upper: "#D7FF3A",
+        lower: "#5CC8FF",
         core: "#FF6B4A",
         cardio: "#FFC55C",
         full: "#5CC8FF",
@@ -604,7 +621,7 @@
       }
 
       ctx.fillStyle = badgeColors[dominantCat];
-      ctx.font = 'bold 36px "Outfit", sans-serif';
+      ctx.font = 'bold 36px "Instrument Sans", sans-serif';
       ctx.fillText(badgeNames[dominantCat], 540, 492);
 
       // Glass Panels
@@ -621,11 +638,11 @@
           ctx.fillRect(x, y, 800, 240);
         }
 
-        ctx.font = 'bold 110px "Space Grotesk", sans-serif';
+        ctx.font = 'bold 110px "Big Shoulders Display", sans-serif';
         ctx.fillStyle = color;
         ctx.fillText(val, x + 400, y + 135);
 
-        ctx.font = 'bold 36px "Outfit", sans-serif';
+        ctx.font = 'bold 36px "Instrument Sans", sans-serif';
         ctx.fillStyle = "#8A8A9A";
         ctx.fillText(lbl, x + 400, y + 200);
       }
@@ -635,7 +652,7 @@
       const s = totalSecs % 60;
       const timeStr = m + "m " + s + "s";
 
-      drawPanel(140, 650, timeStr, "TOTAL TIME", "#00E5A0");
+      drawPanel(140, 650, timeStr, "TOTAL TIME", "#5CC8FF");
       drawPanel(
         140,
         930,
@@ -650,7 +667,7 @@
           ? String(lastSession.exDone)
           : lastSession.exDone + " / " + lastSession.exTotal,
         "EXERCISES DONE",
-        "#8B7CFF",
+        "#D7FF3A",
       );
 
       if (lastSession.rpe) {
@@ -662,7 +679,7 @@
           60,
           RPE_COLOR[lastSession.rpe],
         );
-        ctx.font = 'bold 40px "Outfit", sans-serif';
+        ctx.font = 'bold 40px "Instrument Sans", sans-serif';
         ctx.fillStyle = RPE_COLOR[lastSession.rpe];
         ctx.fillText(
           "FELT " + RPE_LABEL[lastSession.rpe].toUpperCase(),
@@ -672,7 +689,7 @@
       }
 
       // Watermark
-      ctx.font = 'bold 32px "Outfit", sans-serif';
+      ctx.font = 'bold 32px "Instrument Sans", sans-serif';
       ctx.fillStyle = "rgba(138, 138, 154, 0.5)";
       ctx.fillText("workout.chinmayjha.tech", 540, 1820);
 
@@ -735,19 +752,26 @@
       state.stats.calories || 0;
   }
 
-  function showTab(name) {
-    if (name !== "workout" && wo.phase !== "idle" && wo.phase !== "complete") {
+  function showTab(name, force) {
+    if (
+      !force &&
+      name !== "workout" &&
+      wo.phase !== "idle" &&
+      wo.phase !== "complete"
+    ) {
       const wasPaused = wo.paused;
       wo.paused = true;
-      if (
-        !confirm(
-          "You have a workout in progress. Are you sure you want to end it and return to the planner?",
-        )
-      ) {
-        wo.paused = wasPaused;
-        return;
-      }
-      quitWorkoutLogic(true);
+      askConfirm(
+        "End this workout?",
+        "Your time so far will be saved, then you'll return to the planner.",
+        "End workout",
+        () => {
+          quitWorkoutLogic(true);
+          showTab(name, true);
+        },
+        () => (wo.paused = wasPaused),
+      );
+      return;
     }
     document
       .querySelectorAll(".tab")
@@ -761,6 +785,7 @@
     .querySelectorAll(".tab")
     .forEach((t) => t.addEventListener("click", () => showTab(t.dataset.tab)));
   let quitPrevPaused = false;
+  let confirmCancel = null;
   let lastFocus = null;
   function syncLock() {
     document.body.classList.toggle(
@@ -782,6 +807,11 @@
     el.classList.remove("active");
     syncLock();
     if (id === "quitModal") wo.paused = quitPrevPaused;
+    if (id === "confirmModal" && confirmCancel) {
+      const f = confirmCancel;
+      confirmCancel = null;
+      f();
+    }
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
 
@@ -889,13 +919,18 @@
   let dragSourceIdx = null;
 
   document.getElementById("btnClearPlan").addEventListener("click", () => {
-    if (confirm("Are you sure you want to clear your current plan?")) {
-      state.plan = [];
-      saveState();
-      renderPlan();
-      renderLibrary();
-      renderWorkoutIdle();
-    }
+    askConfirm(
+      "Clear your plan?",
+      "This removes every exercise from your routine.",
+      "Clear plan",
+      () => {
+        state.plan = [];
+        saveState();
+        renderPlan();
+        renderLibrary();
+        renderWorkoutIdle();
+      },
+    );
   });
 
   document.getElementById("btnGoToWorkout").addEventListener("click", () => {
@@ -924,6 +959,7 @@
         return `<div class="plan-card pop-in" draggable="true" data-idx="${i}" style="animation-delay: ${i * 0.03}s">
         <div class="ex-icon" style="width:38px;height:38px;flex:0 0 38px;background:${CAT_COLOR[ex.cat]}22;color:${CAT_COLOR[ex.cat]}">${getIcon(ex)}</div>
         <div class="ex-info"><h4 style="font-size:.88rem">${ex.name}</h4></div>
+        <div class="mv-wrap"><button class="mv-btn" data-move="${i}" data-dir="-1" type="button" aria-label="Move ${ex.name} up" ${i === 0 ? "disabled" : ""}>${UP}</button><button class="mv-btn" data-move="${i}" data-dir="1" type="button" aria-label="Move ${ex.name} down" ${i === state.plan.length - 1 ? "disabled" : ""}>${DOWN}</button></div>
         ${canRep(ex) ? `<button class="mode-btn" data-mode="${i}" type="button" aria-label="Switch ${ex.name} between time and reps">${p.mode === "reps" ? "Reps" : "Time"}</button>` : ""}
         ${canRep(ex) && p.mode === "reps" ? `<div class="plan-time-stepper"><button data-rmod="-1" data-idx="${i}" aria-label="Fewer reps">−</button><span>${p.reps || 12} reps</span><button data-rmod="1" data-idx="${i}" aria-label="More reps">+</button></div>` : `<div class="plan-time-stepper"><button data-mod="-5" data-idx="${i}">−</button><span>${p.time}s</span><button data-mod="5" data-idx="${i}">+</button></div>`}
         <button class="plan-remove" data-remove="${i}">✕</button>
@@ -942,6 +978,17 @@
         saveState();
         renderPlan();
         renderWorkoutIdle();
+      }),
+    );
+
+    list.querySelectorAll("[data-move]").forEach((btn) =>
+      btn.addEventListener("click", () => {
+        const i = +btn.dataset.move;
+        const j = i + +btn.dataset.dir;
+        if (j < 0 || j >= state.plan.length) return;
+        [state.plan[i], state.plan[j]] = [state.plan[j], state.plan[i]];
+        saveState();
+        renderPlan();
       }),
     );
 
@@ -1176,6 +1223,7 @@
       pauseCount: 0,
     };
     wo.startedAt = Date.now();
+    wo.lastE = wo.startedAt;
     if (state.sound && !audioCtx) {
       try {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1184,7 +1232,7 @@
     }
 
     requestWakeLock();
-    setThemeColor("#8B7CFF"); // Accent Color for Prep
+    setThemeColor("#EDE8DF"); // Chalk for Prep
 
     document.getElementById("activeControls").style.display = "none";
     document.getElementById("bigTimer").textContent = state.prep;
@@ -1202,7 +1250,7 @@
     );
 
     document.getElementById("phaseTag").textContent = "STARTING";
-    document.getElementById("phaseTag").style.color = "var(--accent)";
+    document.getElementById("phaseTag").style.color = "var(--text)";
     document.getElementById("roundTag").textContent = "ROUND 1/" + state.rounds;
     document.getElementById("exVisual").innerHTML = "";
     document.getElementById("exVisual").classList.remove("pulse-alert");
@@ -1210,7 +1258,8 @@
     setWoState("active");
     wo.phase = "prep";
     wo.tick = setInterval(() => {
-      if (!wo.paused) wo.elapsed++;
+      if (wo.paused) wo.lastE = Date.now();
+      else wo.elapsed += steps("lastE");
     }, 1000);
     runPhaseTimer();
   }
@@ -1222,7 +1271,7 @@
     document.getElementById("exVisual").classList.remove("pulse-alert");
 
     if (wo.phase === "work") {
-      setThemeColor("#FF6B4A"); // Warn Color for Work
+      setThemeColor("#D7FF3A"); // Volt for Work
       wo.timeLeft = state.plan[wo.idx].time;
       wo.phaseTotal = wo.timeLeft;
       wo.halfDone = false;
@@ -1238,9 +1287,10 @@
       document.getElementById("phaseTag").textContent = wo.reps
         ? "REPS"
         : "WORK";
-      document.getElementById("phaseTag").style.color = "var(--warn)";
-      document.getElementById("bigTimer").style.color = "var(--warn)";
-      document.getElementById("progressFill").style.background = "var(--warn)";
+      document.getElementById("phaseTag").style.color = "var(--accent-text)";
+      document.getElementById("bigTimer").style.color = "var(--accent-text)";
+      document.getElementById("progressFill").style.background =
+        "var(--accent)";
       document.getElementById("progressFill").classList.add("glow");
       document.getElementById("activeName").textContent = ex.name;
       document.getElementById("activeCue").textContent = wo.reps
@@ -1260,7 +1310,7 @@
           .join(". "),
       );
     } else if (wo.phase === "rest") {
-      setThemeColor("#00E5A0"); // Accent2 Color for Rest
+      setThemeColor("#5CC8FF"); // Accent2 Color for Rest
       wo.timeLeft = state.rest;
       wo.phaseTotal = Math.max(state.rest, 1);
       wo.reps = false;
@@ -1294,18 +1344,34 @@
           : 0) + "%";
   }
 
+  // Whole seconds elapsed since the last tick, measured by the real clock, so a
+  // throttled or locked-screen interval catches up instead of running slow.
+  function steps(key) {
+    const now = Date.now();
+    const prev = wo[key] || now;
+    const n = Math.floor((now - prev) / 1000);
+    wo[key] = n < 1 ? now : prev + n * 1000;
+    return Math.max(1, n);
+  }
+
   function runPhaseTimer() {
     clearInterval(wo.timer);
     if (wo.phase === "complete" || wo.phase === "idle") return;
+    wo.lastP = Date.now();
     wo.timer = setInterval(() => {
-      if (wo.paused) return;
+      if (wo.paused) {
+        wo.lastP = Date.now();
+        return;
+      }
+      const n = steps("lastP");
       if (wo.phase === "work" && wo.reps) {
-        wo.repsElapsed++;
+        wo.repsElapsed += n;
         const rm = Math.floor(wo.repsElapsed / 60);
         document.getElementById("bigTimer").textContent =
           rm + ":" + String(wo.repsElapsed % 60).padStart(2, "0");
         return;
       }
+      if (n > 1) wo.timeLeft = Math.max(1, wo.timeLeft - (n - 1));
       wo.timeLeft--;
       document.getElementById("bigTimer").textContent = Math.max(
         0,
@@ -1370,7 +1436,7 @@
     clearInterval(wo.timer);
     clearInterval(wo.tick);
     releaseWakeLock();
-    setThemeColor("#0A0A0F"); // Revert theme
+    setThemeColor(baseThemeColor()); // Revert theme
     document.getElementById("progressFill").classList.remove("glow");
     document.getElementById("exVisual").classList.remove("pulse-alert");
 
@@ -1426,7 +1492,7 @@
     clearInterval(wo.timer);
     clearInterval(wo.tick);
     releaseWakeLock();
-    setThemeColor("#0A0A0F"); // Revert theme
+    setThemeColor(baseThemeColor()); // Revert theme
     document.getElementById("progressFill").classList.remove("glow");
     document.getElementById("exVisual").classList.remove("pulse-alert");
     stopSpeech();
@@ -1553,6 +1619,22 @@
     developerOverlay.addEventListener("click", closeDeveloperModal);
 
   /* ---------- Audio switches, help hub, quit confirm, shortcuts ---------- */
+  function askConfirm(title, text, okLabel, onOk, onCancel) {
+    document.getElementById("confirmTitle").textContent = title;
+    document.getElementById("confirmText").textContent = text;
+    document.getElementById("btnConfirmYes").textContent = okLabel;
+    confirmCancel = onCancel || (() => {});
+    document.getElementById("btnConfirmYes").onclick = () => {
+      confirmCancel = null;
+      closeModal("confirmModal");
+      onOk();
+    };
+    openModal("confirmModal");
+  }
+  document
+    .getElementById("btnConfirmNo")
+    .addEventListener("click", () => closeModal("confirmModal"));
+
   const SWITCH_MAP = {
     toggleAnnounce: "announce",
     toggleCoach: "coach",
@@ -1614,6 +1696,35 @@
     });
   tabEls.forEach((t) => t.addEventListener("click", syncTabs));
   syncTabs();
+
+  const themeBtns = [...document.querySelectorAll("[data-theme-set]")];
+  function applyTheme() {
+    const t = state.theme || "system";
+    if (t === "system") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.dataset.theme = t;
+    themeBtns.forEach((b) =>
+      b.setAttribute("aria-checked", String(b.dataset.themeSet === t)),
+    );
+    if (!["prep", "work", "rest"].includes(wo.phase))
+      setThemeColor(baseThemeColor());
+  }
+  themeBtns.forEach((b) =>
+    b.addEventListener("click", () => {
+      state.theme = b.dataset.themeSet;
+      saveState();
+      applyTheme();
+    }),
+  );
+  applyTheme();
+  if (window.matchMedia)
+    window
+      .matchMedia("(prefers-color-scheme: light)")
+      .addEventListener("change", applyTheme);
+
+  if ("serviceWorker" in navigator && /^https?:/.test(location.protocol))
+    window.addEventListener("load", () =>
+      navigator.serviceWorker.register("sw.js").catch(() => {}),
+    );
 
   const soundSub = document.getElementById("soundSub");
   const btnSoundExpand = document.getElementById("btnSoundExpand");
