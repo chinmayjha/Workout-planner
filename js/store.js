@@ -176,30 +176,64 @@
     return migrate(o);
   }
 
+  /* Run on app open, before and after every session. Looks at the gap between the
+     last covered day and today: if you hold enough savers it spends them and the
+     streak lives; if not, the streak is gone AND saver progress resets to 0.
+     Order-independent, so it is safe to call before or after logging.
+     Returns { current, best, used, today }. */
+  function settle(s, today) {
+    today = today || dateKey(Date.now(), s.rollHour);
+    var t = dayNum(today), active = {}, frozen = {}, used = [], last = -Infinity;
+    Object.keys(s.log).forEach(function (k) {
+      if (s.log[k].secs >= MIN_ACTIVE_SECS) active[dayNum(k)] = true;
+    });
+    s.streak.frozen.forEach(function (k) {
+      frozen[dayNum(k)] = true;
+    });
+    // most recent covered day strictly BEFORE today (works even if today is already logged)
+    Object.keys(active).concat(Object.keys(frozen)).forEach(function (n) {
+      if (+n < t && +n > last) last = +n;
+    });
+    var missed = last === -Infinity ? 0 : t - 1 - last;
+    if (missed > 0 && missed <= s.streak.savers) {
+      for (var n = last + 1; n < t; n++) {
+        frozen[n] = true;
+        used.push(keyFromNum(n));
+      }
+      s.streak.savers -= missed;
+      s.streak.frozen = s.streak.frozen.concat(used).slice(-120);
+    }
+    var cur = 0;
+    var n2 = active[t] ? t : t - 1; // today isn't missed until it ends
+    while (active[n2] || frozen[n2]) {
+      if (active[n2]) cur++;
+      n2--;
+    }
+    if (cur > s.streak.best) s.streak.best = cur;
+    if (cur === 0) s.streak.progress = 0; // streak broken -> the 5-day counter resets too
+    return { current: cur, best: s.streak.best, used: used, today: !!active[t] };
+  }
+
   /* Record one finished or partial session. r: { start, secs, cals, complete,
-     exDone, exTotal, rounds, rpe }. Returns the saver earned (true/false). */
+     exDone, exTotal, rounds, rpe }. Saver progress counts DAYS with a completed
+     workout (a 2nd workout the same day adds nothing). Returns true if a saver was earned. */
   function logSession(s, r) {
     var k = dateKey(r.start, s.rollHour); // credited to the day it started
+    settle(s, k); // resolve gaps before this session so a stale open tab can't lose a saver
     var day =
       s.log[k] || (s.log[k] = { sessions: 0, secs: 0, cals: 0, completed: 0 });
+    var firstDone = !!r.complete && day.completed === 0;
     day.sessions++;
     day.secs += r.secs;
     day.cals += r.cals;
     if (r.complete) day.completed++;
     s.history.unshift({
-      t: r.start,
-      d: k,
-      secs: r.secs,
-      cals: r.cals,
-      done: !!r.complete,
-      ex: r.exDone,
-      of: r.exTotal,
-      rounds: r.rounds,
-      rpe: r.rpe || null,
+      t: r.start, d: k, secs: r.secs, cals: r.cals, done: !!r.complete,
+      ex: r.exDone, of: r.exTotal, rounds: r.rounds, rpe: r.rpe || null,
     });
     s.history.length = Math.min(s.history.length, 60);
     var earned = false;
-    if (r.complete) {
+    if (firstDone) {
       s.streak.completed++;
       s.streak.progress++;
       if (s.streak.progress >= SAVER_EVERY) {
@@ -211,48 +245,6 @@
       }
     }
     return earned;
-  }
-
-  /* Run on app open and after each session. If you missed N days and hold at
-     least N savers, spend N and keep the streak. If you hold fewer, the streak
-     is already lost, so nothing is spent. Returns { current, best, used }. */
-  function settle(s, today) {
-    today = today || dateKey(Date.now(), s.rollHour);
-    var t = dayNum(today);
-    var active = {};
-    Object.keys(s.log).forEach(function (k) {
-      if (s.log[k].secs >= MIN_ACTIVE_SECS) active[dayNum(k)] = true;
-    });
-    var frozen = {};
-    s.streak.frozen.forEach(function (k) {
-      frozen[dayNum(k)] = true;
-    });
-    var used = [];
-
-    var last = -Infinity;
-    Object.keys(active)
-      .concat(Object.keys(frozen))
-      .forEach(function (n) {
-        if (+n > last && +n <= t) last = +n;
-      });
-    var missed = last === -Infinity ? 0 : t - 1 - last;
-    if (missed > 0 && missed <= s.streak.savers) {
-      for (var n = last + 1; n <= t - 1; n++) {
-        frozen[n] = true;
-        used.push(keyFromNum(n));
-      }
-      s.streak.savers -= missed;
-      s.streak.frozen = s.streak.frozen.concat(used).slice(-120);
-    }
-
-    var cur = 0;
-    var n2 = active[t] ? t : t - 1; // today isn't missed until it ends
-    while (active[n2] || frozen[n2]) {
-      if (active[n2]) cur++;
-      n2--;
-    }
-    if (cur > s.streak.best) s.streak.best = cur;
-    return { current: cur, best: s.streak.best, used: used };
   }
 
   var api = {

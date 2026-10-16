@@ -81,6 +81,15 @@
     S.save(st);
     $("stCur").textContent = r.current;
     $("stBest").textContent = st.streak.best;
+    var chip = $("streakChip");
+    if (chip) {
+      chip.textContent = r.current
+        ? "🔥 " + r.current + "-day streak" + (r.today ? " · done today ✓" : " · train today to keep it")
+        : "Start a streak today";
+      chip.classList.toggle("done", !!r.today);
+    }
+    var dots = "";
+    for (var j = 0; j < 5; j++) dots += j < st.streak.progress ? "●" : "○";
     var sv = st.streak.savers,
       h = "";
     for (var i = 0; i < 3; i++)
@@ -90,7 +99,7 @@
     $("stNext").textContent =
       sv >= 3
         ? "Streak savers full"
-        : st.streak.progress + " of 5 completed workouts to your next saver";
+        : dots + "  " + st.streak.progress + " of 5 workout days to your next saver";
   }
 
   function render() {
@@ -249,6 +258,7 @@
       }
     },
     refresh: render,
+    toast: toast,
   };
   render();
 })();

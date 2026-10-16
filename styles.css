@@ -1,4 +1,6 @@
 :root {
+  color-scheme: dark light;
+  --soft: rgba(22, 22, 31, 0.55);
   --bg: #0a0a0f;
   --bg2: #111119;
   --card: #16161f;
@@ -348,7 +350,7 @@ button {
   margin-top: 16px;
 }
 .stat-badge {
-  background: rgba(22, 22, 31, 0.55);
+  background: var(--soft);
   border: 1.5px solid var(--line);
   border-radius: 14px;
   padding: 12px 6px;
@@ -372,7 +374,7 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(22, 22, 31, 0.55);
+  background: var(--soft);
   border: 1.5px solid var(--line);
   border-radius: 14px;
   padding: 12px 16px;
@@ -466,7 +468,7 @@ button {
   display: flex;
   align-items: center;
   gap: 14px;
-  background: rgba(22, 22, 31, 0.55);
+  background: var(--soft);
   border: 1.5px solid var(--line);
   border-radius: 16px;
   padding: 12px;
@@ -542,7 +544,7 @@ button {
   text-align: center;
 }
 .plan-card {
-  background: rgba(22, 22, 31, 0.55);
+  background: var(--soft);
   border: 1.5px solid var(--line);
   border-radius: 16px;
   padding: 12px;
@@ -741,7 +743,7 @@ button {
   animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 .summary-card {
-  background: rgba(22, 22, 31, 0.55);
+  background: var(--soft);
   border: 1.5px solid var(--line);
   border-radius: 18px;
   padding: 20px;
@@ -1747,6 +1749,7 @@ kbd {
 /* ---------- Volt identity: tokens ---------- */
 :root {
   --bg: #0e0e0c;
+  --soft: rgba(26, 26, 22, 0.6);
   --bg2: #151512;
   --card: #1a1a16;
   --line: #2a2a24;
@@ -1762,6 +1765,7 @@ kbd {
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
     --bg: #f4f1ea;
+    --soft: #ffffff;
     --bg2: #fbf9f4;
     --card: #ffffff;
     --line: #e2ddd0;
@@ -1776,6 +1780,7 @@ kbd {
 }
 :root[data-theme="light"] {
   --bg: #f4f1ea;
+    --soft: #ffffff;
   --bg2: #fbf9f4;
   --card: #ffffff;
   --line: #e2ddd0;
@@ -1943,3 +1948,27 @@ h4 {
   color: var(--text);
   margin: 14px 0 4px;
 }
+
+/* ---------- v2: routines, filters, streak chip, onboarding ---------- */
+.tpl-row{display:flex;gap:10px;overflow-x:auto;padding:2px 0 14px;margin-bottom:6px;scrollbar-width:thin}
+.tpl-card{flex:0 0 168px;text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:14px;color:var(--text);display:flex;flex-direction:column;gap:4px}
+.tpl-card b{font-family:var(--ff-h);font-size:1.15rem;letter-spacing:.01em}
+.tpl-card span{color:var(--muted);font-size:.78rem}
+.tpl-card em{font-style:normal;color:var(--accent-text);font-size:.72rem;font-weight:700;margin-top:4px}
+.tpl-card:hover{border-color:var(--accent-text)}
+#eqChips{margin-top:-8px}
+#eqChips .chip{padding:6px 12px;font-size:.74rem}
+.lib-count{color:var(--muted);font-size:.75rem;margin:-6px 0 10px}
+.streak-chip{display:inline-block;margin-top:10px;padding:6px 12px;border-radius:20px;border:1.5px solid var(--line);background:var(--card);font-size:.8rem;font-weight:700;color:var(--muted)}
+.streak-chip.done{color:var(--accent-text);border-color:var(--accent-text)}
+.sc-next{letter-spacing:.02em}
+.onboard-card{display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px dashed var(--line);border-radius:16px;padding:12px 14px;margin-bottom:18px;font-size:.85rem;color:var(--muted)}
+.onboard-card[hidden]{display:none}
+.onboard-card span{flex:1}
+.onboard-card .btn{width:auto}
+.onboard-card .btn-text{color:var(--muted);font-size:1rem}
+.is-working .help-btn,.is-working #developerInfoBtn,.is-working .about-blurb{display:none}
+.about-blurb details{border-top:1px solid var(--line);padding:10px 0}
+.about-blurb summary{cursor:pointer;color:var(--text);font-weight:600}
+.about-blurb p{margin-top:6px}
+.about-blurb{padding:0 20px}
