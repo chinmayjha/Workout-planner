@@ -2,7 +2,7 @@
  * exercises.js: the extended exercise library (gym + bodyweight).
  * Row format:  id | Name | category | mode | cue
  *   category: upper | lower | core | cardio | full
- *   mode:     r = counted in reps (can switch to timed)   t = timed cardio   h = timed hold
+ *   mode:     s = stretch (timed), r = counted in reps (can switch to timed)   t = timed cardio   h = timed hold
  * To add an exercise, add one line. The id must be unique and never change once published.
  */
 (function () {
@@ -105,6 +105,27 @@
     "renegade|Renegade Rows|full|r|Hold a plank and row one dumbbell at a time without twisting.",
     "manmaker|Man Makers|full|r|Push-up, row each side, then stand and press overhead.",
     "cleanpress|Dumbbell Clean and Press|full|r|Clean the weights to your shoulders and press overhead.",
+    "armcircle|Arm Circles|flex|s|Make big, slow circles, then reverse direction.",
+    "hipcircle|Hip Circles|flex|s|Hands on hips, draw wide slow circles with your pelvis.",
+    "legswing|Leg Swings|flex|s|Hold something steady and swing one leg front to back, then side to side.",
+    "catcow|Cat-Cow|flex|s|On all fours, arch and round your spine with your breath.",
+    "worldgreat|World's Greatest Stretch|flex|s|Deep lunge, elbow to the floor, then rotate and reach up.",
+    "thoracic|Thoracic Rotations|flex|s|On all fours, hand behind your head, rotate your elbow to the ceiling.",
+    "neckroll|Neck Rolls|flex|s|Roll your head slowly in a half circle, never backward.",
+    "ankleroll|Ankle Circles|flex|s|Lift one foot and circle your ankle slowly each way.",
+    "childpose|Child's Pose|flex|s|Sit back on your heels, reach forward and breathe slowly.",
+    "downdog|Downward Dog|flex|s|Push your hips up and back and press your heels toward the floor.",
+    "cobra|Cobra Stretch|flex|s|Lie face down and press up, keeping your hips on the floor.",
+    "hamstretch|Hamstring Stretch|flex|s|Extend one leg, hinge forward with a flat back, and breathe.",
+    "quadstretch|Standing Quad Stretch|flex|s|Pull your heel to your glute, knees together, and stand tall.",
+    "hipflexor|Hip Flexor Stretch|flex|s|Kneel in a lunge and tuck your pelvis as you shift forward.",
+    "pigeon|Pigeon Pose|flex|s|Front shin across your body, hips square, fold forward gently.",
+    "figure4|Figure-4 Stretch|flex|s|Cross an ankle over your knee and pull the leg toward your chest.",
+    "calfstretch|Calf Stretch|flex|s|Press your back heel down with that leg straight, leaning into a wall.",
+    "chestopener|Doorway Chest Stretch|flex|s|Forearm on a doorframe, step through until your chest opens.",
+    "crossbody|Cross-Body Shoulder Stretch|flex|s|Pull one arm across your chest and keep your shoulders down.",
+    "tricepstretch|Overhead Triceps Stretch|flex|s|Reach behind your head and gently press your elbow back.",
+    "butterfly|Butterfly Stretch|flex|s|Soles together, knees falling out, sit tall and lean forward.",
   ];
   window.MORE_EXERCISES = ROWS.map(function (line) {
     var p = line.split("|");
@@ -113,7 +134,7 @@
       name: p[1],
       cat: p[2],
       reps: p[3] === "r",
-      time: p[3] === "t" ? 30 : 40,
+      time: p[3] === "t" || p[3] === "s" ? 30 : 40,
       cue: p[4],
       tts: p[1].replace(/-/g, " "),
     };
@@ -123,7 +144,7 @@
 /* Filters + preset routines. tagExercise() gives every exercise a muscle group (g) and gear (eq). */
 (function () {
   "use strict";
-  var G = [["chest","Chest"],["back","Back"],["shoulders","Shoulders"],["arms","Arms"],["legs","Legs"],["glutes","Glutes"],["core","Core"],["cardio","Cardio"],["full","Full Body"]];
+  var G = [["chest","Chest"],["back","Back"],["shoulders","Shoulders"],["arms","Arms"],["legs","Legs"],["glutes","Glutes"],["core","Core"],["cardio","Cardio"],["full","Full Body"],["stretch","Stretch"]];
   var Q = [["bw","Bodyweight"],["db","Dumbbell"],["bb","Barbell"],["mc","Machine"],["cb","Cable"],["kb","Kettlebell"],["other","Other"]];
   var GR = [ // first match wins
     ["full", /renegade|man maker|thruster|clean|snatch|swing|get-up|carry|slam|burpee|sprawl|bear crawl|inchworm/i],
@@ -148,7 +169,7 @@
   window.EX_GROUPS = G;
   window.EX_GEAR = Q;
   window.tagExercise = function (x) {
-    x.g = pick(GR, x.name, { lower: "legs", core: "core", cardio: "cardio", full: "full" }[x.cat] || "arms");
+    x.g = x.cat === "flex" ? "stretch" : pick(GR, x.name, { lower: "legs", core: "core", cardio: "cardio", full: "full" }[x.cat] || "arms");
     x.eq = pick(QR, x.name, "bw");
     x.gl = label(G, x.g);
     x.el = label(Q, x.eq);
@@ -162,6 +183,8 @@
     { id: "hiit", name: "10-Min HIIT", desc: "No equipment, max burn", rounds: 2, rest: 15, items: [["jj",35],["highknees",35],["burpee",35],["mountain",35],["skaters",35],["jumpsquat",35]] },
     { id: "home", name: "Home Bodyweight", desc: "Full body, zero gear", rounds: 3, rest: 30, items: [["pushup",40],["squat",40],["lunge",40],["plank",40],["gluteb",40],["mountain",30]] },
     { id: "core", name: "Core Crusher", desc: "Abs and obliques", rounds: 3, rest: 20, items: [["plank",35],["bicycle",35],["legraise",35],["russiantwist",35],["deadbug",35],["sideplank",30]] },
-    { id: "dbfull", name: "Dumbbell Full Body", desc: "One pair of dumbbells", rounds: 3, rest: 40, items: [["goblet",40],["dbpress",40],["dbrow",40],["thruster",40],["hammer",40],["bicycle",35]] }
+    { id: "dbfull", name: "Dumbbell Full Body", desc: "One pair of dumbbells", rounds: 3, rest: 40, items: [["goblet",40],["dbpress",40],["dbrow",40],["thruster",40],["hammer",40],["bicycle",35]] },
+    { id: "warm", name: "Warm-Up (4 min)", desc: "Loosen up before you train", rounds: 1, rest: 5, items: [["armcircle",30],["legswing",30],["hipcircle",30],["catcow",30],["worldgreat",40],["jj",30]] },
+    { id: "cool", name: "Cool-Down (5 min)", desc: "Stretch out afterwards", rounds: 1, rest: 5, items: [["hamstretch",40],["quadstretch",30],["hipflexor",40],["pigeon",40],["chestopener",30],["childpose",45]] }
   ];
 })();

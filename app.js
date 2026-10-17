@@ -76,6 +76,7 @@
     core: "#FF6B4A",
     cardio: "#FFC55C",
     full: "#5CC8FF",
+    flex: "#7FE5C4",
   };
   const CATS = [["all", "All"]].concat(window.EX_GROUPS || []);
   const GEAR = [["all", "All gear"]].concat(window.EX_GEAR || []);
@@ -321,6 +322,8 @@
     plan: [],
     rounds: 1,
     rest: 30,
+    roundRest: null, // break between rounds (null = follow rest until loaded)
+    unit: "kg",
     prep: 5,
     sound: true,
     theme: "system",
@@ -372,6 +375,8 @@
         }
       }
     } catch (e) {}
+    if (typeof state.roundRest !== "number") state.roundRest = state.rest;
+    if (state.unit !== "lb") state.unit = "kg";
   }
   function saveState() {
     try {
@@ -1112,6 +1117,7 @@
   function renderSettings() {
     document.getElementById("restVal").textContent = state.rest + "s";
     document.getElementById("prepVal").textContent = state.prep + "s";
+    document.getElementById("roundRestVal").textContent = state.roundRest + "s";
     document.getElementById("toggleSound").classList.toggle("on", state.sound);
     document
       .getElementById("toggleVibrate")
@@ -1139,6 +1145,11 @@
         next = state.prep + d;
         if (next < 0 || next > 30) return triggerShake(btn.parentElement);
         state.prep = next;
+      }
+      if (key === "roundRest") {
+        next = state.roundRest + d;
+        if (next < 0 || next > 300) return triggerShake(btn.parentElement);
+        state.roundRest = next;
       }
       saveState();
       renderSettings();
@@ -1207,25 +1218,29 @@
   function workSecs(p) {
     return p.mode === "reps" ? (p.reps || 12) * 3 : p.time;
   }
+  // Rounds for the workout in progress (adjustable per workout), else the planned rounds.
+  function curRounds() {
+    return ["prep", "work", "rest"].includes(wo.phase) && wo.rounds ? wo.rounds : state.rounds;
+  }
   function estTotalSeconds() {
+    const R = curRounds();
     const work = state.plan.reduce((s, p) => s + workSecs(p), 0);
-    const rest =
-      state.plan.length > 1 ? (state.plan.length - 1) * state.rest : 0;
-    const restBetweenRounds =
-      state.rounds > 1 ? state.rest * (state.rounds - 1) : 0;
-    return (work + rest) * state.rounds + restBetweenRounds;
+    const rest = state.plan.length > 1 ? (state.plan.length - 1) * state.rest : 0;
+    return (work + rest) * R + (R > 1 ? state.roundRest * (R - 1) : 0);
   }
 
+  // kcal = MET x body weight (kg) x hours. Rests count at a light MET.
   function estCalories() {
-    let cals = 0;
-    const rates = { cardio: 10, full: 9, lower: 8, upper: 6, core: 5 };
+    const kg = state.weight || 70, R = curRounds();
+    const MET = { cardio: 8, full: 8, lower: 5.5, upper: 4.5, core: 3.8, flex: 2.5 };
+    let metSecs = 0, workSec = 0;
     state.plan.forEach((p) => {
-      const ex = EXERCISES.find((x) => x.id === p.id);
-      cals += (workSecs(p) / 60) * (rates[ex.cat] || 6);
+      const ex = EXERCISES.find((x) => x.id === p.id) || {};
+      metSecs += workSecs(p) * (MET[ex.cat] || 4.5);
+      workSec += workSecs(p);
     });
-    return Math.round(
-      cals * state.rounds * (state.weight ? state.weight / 70 : 1),
-    );
+    const restSec = Math.max(0, estTotalSeconds() - workSec * R);
+    return Math.round(((metSecs * R + restSec * 1.8) * kg) / 3600);
   }
 
   function renderWorkoutIdle() {
@@ -1259,6 +1274,9 @@
     if (!state.plan.length) return;
     wo = {
       round: 1,
+      rounds: state.rounds, // this workout only; the saved plan is not changed
+      delta: 0,
+      roundBreak: false,
       idx: 0,
       phase: "prep",
       timeLeft: state.prep,
@@ -1315,12 +1333,12 @@
   function loadPhaseUI() {
     const ex = EXERCISES.find((x) => x.id === state.plan[wo.idx].id);
     document.getElementById("roundTag").textContent =
-      "ROUND " + wo.round + "/" + state.rounds;
+      "ROUND " + wo.round + "/" + wo.rounds;
     document.getElementById("exVisual").classList.remove("pulse-alert");
 
     if (wo.phase === "work") {
       setThemeColor("#D7FF3A"); // Volt for Work
-      wo.timeLeft = state.plan[wo.idx].time;
+      wo.timeLeft = Math.max(5, state.plan[wo.idx].time + (wo.delta || 0));
       wo.phaseTotal = wo.timeLeft;
       wo.halfDone = false;
       wo.reps = canRep(ex) && state.plan[wo.idx].mode === "reps";
@@ -1359,28 +1377,39 @@
       );
     } else if (wo.phase === "rest") {
       setThemeColor("#5CC8FF"); // Accent2 Color for Rest
-      wo.timeLeft = state.rest;
-      wo.phaseTotal = Math.max(state.rest, 1);
+      const brk = wo.roundBreak ? state.roundRest : state.rest;
+      wo.timeLeft = brk;
+      wo.phaseTotal = Math.max(brk, 1);
       wo.reps = false;
       document.getElementById("btnDone").style.display = "none";
-      document.getElementById("phaseTag").textContent = "REST";
+      document.getElementById("phaseTag").textContent = wo.roundBreak ? "ROUND BREAK" : "REST";
       document.getElementById("phaseTag").style.color = "var(--accent2)";
       document.getElementById("bigTimer").style.color = "var(--accent2)";
       document.getElementById("progressFill").style.background =
         "var(--accent2)";
       document.getElementById("progressFill").classList.remove("glow");
-      document.getElementById("activeName").textContent = "Breathe";
-      document.getElementById("activeCue").textContent = "Up next: " + ex.name;
+      document.getElementById("activeName").textContent = wo.roundBreak ? "Round " + (wo.round - 1) + " done" : "Breathe";
+      document.getElementById("activeCue").textContent = (wo.roundBreak ? "Round " + wo.round + " starts with " : "Up next: ") + ex.name;
       document.getElementById("exVisual").innerHTML = SVG_REST;
       document.getElementById("exVisual").style.color = "var(--accent2)";
       document.getElementById("activeControls").style.display = "grid";
       document.getElementById("btnAddRest").style.opacity = "1";
       document.getElementById("btnAddRest").disabled = false;
-      speakCue("Rest. Up next, " + ex.tts, "announce");
+      speakCue(wo.roundBreak ? "Round complete. Round " + wo.round + " is next. First up, " + ex.tts : "Rest. Up next, " + ex.tts, "announce");
     }
     document.getElementById("bigTimer").textContent =
       wo.reps && wo.phase === "work" ? "0:00" : wo.timeLeft;
+    const rp = document.getElementById("roundPanel");
+    rp.hidden = !(wo.phase === "rest" && wo.roundBreak);
+    if (!rp.hidden) renderRoundPanel();
     updateProgress();
+  }
+
+  function renderRoundPanel() {
+    const d = wo.delta || 0;
+    document.getElementById("rpDelta").textContent = (d > 0 ? "+" : d < 0 ? "−" : "±") + Math.abs(d) + "s";
+    document.getElementById("rpRounds").textContent = wo.rounds;
+    document.getElementById("roundTag").textContent = "ROUND " + wo.round + "/" + wo.rounds;
   }
 
   function updateProgress() {
@@ -1463,16 +1492,18 @@
     }
     if (wo.phase === "work") {
       if (wo.idx === state.plan.length - 1) {
-        if (wo.round === state.rounds) {
+        if (wo.round === wo.rounds) {
           finishWorkout();
           return;
         }
         wo.round++;
         wo.idx = 0;
         wo.phase = "rest";
+        wo.roundBreak = true;
       } else {
         wo.idx++;
         wo.phase = "rest";
+        wo.roundBreak = false;
       }
     } else {
       wo.phase = "work";
@@ -1502,9 +1533,9 @@
         secs: wo.elapsed,
         cals: estCalories(),
         complete: wo.elapsed >= 60 && wo.elapsed >= 0.5 * estTotalSeconds(),
-        exDone: state.plan.length * state.rounds,
-        exTotal: state.plan.length * state.rounds,
-        rounds: state.rounds,
+        exDone: state.plan.length * wo.rounds,
+        exTotal: state.plan.length * wo.rounds,
+        rounds: wo.rounds,
       });
 
     document.getElementById("statTime").textContent =
@@ -1512,9 +1543,9 @@
     document.getElementById("completeSub").textContent =
       state.plan.length +
       " exercises · " +
-      state.rounds +
+      wo.rounds +
       " round" +
-      (state.rounds > 1 ? "s" : "");
+      (wo.rounds > 1 ? "s" : "");
     setWoState("complete");
     speakCue(
       "Workout complete. Great job, " + (state.name || "Athlete"),
@@ -1524,7 +1555,7 @@
     // Trigger celebratory physics
     fireConfetti();
     document.getElementById("completeTitle").textContent = "Workout Complete";
-    const total = state.plan.length * state.rounds;
+    const total = state.plan.length * wo.rounds;
     lastSession = {
       complete: true,
       secs: wo.elapsed,
@@ -1561,12 +1592,12 @@
           cals: earnedCals,
           complete: false,
           exDone: (wo.round - 1) * state.plan.length + wo.idx,
-          exTotal: state.plan.length * state.rounds,
-          rounds: state.rounds,
+          exTotal: state.plan.length * wo.rounds,
+          rounds: wo.rounds,
         });
       if (!silent) {
         const done = (wo.round - 1) * state.plan.length + wo.idx;
-        const total = state.plan.length * state.rounds;
+        const total = state.plan.length * wo.rounds;
         lastSession = {
           complete: false,
           secs: wo.elapsed,
@@ -1597,6 +1628,35 @@
     wo.paused = !wo.paused;
     e.target.textContent = wo.paused ? "Resume" : "Pause";
     if (wo.paused && wo.phase === "work") wo.pauseCount++;
+  });
+
+  /* Round-break panel: tune the rest of THIS workout (the saved plan is untouched) */
+  document.getElementById("roundPanel").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-rp]");
+    if (!b || wo.phase !== "rest" || !wo.roundBreak) return;
+    const k = b.dataset.rp;
+    if (k === "easier") wo.delta = Math.max(-30, (wo.delta || 0) - 10);
+    if (k === "harder") wo.delta = Math.min(60, (wo.delta || 0) + 10);
+    if (k === "add") wo.rounds = Math.min(20, wo.rounds + 1);
+    if (k === "less") wo.rounds = Math.max(wo.round, wo.rounds - 1);
+    renderRoundPanel();
+  });
+
+  /* Back: replay the previous exercise (or restart the current one) */
+  document.getElementById("btnBack").addEventListener("click", () => {
+    if (wo.phase !== "work" && wo.phase !== "rest") return;
+    const last = state.plan.length - 1;
+    if (wo.phase === "rest") {
+      if (wo.roundBreak) { wo.round--; wo.idx = last; }
+      else wo.idx--;
+    } else if (wo.idx > 0) wo.idx--;
+    else if (wo.round > 1) { wo.round--; wo.idx = last; }
+    wo.roundBreak = false;
+    wo.phase = "work";
+    wo.paused = false;
+    document.getElementById("btnPause").textContent = "Pause";
+    loadPhaseUI();
+    runPhaseTimer();
   });
 
   document.getElementById("btnAddRest").addEventListener("click", () => {
@@ -1782,18 +1842,37 @@
   });
 
   const weightInput = document.getElementById("weightInput");
+  const btnUnit = document.getElementById("btnUnit");
+  const LB = 2.20462;
+  const toDisp = (kg) => Math.round((state.unit === "lb" ? kg * LB : kg) * 10) / 10;
+  const toKg = (v) => (state.unit === "lb" ? v / LB : v);
+  function syncWeightUI() {
+    btnUnit.textContent = state.unit;
+    weightInput.placeholder = "Weight in " + state.unit + " (optional, for calories)";
+    weightInput.value = state.weight ? toDisp(state.weight) : "";
+  }
+  btnUnit.addEventListener("click", () => {
+    const v = parseFloat(weightInput.value);
+    const kg = v > 0 ? toKg(v) : null;
+    state.unit = state.unit === "kg" ? "lb" : "kg";
+    btnUnit.textContent = state.unit;
+    weightInput.placeholder = "Weight in " + state.unit + " (optional, for calories)";
+    weightInput.value = kg ? toDisp(kg) : "";
+    saveState();
+  });
   document.getElementById("btnSaveName").addEventListener("click", () => {
     const v = weightInput.value.trim();
     if (v === "") state.weight = null;
     else {
-      const n = parseFloat(v);
-      if (n >= 25 && n <= 250) state.weight = Math.round(n * 10) / 10;
+      const kg = toKg(parseFloat(v));
+      if (kg >= 25 && kg <= 250) state.weight = Math.round(kg * 10) / 10;
+      else triggerShake(weightInput);
     }
     saveState();
+    updateLifetimeStats();
+    renderWorkoutIdle();
   });
-  document
-    .getElementById("btnEditName")
-    .addEventListener("click", () => (weightInput.value = state.weight || ""));
+  document.getElementById("btnEditName").addEventListener("click", syncWeightUI);
   document
     .getElementById("btnHelp")
     .addEventListener("click", () => openModal("helpModal"));

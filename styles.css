@@ -1972,3 +1972,18 @@ h4 {
 .about-blurb summary{cursor:pointer;color:var(--text);font-weight:600}
 .about-blurb p{margin-top:6px}
 .about-blurb{padding:0 20px}
+
+/* ---------- v3: round-break panel, scrollable popups ---------- */
+.round-panel{width:100%;max-width:340px;margin:14px auto 4px;background:var(--soft);border:1.5px solid var(--line);border-radius:18px;padding:12px 14px;text-align:left}
+.round-panel[hidden]{display:none}
+.rp-title{font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent2);margin-bottom:8px}
+.rp-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.85rem;color:var(--muted);padding:5px 0}
+.rp-step{display:flex;align-items:center;gap:8px}
+.rp-step b{min-width:42px;text-align:center;color:var(--text);font-family:var(--ff-h);font-size:1.1rem}
+.rp-step button{min-width:40px;height:34px;padding:0 10px;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--text);font-weight:700;cursor:pointer}
+.rp-step button:hover,.rp-step button:focus-visible{border-color:var(--accent2);color:var(--accent2)}
+.modal-sheet{max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.modal-head{position:sticky;top:0;z-index:2;background:var(--card)}
+.active-controls{grid-template-columns:repeat(4,1fr)}
+.active-controls .full{grid-column:span 4}
+.active-controls .btn-sm{padding-left:6px;padding-right:6px;font-size:.8rem;white-space:nowrap}

@@ -187,6 +187,11 @@
           rest: m.rest,
           prep: m.prep,
           sound: a.sound !== false,
+          theme: ["system", "light", "dark"].indexOf(a.theme) > -1 ? a.theme : "system",
+          weight: typeof a.weight === "number" && a.weight >= 25 && a.weight <= 250 ? a.weight : null,
+          unit: a.unit === "lb" ? "lb" : "kg",
+          roundRest: typeof a.roundRest === "number" ? Math.min(300, Math.max(0, a.roundRest)) : m.rest,
+          audio: a.audio && typeof a.audio === "object" ? a.audio : m.audio,
           vibrate: m.vibrate,
           stats: {
             workouts: m.base.workouts,

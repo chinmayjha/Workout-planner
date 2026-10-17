@@ -1,5 +1,5 @@
 /* Offline support: stale-while-revalidate for the app shell. Bump CACHE to force a clean refresh. */
-const CACHE = "workout-planner-v1";
+const CACHE = "workout-planner-v3";
 const SHELL = [
   "./",
   "index.html",
@@ -7,6 +7,7 @@ const SHELL = [
   "app.js",
   "js/store.js",
   "js/profile.js",
+  "js/exercises.js",
   "manifest.json",
   "404.html",
   "fonts/big-shoulders-display-latin-700-normal.woff2",
@@ -23,7 +24,7 @@ self.addEventListener("install", (e) => {
   e.waitUntil(
     caches
       .open(CACHE)
-      .then((c) => Promise.all(SHELL.map((u) => c.add(u).catch(() => {}))))
+      .then((c) => Promise.all(SHELL.map((u) => c.add(new Request(u, { cache: "reload" })).catch(() => {}))))
       .then(() => self.skipWaiting()),
   );
 });

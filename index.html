@@ -7,14 +7,14 @@
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
 
-    <title>Free Workout Planner & Interval Timer | 120+ Gym & Home Exercises</title>
+    <title>Free Workout Planner & Interval Timer | 140+ Gym & Home Exercises</title>
     <meta
       name="title"
-      content="Free Workout Planner & Interval Timer | 120+ Gym & Home Exercises"
+      content="Free Workout Planner & Interval Timer | 140+ Gym & Home Exercises"
     />
     <meta
       name="description"
-      content="Free workout planner and voice-guided interval timer with 120+ gym and home exercises, ready-made routines, streaks and a 30-day activity heatmap. No sign-up."
+      content="Free workout planner and voice-guided interval timer with 140+ gym and home exercises, ready-made routines, streaks and a 30-day activity heatmap. No sign-up."
     />
     <meta name="author" content="Chinmay Jha" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
@@ -30,11 +30,11 @@
     <meta property="og:url" content="https://workout.chinmayjha.tech/" />
     <meta
       property="og:title"
-      content="Free Workout Planner & Interval Timer | 120+ Gym & Home Exercises"
+      content="Free Workout Planner & Interval Timer | 140+ Gym & Home Exercises"
     />
     <meta
       property="og:description"
-      content="Free workout planner and voice-guided interval timer with 120+ gym and home exercises, ready-made routines, streaks and a 30-day activity heatmap. No sign-up."
+      content="Free workout planner and voice-guided interval timer with 140+ gym and home exercises, ready-made routines, streaks and a 30-day activity heatmap. No sign-up."
     />
     <meta
       property="og:image"
@@ -45,13 +45,12 @@
     <meta property="twitter:url" content="https://workout.chinmayjha.tech/" />
     <meta
       property="twitter:title"
-      content="Free Workout Planner & Interval Timer | 120+ Gym & Home Exercises"
+      content="Free Workout Planner & Interval Timer | 140+ Gym & Home Exercises"
     />
     <meta
       property="twitter:description"
-      content="Free workout planner and voice-guided interval timer with 120+ gym and home exercises, ready-made routines, streaks and a 30-day activity heatmap. No sign-up."
+      content="Free workout planner and voice-guided interval timer with 140+ gym and home exercises, ready-made routines, streaks and a 30-day activity heatmap. No sign-up."
     />
-    <meta name="google-site-verification" content="08lr38zDvBn1hFkHZFZqgiJMIPTz1b4PyYP-owGZEm0" />
     <meta
       property="twitter:image"
       content="https://workout.chinmayjha.tech/assets/og-image.png"
@@ -83,7 +82,7 @@
         "description": "Free workout planner with a voice-guided interval timer, streaks and a 30-day activity heatmap. Works in any browser."
       }
     </script>
-    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this workout planner free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is completely free, needs no account and works in any modern browser. Your data stays on your device."}}, {"@type": "Question", "name": "How many exercises are included?", "acceptedAnswer": {"@type": "Answer", "text": "Over 120 bodyweight and gym exercises: chest, back, shoulders, arms, legs, glutes, core, cardio and full body, filterable by equipment."}}, {"@type": "Question", "name": "How do streaks and streak savers work?", "acceptedAnswer": {"@type": "Answer", "text": "Any workout of one minute or more keeps your streak. Complete a workout on 5 days in a row to earn a streak saver, up to 3. A saver automatically covers a missed day. With no saver, the streak and the 5-day counter reset."}}, {"@type": "Question", "name": "Does it work offline?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Install it to your home screen and it runs offline, with voice coaching and a screen wake lock during workouts."}}]}</script>
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this workout planner free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is completely free, needs no account and works in any modern browser. Your data stays on your device."}}, {"@type": "Question", "name": "How many exercises are included?", "acceptedAnswer": {"@type": "Answer", "text": "Over 140 bodyweight, gym and stretching exercises: chest, back, shoulders, arms, legs, glutes, core, cardio and full body, filterable by equipment."}}, {"@type": "Question", "name": "How do streaks and streak savers work?", "acceptedAnswer": {"@type": "Answer", "text": "Any workout of one minute or more keeps your streak. Complete a workout on 5 days in a row to earn a streak saver, up to 3. A saver automatically covers a missed day. With no saver, the streak and the 5-day counter reset."}}, {"@type": "Question", "name": "Does it work offline?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Install it to your home screen and it runs offline, with voice coaching and a screen wake lock during workouts."}}]}</script>
     <link
       rel="preload"
       as="font"
@@ -321,6 +320,11 @@
               <div class="active-name" id="activeName">Get Ready</div>
               <div class="active-cue" id="activeCue">Starting shortly…</div>
               <div class="big-timer" id="bigTimer">5</div>
+              <div class="round-panel" id="roundPanel" hidden>
+                <div class="rp-title">Tune this workout</div>
+                <div class="rp-row"><span>Time per exercise</span><div class="rp-step"><button type="button" data-rp="easier" aria-label="10 seconds shorter">−10s</button><b id="rpDelta">±0s</b><button type="button" data-rp="harder" aria-label="10 seconds longer">+10s</button></div></div>
+                <div class="rp-row"><span>Rounds</span><div class="rp-step"><button type="button" data-rp="less" aria-label="One round fewer">−</button><b id="rpRounds">3</b><button type="button" data-rp="add" aria-label="One more round">+</button></div></div>
+              </div>
               <div
                 class="active-controls"
                 id="activeControls"
@@ -344,6 +348,9 @@
                   id="btnAddRest"
                 >
                   +15s
+                </button>
+                <button class="btn btn-ghost btn-sm hover-elevate" id="btnBack" type="button">
+                  ⏮ Back
                 </button>
                 <button class="btn btn-ghost btn-sm hover-elevate" id="btnSkip">
                   Skip ⏭
@@ -488,10 +495,10 @@
 
 
 <section class="about-blurb" id="about">
-        <h2>Free workout planner with 120+ exercises</h2>
+        <h2>Free workout planner with 140+ exercises</h2>
         <p>Build your own routine from gym and bodyweight exercises, run it with a voice-guided interval timer, and keep a daily streak. No sign-up, no ads, works offline.</p>
         <details><summary>Is this workout planner free?</summary><p>Yes. It is completely free, needs no account and works in any modern browser. Your data stays on your device.</p></details>
-        <details><summary>How many exercises are included?</summary><p>Over 120 bodyweight and gym exercises: chest, back, shoulders, arms, legs, glutes, core, cardio and full body, filterable by equipment.</p></details>
+        <details><summary>How many exercises are included?</summary><p>Over 140 bodyweight, gym and stretching exercises: chest, back, shoulders, arms, legs, glutes, core, cardio and full body, filterable by equipment.</p></details>
         <details><summary>How do streaks and streak savers work?</summary><p>Any workout of one minute or more keeps your streak. Complete a workout on 5 days in a row to earn a streak saver, up to 3. A saver automatically covers a missed day. With no saver, the streak and the 5-day counter reset.</p></details>
         <details><summary>Does it work offline?</summary><p>Yes. Install it to your home screen and it runs offline, with voice coaching and a screen wake lock during workouts.</p></details>
       </section>
@@ -542,16 +549,17 @@
             autocomplete="off"
           />
         </div>
-        <div class="field" style="margin-top: 10px">
+        <div class="field" style="margin-top: 10px; display: flex; gap: 8px">
           <input
             id="weightInput"
             type="number"
             inputmode="decimal"
             min="25"
-            max="250"
+            max="550"
             step="0.1"
             placeholder="Weight in kg (optional, for calories)"
           />
+          <button class="btn btn-ghost btn-sm" id="btnUnit" type="button" aria-label="Switch between kilograms and pounds" style="width: auto">kg</button>
         </div>
         <button
           class="btn btn-primary hover-elevate"
@@ -600,6 +608,17 @@
             <button data-step="rest" data-d="-5">−</button
             ><span id="restVal">30s</span
             ><button data-step="rest" data-d="5">+</button>
+          </div>
+        </div>
+        <div class="set-row">
+          <div>
+            <div class="lbl">Break between rounds</div>
+            <div class="desc">Longer rest after each full round</div>
+          </div>
+          <div class="stepper">
+            <button data-step="roundRest" data-d="-5">−</button
+            ><span id="roundRestVal">30s</span
+            ><button data-step="roundRest" data-d="5">+</button>
           </div>
         </div>
         <div class="set-row">
