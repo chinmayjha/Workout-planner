@@ -2039,3 +2039,12 @@ h4 {
   .plan-card .mode-btn { grid-row: 2; grid-column: 3; }
   .plan-card .plan-time-stepper { grid-row: 2; grid-column: 4 / 6; justify-self: end; }
 }
+
+/* ---------- v4.2: help popup scrolls as one sheet ---------- */
+#helpModal .modal-sheet { overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+#helpModal .vid-list { flex: none; min-height: 0; overflow: visible; padding-right: 0; }
+@media (max-width: 560px) {
+  .help-btn, .developer-info-btn { width: 44px; height: 44px; bottom: 1rem; opacity: 0.92; }
+  .help-btn { left: 1rem; }
+  .developer-info-btn { right: 1rem; }
+}
