@@ -1780,7 +1780,7 @@ kbd {
 }
 :root[data-theme="light"] {
   --bg: #f4f1ea;
-    --soft: #ffffff;
+  --soft: #ffffff;
   --bg2: #fbf9f4;
   --card: #ffffff;
   --line: #e2ddd0;
@@ -1950,101 +1950,457 @@ h4 {
 }
 
 /* ---------- v2: routines, filters, streak chip, onboarding ---------- */
-.tpl-row{display:flex;gap:10px;overflow-x:auto;padding:2px 0 14px;margin-bottom:6px;scrollbar-width:thin}
-.tpl-card{flex:0 0 168px;text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:14px;color:var(--text);display:flex;flex-direction:column;gap:4px}
-.tpl-card b{font-family:var(--ff-h);font-size:1.15rem;letter-spacing:.01em}
-.tpl-card span{color:var(--muted);font-size:.78rem}
-.tpl-card em{font-style:normal;color:var(--accent-text);font-size:.72rem;font-weight:700;margin-top:4px}
-.tpl-card:hover{border-color:var(--accent-text)}
-#eqChips{margin-top:-8px}
-#eqChips .chip{padding:6px 12px;font-size:.74rem}
-.lib-count{color:var(--muted);font-size:.75rem;margin:-6px 0 10px}
-.streak-chip{display:inline-block;margin-top:10px;padding:6px 12px;border-radius:20px;border:1.5px solid var(--line);background:var(--card);font-size:.8rem;font-weight:700;color:var(--muted)}
-.streak-chip.done{color:var(--accent-text);border-color:var(--accent-text)}
-.sc-next{letter-spacing:.02em}
-.onboard-card{display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px dashed var(--line);border-radius:16px;padding:12px 14px;margin-bottom:18px;font-size:.85rem;color:var(--muted)}
-.onboard-card[hidden]{display:none}
-.onboard-card span{flex:1}
-.onboard-card .btn{width:auto}
-.onboard-card .btn-text{color:var(--muted);font-size:1rem}
-.is-working .help-btn,.is-working #developerInfoBtn,.is-working .about-blurb{display:none}
-.about-blurb details{border-top:1px solid var(--line);padding:10px 0}
-.about-blurb summary{cursor:pointer;color:var(--text);font-weight:600}
-.about-blurb p{margin-top:6px}
-.about-blurb{padding:0 20px}
+.tpl-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 2px 0 14px;
+  margin-bottom: 6px;
+  scrollbar-width: thin;
+}
+.tpl-card {
+  flex: 0 0 168px;
+  text-align: left;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tpl-card b {
+  font-family: var(--ff-h);
+  font-size: 1.15rem;
+  letter-spacing: 0.01em;
+}
+.tpl-card span {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.tpl-card em {
+  font-style: normal;
+  color: var(--accent-text);
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+.tpl-card:hover {
+  border-color: var(--accent-text);
+}
+#eqChips {
+  margin-top: -8px;
+}
+#eqChips .chip {
+  padding: 6px 12px;
+  font-size: 0.74rem;
+}
+.lib-count {
+  color: var(--muted);
+  font-size: 0.75rem;
+  margin: -6px 0 10px;
+}
+.streak-chip {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+.streak-chip.done {
+  color: var(--accent-text);
+  border-color: var(--accent-text);
+}
+.sc-next {
+  letter-spacing: 0.02em;
+}
+.onboard-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  border: 1.5px dashed var(--line);
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.onboard-card[hidden] {
+  display: none;
+}
+.onboard-card span {
+  flex: 1;
+}
+.onboard-card .btn {
+  width: auto;
+}
+.onboard-card .btn-text {
+  color: var(--muted);
+  font-size: 1rem;
+}
+.is-working .help-btn,
+.is-working #developerInfoBtn,
+.is-working .about-blurb {
+  display: none;
+}
+.about-blurb details {
+  border-top: 1px solid var(--line);
+  padding: 10px 0;
+}
+.about-blurb summary {
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 600;
+}
+.about-blurb p {
+  margin-top: 6px;
+}
+.about-blurb {
+  padding: 0 20px;
+}
 
 /* ---------- v3: round-break panel, scrollable popups ---------- */
-.round-panel{width:100%;max-width:340px;margin:14px auto 4px;background:var(--soft);border:1.5px solid var(--line);border-radius:18px;padding:12px 14px;text-align:left}
-.round-panel[hidden]{display:none}
-.rp-title{font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent2);margin-bottom:8px}
-.rp-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.85rem;color:var(--muted);padding:5px 0}
-.rp-step{display:flex;align-items:center;gap:8px}
-.rp-step b{min-width:42px;text-align:center;color:var(--text);font-family:var(--ff-h);font-size:1.1rem}
-.rp-step button{min-width:40px;height:34px;padding:0 10px;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--text);font-weight:700;cursor:pointer}
-.rp-step button:hover,.rp-step button:focus-visible{border-color:var(--accent2);color:var(--accent2)}
-.modal-sheet{max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-.modal-head{position:sticky;top:0;z-index:2;background:var(--card)}
-.active-controls{grid-template-columns:repeat(4,1fr)}
-.active-controls .full{grid-column:span 4}
-.active-controls .btn-sm{padding-left:6px;padding-right:6px;font-size:.8rem;white-space:nowrap}
+.round-panel {
+  width: 100%;
+  max-width: 340px;
+  margin: 14px auto 4px;
+  background: var(--soft);
+  border: 1.5px solid var(--line);
+  border-radius: 18px;
+  padding: 12px 14px;
+  text-align: left;
+}
+.round-panel[hidden] {
+  display: none;
+}
+.rp-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  margin-bottom: 8px;
+}
+.rp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  padding: 5px 0;
+}
+.rp-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rp-step b {
+  min-width: 42px;
+  text-align: center;
+  color: var(--text);
+  font-family: var(--ff-h);
+  font-size: 1.1rem;
+}
+.rp-step button {
+  min-width: 40px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+}
+.rp-step button:hover,
+.rp-step button:focus-visible {
+  border-color: var(--accent2);
+  color: var(--accent2);
+}
+.modal-sheet {
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.modal-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--card);
+}
+.active-controls {
+  grid-template-columns: repeat(4, 1fr);
+}
+.active-controls .full {
+  grid-column: span 4;
+}
+.active-controls .btn-sm {
+  padding-left: 6px;
+  padding-right: 6px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
 
 /* ---------- v4: My routines, share, help tabs, FAQ card ---------- */
-.tpl-wrap{position:relative;flex:0 0 168px;display:flex}
-.tpl-wrap .tpl-card{flex:1}
-.tpl-card.mine{border-style:dashed;border-color:var(--accent-text)}
-.tpl-del{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:.8rem}
-.tpl-del:hover,.tpl-del:focus-visible{color:var(--text);background:var(--line)}
-.plan-actions{display:flex;gap:8px;margin:-4px 0 12px}
-.plan-actions .btn{width:auto;flex:1}
-.plan-actions .btn:disabled{opacity:.4;pointer-events:none}
-.help-tabs{margin:2px 0 14px}
-#vidSearch{width:100%}
-.faq-card details{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;background:var(--soft)}
-.faq-card summary{cursor:pointer;font-weight:600;color:var(--text);list-style:none;display:flex;justify-content:space-between;gap:12px}
-.faq-card summary::-webkit-details-marker{display:none}
-.faq-card summary::after{content:"+";color:var(--accent-text);font-weight:700}
-.faq-card details[open] summary::after{content:"–"}
-.faq-card details p{margin-top:8px;color:var(--muted);font-size:.9rem;line-height:1.55}
-.about-blurb.faq-card{max-width:760px;margin:36px auto 0;padding:0 20px}
-.about-blurb.faq-card h2{font-family:var(--ff-h);font-size:1.5rem;margin-bottom:6px}
-.about-blurb.faq-card>p{color:var(--muted);margin-bottom:14px;font-size:.9rem}
-#faqPane{border:0;padding:0;margin:0;background:none}
+.tpl-wrap {
+  position: relative;
+  flex: 0 0 168px;
+  display: flex;
+}
+.tpl-wrap .tpl-card {
+  flex: 1;
+}
+.tpl-card.mine {
+  border-style: dashed;
+  border-color: var(--accent-text);
+}
+.tpl-del {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.tpl-del:hover,
+.tpl-del:focus-visible {
+  color: var(--text);
+  background: var(--line);
+}
+.plan-actions {
+  display: flex;
+  gap: 8px;
+  margin: -4px 0 12px;
+}
+.plan-actions .btn {
+  width: auto;
+  flex: 1;
+}
+.plan-actions .btn:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.help-tabs {
+  margin: 2px 0 14px;
+}
+#vidSearch {
+  width: 100%;
+}
+.faq-card details {
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  background: var(--soft);
+}
+.faq-card summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.faq-card summary::-webkit-details-marker {
+  display: none;
+}
+.faq-card summary::after {
+  content: "+";
+  color: var(--accent-text);
+  font-weight: 700;
+}
+.faq-card details[open] summary::after {
+  content: "–";
+}
+.faq-card details p {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+.about-blurb.faq-card {
+  max-width: 760px;
+  margin: 36px auto 0;
+  padding: 0 20px;
+}
+.about-blurb.faq-card h2 {
+  font-family: var(--ff-h);
+  font-size: 1.5rem;
+  margin-bottom: 6px;
+}
+.about-blurb.faq-card > p {
+  color: var(--muted);
+  margin-bottom: 14px;
+  font-size: 0.9rem;
+}
+#faqPane {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: none;
+}
 
 /* ---------- v4.1: popup + plan card fixes ---------- */
 /* Popups are flex columns: without this, overflow:auto children (tab chips etc.) shrink to slivers once the content is long. */
-.modal-sheet > * { flex-shrink: 0; }
-.modal-head { background: var(--bg2); }
-@media (max-width: 560px) {
-  .plan-card { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto auto auto; align-items: center; gap: 8px; }
-  .plan-card .ex-icon { grid-row: 1; grid-column: 1; }
-  .plan-card .ex-info { grid-row: 1; grid-column: 2 / 4; min-width: 0; }
-  .plan-card .ex-info h4 { white-space: normal; line-height: 1.25; }
-  .plan-card .plan-remove { grid-row: 1; grid-column: 4; }
-  .plan-card .drag-handle { grid-row: 1; grid-column: 5; }
-  .plan-card .mv-wrap { grid-row: 2; grid-column: 2; justify-self: start; }
-  .plan-card .mode-btn { grid-row: 2; grid-column: 3; }
-  .plan-card .plan-time-stepper { grid-row: 2; grid-column: 4 / 6; justify-self: end; }
+.modal-sheet > * {
+  flex-shrink: 0;
 }
-[data-pane="guide"] .field { margin-bottom: 10px; }
+.modal-head {
+  background: var(--bg2);
+}
+@media (max-width: 560px) {
+  .plan-card {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr) auto auto auto;
+    align-items: center;
+    gap: 8px;
+  }
+  .plan-card .ex-icon {
+    grid-row: 1;
+    grid-column: 1;
+  }
+  .plan-card .ex-info {
+    grid-row: 1;
+    grid-column: 2 / 4;
+    min-width: 0;
+  }
+  .plan-card .ex-info h4 {
+    white-space: normal;
+    line-height: 1.25;
+  }
+  .plan-card .plan-remove {
+    grid-row: 1;
+    grid-column: 4;
+  }
+  .plan-card .drag-handle {
+    grid-row: 1;
+    grid-column: 5;
+  }
+  .plan-card .mv-wrap {
+    grid-row: 2;
+    grid-column: 2;
+    justify-self: start;
+  }
+  .plan-card .mode-btn {
+    grid-row: 2;
+    grid-column: 3;
+  }
+  .plan-card .plan-time-stepper {
+    grid-row: 2;
+    grid-column: 4 / 6;
+    justify-self: end;
+  }
+}
+[data-pane="guide"] .field {
+  margin-bottom: 10px;
+}
 /* Same compact plan-card layout whenever the plan column itself is narrow (desktop two-column view too). */
-.plan-col { container-type: inline-size; container-name: plan; }
+.plan-col {
+  container-type: inline-size;
+  container-name: plan;
+}
 @container plan (max-width: 470px) {
-  .plan-card { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto auto auto; align-items: center; gap: 8px; }
-  .plan-card .ex-icon { grid-row: 1; grid-column: 1; }
-  .plan-card .ex-info { grid-row: 1; grid-column: 2 / 4; min-width: 0; }
-  .plan-card .ex-info h4 { white-space: normal; line-height: 1.25; }
-  .plan-card .plan-remove { grid-row: 1; grid-column: 4; }
-  .plan-card .drag-handle { grid-row: 1; grid-column: 5; }
-  .plan-card .mv-wrap { grid-row: 2; grid-column: 2; justify-self: start; }
-  .plan-card .mode-btn { grid-row: 2; grid-column: 3; }
-  .plan-card .plan-time-stepper { grid-row: 2; grid-column: 4 / 6; justify-self: end; }
+  .plan-card {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr) auto auto auto;
+    align-items: center;
+    gap: 8px;
+  }
+  .plan-card .ex-icon {
+    grid-row: 1;
+    grid-column: 1;
+  }
+  .plan-card .ex-info {
+    grid-row: 1;
+    grid-column: 2 / 4;
+    min-width: 0;
+  }
+  .plan-card .ex-info h4 {
+    white-space: normal;
+    line-height: 1.25;
+  }
+  .plan-card .plan-remove {
+    grid-row: 1;
+    grid-column: 4;
+  }
+  .plan-card .drag-handle {
+    grid-row: 1;
+    grid-column: 5;
+  }
+  .plan-card .mv-wrap {
+    grid-row: 2;
+    grid-column: 2;
+    justify-self: start;
+  }
+  .plan-card .mode-btn {
+    grid-row: 2;
+    grid-column: 3;
+  }
+  .plan-card .plan-time-stepper {
+    grid-row: 2;
+    grid-column: 4 / 6;
+    justify-self: end;
+  }
 }
 
 /* ---------- v4.2: help popup scrolls as one sheet ---------- */
-#helpModal .modal-sheet { overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-#helpModal .vid-list { flex: none; min-height: 0; overflow: visible; padding-right: 0; }
+#helpModal .modal-sheet {
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+#helpModal .vid-list {
+  flex: none;
+  min-height: 0;
+  overflow: visible;
+  padding-right: 0;
+}
 @media (max-width: 560px) {
-  .help-btn, .developer-info-btn { width: 44px; height: 44px; bottom: 1rem; opacity: 0.92; }
-  .help-btn { left: 1rem; }
-  .developer-info-btn { right: 1rem; }
+  .help-btn,
+  .developer-info-btn {
+    width: 44px;
+    height: 44px;
+    bottom: 1rem;
+    opacity: 0.92;
+  }
+  .help-btn {
+    left: 1rem;
+  }
+  .developer-info-btn {
+    right: 1rem;
+  }
+}
+
+/* ---------- v4.3: plan list no longer a clipped scroll box on phones ---------- */
+#planList {
+  max-height: none;
+  overflow: visible;
+  padding-bottom: 8px;
+}
+@media (min-width: 768px) {
+  #planList {
+    max-height: calc(100dvh - 420px);
+    min-height: 240px;
+    overflow-y: auto;
+    padding-bottom: 20px;
+  }
+  .library-scroll-pane {
+    max-height: calc(100dvh - 330px);
+    min-height: 280px;
+  }
 }

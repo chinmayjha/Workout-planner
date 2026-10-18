@@ -82,7 +82,70 @@
         "description": "Free workout planner with a voice-guided interval timer, streaks and a 30-day activity heatmap. Works in any browser."
       }
     </script>
-    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is this workout planner free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is completely free, needs no account and works in any modern browser. Your data stays on your device."}}, {"@type": "Question", "name": "How many exercises are included?", "acceptedAnswer": {"@type": "Answer", "text": "Over 140 bodyweight, gym and stretching exercises: chest, back, shoulders, arms, legs, glutes, core, cardio, full body and stretching, filterable by equipment."}}, {"@type": "Question", "name": "Can I save my own routines?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Build a plan, tap Save routine and give it a name. It appears under Routines next to the ready-made ones. You can also copy a share link and send your plan to a friend."}}, {"@type": "Question", "name": "Can I change rest times and round breaks?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Set the rest between exercises, a separate break between rounds and the get-ready countdown in Settings. Between rounds you can also tweak the time per exercise and the number of rounds for that workout only."}}, {"@type": "Question", "name": "How do streaks and streak savers work?", "acceptedAnswer": {"@type": "Answer", "text": "Any workout of one minute or more keeps your streak. Complete a workout on 5 days in a row to earn a streak saver, up to 3. A saver automatically covers a missed day. With no saver, the streak and the 5-day counter reset."}}, {"@type": "Question", "name": "How do I move my data to another device?", "acceptedAnswer": {"@type": "Answer", "text": "Open Profile, export a backup file, then import it on the other device. Nothing is uploaded anywhere, so there is no account to sign in to."}}, {"@type": "Question", "name": "Does it work offline?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Install it to your home screen and it runs offline, with voice coaching and a screen wake lock during workouts."}}]}</script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is this workout planner free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. It is completely free, needs no account and works in any modern browser. Your data stays on your device."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How many exercises are included?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Over 140 bodyweight, gym and stretching exercises: chest, back, shoulders, arms, legs, glutes, core, cardio, full body and stretching, filterable by equipment."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I save my own routines?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Build a plan, tap Save routine and give it a name. It appears under Routines next to the ready-made ones. You can also copy a share link and send your plan to a friend."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I change rest times and round breaks?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Set the rest between exercises, a separate break between rounds and the get-ready countdown in Settings. Between rounds you can also tweak the time per exercise and the number of rounds for that workout only."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do streaks and streak savers work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Any workout of one minute or more keeps your streak. Complete a workout on 5 days in a row to earn a streak saver, up to 3. A saver automatically covers a missed day. With no saver, the streak and the 5-day counter reset."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I move my data to another device?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Open Profile, export a backup file, then import it on the other device. Nothing is uploaded anywhere, so there is no account to sign in to."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does it work offline?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Install it to your home screen and it runs offline, with voice coaching and a screen wake lock during workouts."
+            }
+          }
+        ]
+      }
+    </script>
     <link
       rel="preload"
       as="font"
@@ -177,9 +240,21 @@
           </div>
 
           <div class="onboard-card" id="onboardCard" hidden>
-            <span>Add your name and weight for personal greetings and accurate calories.</span>
-            <button class="btn btn-ghost btn-sm" id="btnObOpen" type="button">Set up</button>
-            <button class="btn-text" id="btnObClose" type="button" aria-label="Dismiss">✕</button>
+            <span
+              >Add your name and weight for personal greetings and accurate
+              calories.</span
+            >
+            <button class="btn btn-ghost btn-sm" id="btnObOpen" type="button">
+              Set up
+            </button>
+            <button
+              class="btn-text"
+              id="btnObClose"
+              type="button"
+              aria-label="Dismiss"
+            >
+              ✕
+            </button>
           </div>
           <div class="section-title">Routines</div>
           <div class="tpl-row" id="tplRow"></div>
@@ -226,8 +301,20 @@
                 </button>
               </div>
               <div class="plan-actions">
-                <button class="btn btn-ghost btn-sm hover-elevate" id="btnSaveRoutine" type="button">Save routine</button>
-                <button class="btn btn-ghost btn-sm hover-elevate" id="btnShareRoutine" type="button">Share link</button>
+                <button
+                  class="btn btn-ghost btn-sm hover-elevate"
+                  id="btnSaveRoutine"
+                  type="button"
+                >
+                  Save routine
+                </button>
+                <button
+                  class="btn btn-ghost btn-sm hover-elevate"
+                  id="btnShareRoutine"
+                  type="button"
+                >
+                  Share link
+                </button>
               </div>
               <div class="set-row hover-elevate">
                 <div>
@@ -326,8 +413,44 @@
               <div class="big-timer" id="bigTimer">5</div>
               <div class="round-panel" id="roundPanel" hidden>
                 <div class="rp-title">Tune this workout</div>
-                <div class="rp-row"><span>Time per exercise</span><div class="rp-step"><button type="button" data-rp="easier" aria-label="10 seconds shorter">−10s</button><b id="rpDelta">±0s</b><button type="button" data-rp="harder" aria-label="10 seconds longer">+10s</button></div></div>
-                <div class="rp-row"><span>Rounds</span><div class="rp-step"><button type="button" data-rp="less" aria-label="One round fewer">−</button><b id="rpRounds">3</b><button type="button" data-rp="add" aria-label="One more round">+</button></div></div>
+                <div class="rp-row">
+                  <span>Time per exercise</span>
+                  <div class="rp-step">
+                    <button
+                      type="button"
+                      data-rp="easier"
+                      aria-label="10 seconds shorter"
+                    >
+                      −10s</button
+                    ><b id="rpDelta">±0s</b
+                    ><button
+                      type="button"
+                      data-rp="harder"
+                      aria-label="10 seconds longer"
+                    >
+                      +10s
+                    </button>
+                  </div>
+                </div>
+                <div class="rp-row">
+                  <span>Rounds</span>
+                  <div class="rp-step">
+                    <button
+                      type="button"
+                      data-rp="less"
+                      aria-label="One round fewer"
+                    >
+                      −</button
+                    ><b id="rpRounds">3</b
+                    ><button
+                      type="button"
+                      data-rp="add"
+                      aria-label="One more round"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
               </div>
               <div
                 class="active-controls"
@@ -353,7 +476,11 @@
                 >
                   +15s
                 </button>
-                <button class="btn btn-ghost btn-sm hover-elevate" id="btnBack" type="button">
+                <button
+                  class="btn btn-ghost btn-sm hover-elevate"
+                  id="btnBack"
+                  type="button"
+                >
                   ⏮ Back
                 </button>
                 <button class="btn btn-ghost btn-sm hover-elevate" id="btnSkip">
@@ -497,17 +624,68 @@
         </section>
       </main>
 
-
-<section class="about-blurb faq-card" id="about">
+      <section class="about-blurb faq-card" id="about">
         <h2>Frequently asked questions</h2>
-        <p>Free workout planner with 140+ exercises, a voice-guided interval timer and streaks. No sign-up, no ads, works offline.</p>
-        <details><summary>Is this workout planner free?</summary><p>Yes. It is completely free, needs no account and works in any modern browser. Your data stays on your device.</p></details>
-        <details><summary>How many exercises are included?</summary><p>Over 140 bodyweight, gym and stretching exercises: chest, back, shoulders, arms, legs, glutes, core, cardio, full body and stretching, filterable by equipment.</p></details>
-        <details><summary>Can I save my own routines?</summary><p>Yes. Build a plan, tap Save routine and give it a name. It appears under Routines next to the ready-made ones. You can also copy a share link and send your plan to a friend.</p></details>
-        <details><summary>Can I change rest times and round breaks?</summary><p>Yes. Set the rest between exercises, a separate break between rounds and the get-ready countdown in Settings. Between rounds you can also tweak the time per exercise and the number of rounds for that workout only.</p></details>
-        <details><summary>How do streaks and streak savers work?</summary><p>Any workout of one minute or more keeps your streak. Complete a workout on 5 days in a row to earn a streak saver, up to 3. A saver automatically covers a missed day. With no saver, the streak and the 5-day counter reset.</p></details>
-        <details><summary>How do I move my data to another device?</summary><p>Open Profile, export a backup file, then import it on the other device. Nothing is uploaded anywhere, so there is no account to sign in to.</p></details>
-        <details><summary>Does it work offline?</summary><p>Yes. Install it to your home screen and it runs offline, with voice coaching and a screen wake lock during workouts.</p></details>
+        <p>
+          Free workout planner with 140+ exercises, a voice-guided interval
+          timer and streaks. No sign-up, no ads, works offline.
+        </p>
+        <details>
+          <summary>Is this workout planner free?</summary>
+          <p>
+            Yes. It is completely free, needs no account and works in any modern
+            browser. Your data stays on your device.
+          </p>
+        </details>
+        <details>
+          <summary>How many exercises are included?</summary>
+          <p>
+            Over 140 bodyweight, gym and stretching exercises: chest, back,
+            shoulders, arms, legs, glutes, core, cardio, full body and
+            stretching, filterable by equipment.
+          </p>
+        </details>
+        <details>
+          <summary>Can I save my own routines?</summary>
+          <p>
+            Yes. Build a plan, tap Save routine and give it a name. It appears
+            under Routines next to the ready-made ones. You can also copy a
+            share link and send your plan to a friend.
+          </p>
+        </details>
+        <details>
+          <summary>Can I change rest times and round breaks?</summary>
+          <p>
+            Yes. Set the rest between exercises, a separate break between rounds
+            and the get-ready countdown in Settings. Between rounds you can also
+            tweak the time per exercise and the number of rounds for that
+            workout only.
+          </p>
+        </details>
+        <details>
+          <summary>How do streaks and streak savers work?</summary>
+          <p>
+            Any workout of one minute or more keeps your streak. Complete a
+            workout on 5 days in a row to earn a streak saver, up to 3. A saver
+            automatically covers a missed day. With no saver, the streak and the
+            5-day counter reset.
+          </p>
+        </details>
+        <details>
+          <summary>How do I move my data to another device?</summary>
+          <p>
+            Open Profile, export a backup file, then import it on the other
+            device. Nothing is uploaded anywhere, so there is no account to sign
+            in to.
+          </p>
+        </details>
+        <details>
+          <summary>Does it work offline?</summary>
+          <p>
+            Yes. Install it to your home screen and it runs offline, with voice
+            coaching and a screen wake lock during workouts.
+          </p>
+        </details>
       </section>
 
       <footer class="app-footer">
@@ -566,7 +744,15 @@
             step="0.1"
             placeholder="Weight in kg (optional, for calories)"
           />
-          <button class="btn btn-ghost btn-sm" id="btnUnit" type="button" aria-label="Switch between kilograms and pounds" style="width: auto">kg</button>
+          <button
+            class="btn btn-ghost btn-sm"
+            id="btnUnit"
+            type="button"
+            aria-label="Switch between kilograms and pounds"
+            style="width: auto"
+          >
+            kg
+          </button>
         </div>
         <button
           class="btn btn-primary hover-elevate"
@@ -754,40 +940,74 @@
             ✕
           </button>
         </div>
-        <div class="chips help-tabs" id="helpTabs" role="group" aria-label="Help sections">
-          <button type="button" class="chip active" data-help="keys" aria-pressed="true">Shortcuts</button>
-          <button type="button" class="chip" data-help="guide" aria-pressed="false">Exercise guide</button>
-          <button type="button" class="chip" data-help="faq" aria-pressed="false">FAQ</button>
+        <div
+          class="chips help-tabs"
+          id="helpTabs"
+          role="group"
+          aria-label="Help sections"
+        >
+          <button
+            type="button"
+            class="chip active"
+            data-help="keys"
+            aria-pressed="true"
+          >
+            Shortcuts
+          </button>
+          <button
+            type="button"
+            class="chip"
+            data-help="guide"
+            aria-pressed="false"
+          >
+            Exercise guide
+          </button>
+          <button
+            type="button"
+            class="chip"
+            data-help="faq"
+            aria-pressed="false"
+          >
+            FAQ
+          </button>
         </div>
         <div data-pane="keys">
-        <div class="kbd-section">
-          <div class="section-title" style="margin-top: 0">
-            Keyboard shortcuts
+          <div class="kbd-section">
+            <div class="section-title" style="margin-top: 0">
+              Keyboard shortcuts
+            </div>
+            <div class="set-row">
+              <div class="lbl">Pause / resume / reps done</div>
+              <kbd>Space</kbd>
+            </div>
+            <div class="set-row">
+              <div class="lbl">Skip phase</div>
+              <kbd>→</kbd>
+            </div>
+            <div class="set-row">
+              <div class="lbl">Mute / unmute</div>
+              <kbd>M</kbd>
+            </div>
+            <div class="set-row">
+              <div class="lbl">End workout / close</div>
+              <kbd>Esc</kbd>
+            </div>
+            <div class="set-row">
+              <div class="lbl">Open this help</div>
+              <kbd>?</kbd>
+            </div>
           </div>
-          <div class="set-row">
-            <div class="lbl">Pause / resume / reps done</div>
-            <kbd>Space</kbd>
-          </div>
-          <div class="set-row">
-            <div class="lbl">Skip phase</div>
-            <kbd>→</kbd>
-          </div>
-          <div class="set-row">
-            <div class="lbl">Mute / unmute</div>
-            <kbd>M</kbd>
-          </div>
-          <div class="set-row">
-            <div class="lbl">End workout / close</div>
-            <kbd>Esc</kbd>
-          </div>
-          <div class="set-row">
-            <div class="lbl">Open this help</div>
-            <kbd>?</kbd>
-          </div>
-        </div>
         </div>
         <div data-pane="guide" hidden>
-          <div class="field"><input id="vidSearch" type="search" placeholder="Search exercises" autocomplete="off" aria-label="Search exercises" /></div>
+          <div class="field">
+            <input
+              id="vidSearch"
+              type="search"
+              placeholder="Search exercises"
+              autocomplete="off"
+              aria-label="Search exercises"
+            />
+          </div>
           <div class="vid-list" id="vidList"></div>
         </div>
         <div data-pane="faq" id="faqPane" class="faq-card" hidden></div>
@@ -795,12 +1015,32 @@
     </div>
 
     <div class="modal-overlay" id="routineModal">
-      <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="routineTitle">
-        <h2 id="routineTitle" style="font-size: 1.2rem; text-align: center">Save routine</h2>
+      <div
+        class="modal-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="routineTitle"
+      >
+        <h2 id="routineTitle" style="font-size: 1.2rem; text-align: center">
+          Save routine
+        </h2>
         <div class="field" style="margin-top: 14px">
-          <input id="routineName" maxlength="24" autocomplete="off" placeholder="Name it, e.g. Monday Push" aria-label="Routine name" />
+          <input
+            id="routineName"
+            maxlength="24"
+            autocomplete="off"
+            placeholder="Name it, e.g. Monday Push"
+            aria-label="Routine name"
+          />
         </div>
-        <button class="btn btn-primary hover-elevate" id="btnRoutineSave" type="button" style="margin-top: 16px">Save</button>
+        <button
+          class="btn btn-primary hover-elevate"
+          id="btnRoutineSave"
+          type="button"
+          style="margin-top: 16px"
+        >
+          Save
+        </button>
       </div>
     </div>
 

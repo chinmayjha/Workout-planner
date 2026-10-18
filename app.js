@@ -65,7 +65,15 @@
   function getIcon(ex) {
     return (
       EX_ICONS[ex.id] ||
-      EX_ICONS[{ upper: "pushup", lower: "squat", core: "plank", cardio: "jj", full: "burpee" }[ex.cat]] ||
+      EX_ICONS[
+        {
+          upper: "pushup",
+          lower: "squat",
+          core: "plank",
+          cardio: "jj",
+          full: "burpee",
+        }[ex.cat]
+      ] ||
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/></svg>'
     );
   }
@@ -286,10 +294,17 @@
 
   // Extended library (gym + bodyweight) lives in js/exercises.js
   (window.MORE_EXERCISES || []).forEach(function (x) {
-    if (!EXERCISES.some(function (e) { return e.id === x.id; })) EXERCISES.push(x);
+    if (
+      !EXERCISES.some(function (e) {
+        return e.id === x.id;
+      })
+    )
+      EXERCISES.push(x);
   });
 
-  EXERCISES.forEach(function (x) { window.tagExercise && window.tagExercise(x); });
+  EXERCISES.forEach(function (x) {
+    window.tagExercise && window.tagExercise(x);
+  });
 
   // Only strength moves can be counted in reps; holds and cardio stay timed.
   const UP =
@@ -379,10 +394,17 @@
     if (typeof state.roundRest !== "number") state.roundRest = state.rest;
     if (state.unit !== "lb") state.unit = "kg";
     state.routines = (Array.isArray(state.routines) ? state.routines : [])
-      .filter((r) => r && typeof r.name === "string" && typeof r.id === "string" && Array.isArray(r.items))
+      .filter(
+        (r) =>
+          r &&
+          typeof r.name === "string" &&
+          typeof r.id === "string" &&
+          Array.isArray(r.items),
+      )
       .slice(0, 12)
       .map((r) => ({
-        id: r.id, name: r.name.slice(0, 24),
+        id: r.id,
+        name: r.name.slice(0, 24),
         rounds: Math.min(20, Math.max(1, +r.rounds || 1)),
         rest: Math.min(180, Math.max(0, +r.rest || 0)),
         roundRest: Math.min(300, Math.max(0, +r.roundRest || 0)),
@@ -837,8 +859,7 @@
   // Click overlay to close modals (the first-run name prompt stays until a name is set)
   document.querySelectorAll(".modal-overlay").forEach((overlay) => {
     overlay.addEventListener("mousedown", (e) => {
-      if (e.target === overlay)
-        closeModal(overlay.id);
+      if (e.target === overlay) closeModal(overlay.id);
     });
   });
 
@@ -875,9 +896,15 @@
     renderLibrary();
   });
 
-  let activeCat = "all", activeEq = "all";
+  let activeCat = "all",
+    activeEq = "all";
   function chipsHtml(list, cur, attr) {
-    return list.map(([id, label]) => `<button type="button" class="chip${id === cur ? " active" : ""}" data-${attr}="${id}" aria-pressed="${id === cur}">${label}</button>`).join("");
+    return list
+      .map(
+        ([id, label]) =>
+          `<button type="button" class="chip${id === cur ? " active" : ""}" data-${attr}="${id}" aria-pressed="${id === cur}">${label}</button>`,
+      )
+      .join("");
   }
   function renderCats() {
     const wrap = document.getElementById("catChips");
@@ -894,11 +921,19 @@
       eq.after(cnt);
       wrap.addEventListener("click", (e) => {
         const c = e.target.closest("[data-cat]");
-        if (c) { activeCat = c.dataset.cat; renderCats(); renderLibrary(); }
+        if (c) {
+          activeCat = c.dataset.cat;
+          renderCats();
+          renderLibrary();
+        }
       });
       eq.addEventListener("click", (e) => {
         const c = e.target.closest("[data-eq]");
-        if (c) { activeEq = c.dataset.eq; renderCats(); renderLibrary(); }
+        if (c) {
+          activeEq = c.dataset.eq;
+          renderCats();
+          renderLibrary();
+        }
       });
     }
     wrap.innerHTML = chipsHtml(CATS, activeCat, "cat");
@@ -910,12 +945,16 @@
       return (
         (activeCat === "all" || e.g === activeCat) &&
         (activeEq === "all" || e.eq === activeEq) &&
-        (e.name + " " + (e.gl || "") + " " + (e.el || "")).toLowerCase().includes(searchQuery)
+        (e.name + " " + (e.gl || "") + " " + (e.el || ""))
+          .toLowerCase()
+          .includes(searchQuery)
       );
     });
 
     const lc = document.getElementById("libCount");
-    if (lc) lc.textContent = list.length + " exercise" + (list.length === 1 ? "" : "s");
+    if (lc)
+      lc.textContent =
+        list.length + " exercise" + (list.length === 1 ? "" : "s");
     document.getElementById("libraryList").innerHTML =
       list
         .map((e) => {
@@ -953,20 +992,49 @@
   /* ---------- Routines: presets, My routines, share links ---------- */
   const SX = window.Store;
   const toast = (m) => window.Profile && Profile.toast(m);
-  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const esc = (s) =>
+    String(s).replace(
+      /[&<>"]/g,
+      (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+    );
 
   function renderTemplates() {
     const card = (attr, id, name, sub, meta, cls) =>
       `<div class="tpl-wrap"><button type="button" class="tpl-card ${cls} hover-elevate" data-${attr}="${id}"><b>${esc(name)}</b><span>${esc(sub)}</span><em>${meta}</em></button>` +
-      (attr === "mine" ? `<button type="button" class="tpl-del" data-del="${id}" aria-label="Delete ${esc(name)}">✕</button>` : "") + "</div>";
-    const mine = state.routines.map((r) => card("mine", r.id, r.name, "My routine", r.items.length + " moves · " + r.rounds + " rounds", "mine"));
-    const presets = (window.TEMPLATES || []).map((t) => card("tpl", t.id, t.name, t.desc, t.items.length + " moves · " + t.rounds + " rounds", ""));
+      (attr === "mine"
+        ? `<button type="button" class="tpl-del" data-del="${id}" aria-label="Delete ${esc(name)}">✕</button>`
+        : "") +
+      "</div>";
+    const mine = state.routines.map((r) =>
+      card(
+        "mine",
+        r.id,
+        r.name,
+        "My routine",
+        r.items.length + " moves · " + r.rounds + " rounds",
+        "mine",
+      ),
+    );
+    const presets = (window.TEMPLATES || []).map((t) =>
+      card(
+        "tpl",
+        t.id,
+        t.name,
+        t.desc,
+        t.items.length + " moves · " + t.rounds + " rounds",
+        "",
+      ),
+    );
     document.getElementById("tplRow").innerHTML = mine.concat(presets).join("");
   }
   function applyRoutine(r) {
     state.plan = r.items
       .filter((p) => EXERCISES.some((x) => x.id === p.id))
-      .map((p) => (p.mode === "reps" && p.reps ? { id: p.id, time: p.time, mode: "reps", reps: p.reps } : { id: p.id, time: p.time }));
+      .map((p) =>
+        p.mode === "reps" && p.reps
+          ? { id: p.id, time: p.time, mode: "reps", reps: p.reps }
+          : { id: p.id, time: p.time },
+      );
     state.rounds = r.rounds;
     state.rest = r.rest;
     if (typeof r.roundRest === "number") state.roundRest = r.roundRest;
@@ -979,26 +1047,44 @@
   }
   function confirmLoad(r) {
     if (!state.plan.length) return applyRoutine(r);
-    askConfirm("Replace your plan?", "Loading " + r.name + " replaces the exercises in your current plan.", "Replace", () => applyRoutine(r));
+    askConfirm(
+      "Replace your plan?",
+      "Loading " + r.name + " replaces the exercises in your current plan.",
+      "Replace",
+      () => applyRoutine(r),
+    );
   }
   document.getElementById("tplRow").addEventListener("click", (e) => {
     const del = e.target.closest("[data-del]");
     if (del) {
       const r = state.routines.find((x) => x.id === del.dataset.del);
-      if (r) askConfirm("Delete routine?", "Delete " + r.name + " from My routines?", "Delete", () => {
-        state.routines = state.routines.filter((x) => x.id !== r.id);
-        saveState();
-        renderTemplates();
-      });
+      if (r)
+        askConfirm(
+          "Delete routine?",
+          "Delete " + r.name + " from My routines?",
+          "Delete",
+          () => {
+            state.routines = state.routines.filter((x) => x.id !== r.id);
+            saveState();
+            renderTemplates();
+          },
+        );
       return;
     }
-    const m = e.target.closest("[data-mine]"), p = e.target.closest("[data-tpl]");
+    const m = e.target.closest("[data-mine]"),
+      p = e.target.closest("[data-tpl]");
     if (m) {
       const r = state.routines.find((x) => x.id === m.dataset.mine);
       if (r) confirmLoad(r);
     } else if (p) {
       const t = (window.TEMPLATES || []).find((x) => x.id === p.dataset.tpl);
-      if (t) confirmLoad({ name: t.name, rounds: t.rounds, rest: t.rest, items: t.items.map((i) => ({ id: i[0], time: i[1] })) });
+      if (t)
+        confirmLoad({
+          name: t.name,
+          rounds: t.rounds,
+          rest: t.rest,
+          items: t.items.map((i) => ({ id: i[0], time: i[1] })),
+        });
     }
   });
 
@@ -1016,14 +1102,19 @@
     const input = document.getElementById("routineName");
     const name = input.value.trim().slice(0, 24);
     if (!name) return triggerShake(input);
-    const i = state.routines.findIndex((x) => x.name.toLowerCase() === name.toLowerCase());
+    const i = state.routines.findIndex(
+      (x) => x.name.toLowerCase() === name.toLowerCase(),
+    );
     if (i < 0 && state.routines.length >= 12) {
       closeModal("routineModal");
       return toast("You can save up to 12 routines. Delete one first.");
     }
     const r = {
       id: i > -1 ? state.routines[i].id : "r" + Date.now().toString(36),
-      name, rounds: state.rounds, rest: state.rest, roundRest: state.roundRest,
+      name,
+      rounds: state.rounds,
+      rest: state.rest,
+      roundRest: state.roundRest,
       items: state.plan.map((p) => Object.assign({}, p)),
     };
     if (i > -1) state.routines[i] = r;
@@ -1033,7 +1124,9 @@
     closeModal("routineModal");
     toast(i > -1 ? "Updated " + name : "Saved " + name);
   }
-  document.getElementById("btnRoutineSave").addEventListener("click", saveRoutine);
+  document
+    .getElementById("btnRoutineSave")
+    .addEventListener("click", saveRoutine);
   document.getElementById("routineName").addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault(); // otherwise the refocused Save button also receives this keypress
@@ -1043,11 +1136,23 @@
 
   document.getElementById("btnShareRoutine").addEventListener("click", () => {
     if (!state.plan.length) return;
-    const url = location.origin + location.pathname + "#r=" + SX.encodeRoutine({ rounds: state.rounds, rest: state.rest, roundRest: state.roundRest, items: state.plan });
+    const url =
+      location.origin +
+      location.pathname +
+      "#r=" +
+      SX.encodeRoutine({
+        rounds: state.rounds,
+        rest: state.rest,
+        roundRest: state.roundRest,
+        items: state.plan,
+      });
     const manual = () => window.prompt("Copy this link", url);
     if (navigator.share && /Android|iPhone|iPad/i.test(navigator.userAgent))
       navigator.share({ title: "My workout routine", url }).catch(() => {});
-    else if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast("Link copied"), manual);
+    else if (navigator.clipboard)
+      navigator.clipboard
+        .writeText(url)
+        .then(() => toast("Link copied"), manual);
     else manual();
   });
   // Opening a shared link (or pasting one into an open tab) asks before replacing anything.
@@ -1056,10 +1161,22 @@
     if (!m) return;
     if (typeof activeWorkout === "function" && activeWorkout()) return;
     history.replaceState(null, "", location.pathname + location.search);
-    const r = SX.decodeRoutine(m[1], (id) => EXERCISES.some((x) => x.id === id));
+    const r = SX.decodeRoutine(m[1], (id) =>
+      EXERCISES.some((x) => x.id === id),
+    );
     if (!r) return toast("That routine link isn't valid");
     r.name = "shared routine";
-    askConfirm("Load shared routine?", r.items.length + " exercises · " + r.rounds + " round" + (r.rounds > 1 ? "s" : "") + ". This replaces your current plan.", "Load", () => applyRoutine(r));
+    askConfirm(
+      "Load shared routine?",
+      r.items.length +
+        " exercises · " +
+        r.rounds +
+        " round" +
+        (r.rounds > 1 ? "s" : "") +
+        ". This replaces your current plan.",
+      "Load",
+      () => applyRoutine(r),
+    );
   }
   window.addEventListener("hashchange", checkHash);
   setTimeout(checkHash, 300);
@@ -1322,20 +1439,32 @@
   }
   // Rounds for the workout in progress (adjustable per workout), else the planned rounds.
   function curRounds() {
-    return ["prep", "work", "rest"].includes(wo.phase) && wo.rounds ? wo.rounds : state.rounds;
+    return ["prep", "work", "rest"].includes(wo.phase) && wo.rounds
+      ? wo.rounds
+      : state.rounds;
   }
   function estTotalSeconds() {
     const R = curRounds();
     const work = state.plan.reduce((s, p) => s + workSecs(p), 0);
-    const rest = state.plan.length > 1 ? (state.plan.length - 1) * state.rest : 0;
+    const rest =
+      state.plan.length > 1 ? (state.plan.length - 1) * state.rest : 0;
     return (work + rest) * R + (R > 1 ? state.roundRest * (R - 1) : 0);
   }
 
   // kcal = MET x body weight (kg) x hours. Rests count at a light MET.
   function estCalories() {
-    const kg = state.weight || 70, R = curRounds();
-    const MET = { cardio: 8, full: 8, lower: 5.5, upper: 4.5, core: 3.8, flex: 2.5 };
-    let metSecs = 0, workSec = 0;
+    const kg = state.weight || 70,
+      R = curRounds();
+    const MET = {
+      cardio: 8,
+      full: 8,
+      lower: 5.5,
+      upper: 4.5,
+      core: 3.8,
+      flex: 2.5,
+    };
+    let metSecs = 0,
+      workSec = 0;
     state.plan.forEach((p) => {
       const ex = EXERCISES.find((x) => x.id === p.id) || {};
       metSecs += workSecs(p) * (MET[ex.cat] || 4.5);
@@ -1484,20 +1613,34 @@
       wo.phaseTotal = Math.max(brk, 1);
       wo.reps = false;
       document.getElementById("btnDone").style.display = "none";
-      document.getElementById("phaseTag").textContent = wo.roundBreak ? "ROUND BREAK" : "REST";
+      document.getElementById("phaseTag").textContent = wo.roundBreak
+        ? "ROUND BREAK"
+        : "REST";
       document.getElementById("phaseTag").style.color = "var(--accent2)";
       document.getElementById("bigTimer").style.color = "var(--accent2)";
       document.getElementById("progressFill").style.background =
         "var(--accent2)";
       document.getElementById("progressFill").classList.remove("glow");
-      document.getElementById("activeName").textContent = wo.roundBreak ? "Round " + (wo.round - 1) + " done" : "Breathe";
-      document.getElementById("activeCue").textContent = (wo.roundBreak ? "Round " + wo.round + " starts with " : "Up next: ") + ex.name;
+      document.getElementById("activeName").textContent = wo.roundBreak
+        ? "Round " + (wo.round - 1) + " done"
+        : "Breathe";
+      document.getElementById("activeCue").textContent =
+        (wo.roundBreak ? "Round " + wo.round + " starts with " : "Up next: ") +
+        ex.name;
       document.getElementById("exVisual").innerHTML = SVG_REST;
       document.getElementById("exVisual").style.color = "var(--accent2)";
       document.getElementById("activeControls").style.display = "grid";
       document.getElementById("btnAddRest").style.opacity = "1";
       document.getElementById("btnAddRest").disabled = false;
-      speakCue(wo.roundBreak ? "Round complete. Round " + wo.round + " is next. First up, " + ex.tts : "Rest. Up next, " + ex.tts, "announce");
+      speakCue(
+        wo.roundBreak
+          ? "Round complete. Round " +
+              wo.round +
+              " is next. First up, " +
+              ex.tts
+          : "Rest. Up next, " + ex.tts,
+        "announce",
+      );
     }
     document.getElementById("bigTimer").textContent =
       wo.reps && wo.phase === "work" ? "0:00" : wo.timeLeft;
@@ -1509,9 +1652,11 @@
 
   function renderRoundPanel() {
     const d = wo.delta || 0;
-    document.getElementById("rpDelta").textContent = (d > 0 ? "+" : d < 0 ? "−" : "±") + Math.abs(d) + "s";
+    document.getElementById("rpDelta").textContent =
+      (d > 0 ? "+" : d < 0 ? "−" : "±") + Math.abs(d) + "s";
     document.getElementById("rpRounds").textContent = wo.rounds;
-    document.getElementById("roundTag").textContent = "ROUND " + wo.round + "/" + wo.rounds;
+    document.getElementById("roundTag").textContent =
+      "ROUND " + wo.round + "/" + wo.rounds;
   }
 
   function updateProgress() {
@@ -1749,10 +1894,15 @@
     if (wo.phase !== "work" && wo.phase !== "rest") return;
     const last = state.plan.length - 1;
     if (wo.phase === "rest") {
-      if (wo.roundBreak) { wo.round--; wo.idx = last; }
-      else wo.idx--;
+      if (wo.roundBreak) {
+        wo.round--;
+        wo.idx = last;
+      } else wo.idx--;
     } else if (wo.idx > 0) wo.idx--;
-    else if (wo.round > 1) { wo.round--; wo.idx = last; }
+    else if (wo.round > 1) {
+      wo.round--;
+      wo.idx = last;
+    }
     wo.roundBreak = false;
     wo.phase = "work";
     wo.paused = false;
@@ -1946,11 +2096,13 @@
   const weightInput = document.getElementById("weightInput");
   const btnUnit = document.getElementById("btnUnit");
   const LB = 2.20462;
-  const toDisp = (kg) => Math.round((state.unit === "lb" ? kg * LB : kg) * 10) / 10;
+  const toDisp = (kg) =>
+    Math.round((state.unit === "lb" ? kg * LB : kg) * 10) / 10;
   const toKg = (v) => (state.unit === "lb" ? v / LB : v);
   function syncWeightUI() {
     btnUnit.textContent = state.unit;
-    weightInput.placeholder = "Weight in " + state.unit + " (optional, for calories)";
+    weightInput.placeholder =
+      "Weight in " + state.unit + " (optional, for calories)";
     weightInput.value = state.weight ? toDisp(state.weight) : "";
   }
   btnUnit.addEventListener("click", () => {
@@ -1958,7 +2110,8 @@
     const kg = v > 0 ? toKg(v) : null;
     state.unit = state.unit === "kg" ? "lb" : "kg";
     btnUnit.textContent = state.unit;
-    weightInput.placeholder = "Weight in " + state.unit + " (optional, for calories)";
+    weightInput.placeholder =
+      "Weight in " + state.unit + " (optional, for calories)";
     weightInput.value = kg ? toDisp(kg) : "";
     saveState();
   });
@@ -1974,7 +2127,9 @@
     updateLifetimeStats();
     renderWorkoutIdle();
   });
-  document.getElementById("btnEditName").addEventListener("click", syncWeightUI);
+  document
+    .getElementById("btnEditName")
+    .addEventListener("click", syncWeightUI);
   document
     .getElementById("btnHelp")
     .addEventListener("click", () => openModal("helpModal"));
@@ -1986,14 +2141,25 @@
       x.classList.toggle("active", x === b);
       x.setAttribute("aria-pressed", String(x === b));
     });
-    document.querySelectorAll("[data-pane]").forEach((p) => (p.hidden = p.dataset.pane !== b.dataset.help));
+    document
+      .querySelectorAll("[data-pane]")
+      .forEach((p) => (p.hidden = p.dataset.pane !== b.dataset.help));
     document.querySelector("#helpModal .modal-sheet").scrollTop = 0;
   });
   document.getElementById("vidSearch").addEventListener("input", (e) => {
     const q = e.target.value.toLowerCase().trim();
-    [...document.getElementById("vidList").children].forEach((el) => (el.style.display = el.textContent.toLowerCase().includes(q) ? "" : "none"));
+    [...document.getElementById("vidList").children].forEach(
+      (el) =>
+        (el.style.display = el.textContent.toLowerCase().includes(q)
+          ? ""
+          : "none"),
+    );
   });
-  document.querySelectorAll("#about details").forEach((d) => document.getElementById("faqPane").appendChild(d.cloneNode(true)));
+  document
+    .querySelectorAll("#about details")
+    .forEach((d) =>
+      document.getElementById("faqPane").appendChild(d.cloneNode(true)),
+    );
   document
     .getElementById("btnCloseHelp")
     .addEventListener("click", () => closeModal("helpModal"));
@@ -2066,7 +2232,15 @@
   const ob = document.getElementById("onboardCard");
   const syncOb = () => (ob.hidden = !!state.name || !!state.obDismissed);
   syncOb();
-  document.getElementById("btnObOpen").addEventListener("click", () => document.getElementById("btnEditName").click());
-  document.getElementById("btnObClose").addEventListener("click", () => { state.obDismissed = true; saveState(); syncOb(); });
+  document
+    .getElementById("btnObOpen")
+    .addEventListener("click", () =>
+      document.getElementById("btnEditName").click(),
+    );
+  document.getElementById("btnObClose").addEventListener("click", () => {
+    state.obDismissed = true;
+    saveState();
+    syncOb();
+  });
   document.getElementById("btnSaveName").addEventListener("click", syncOb);
 })();

@@ -183,7 +183,11 @@
      Returns { current, best, used, today }. */
   function settle(s, today) {
     today = today || dateKey(Date.now(), s.rollHour);
-    var t = dayNum(today), active = {}, frozen = {}, used = [], last = -Infinity;
+    var t = dayNum(today),
+      active = {},
+      frozen = {},
+      used = [],
+      last = -Infinity;
     Object.keys(s.log).forEach(function (k) {
       if (s.log[k].secs >= MIN_ACTIVE_SECS) active[dayNum(k)] = true;
     });
@@ -191,9 +195,11 @@
       frozen[dayNum(k)] = true;
     });
     // most recent covered day strictly BEFORE today (works even if today is already logged)
-    Object.keys(active).concat(Object.keys(frozen)).forEach(function (n) {
-      if (+n < t && +n > last) last = +n;
-    });
+    Object.keys(active)
+      .concat(Object.keys(frozen))
+      .forEach(function (n) {
+        if (+n < t && +n > last) last = +n;
+      });
     var missed = last === -Infinity ? 0 : t - 1 - last;
     if (missed > 0 && missed <= s.streak.savers) {
       for (var n = last + 1; n < t; n++) {
@@ -211,7 +217,12 @@
     }
     if (cur > s.streak.best) s.streak.best = cur;
     if (cur === 0) s.streak.progress = 0; // streak broken -> the 5-day counter resets too
-    return { current: cur, best: s.streak.best, used: used, today: !!active[t] };
+    return {
+      current: cur,
+      best: s.streak.best,
+      used: used,
+      today: !!active[t],
+    };
   }
 
   /* Record one finished or partial session. r: { start, secs, cals, complete,
@@ -228,8 +239,15 @@
     day.cals += r.cals;
     if (r.complete) day.completed++;
     s.history.unshift({
-      t: r.start, d: k, secs: r.secs, cals: r.cals, done: !!r.complete,
-      ex: r.exDone, of: r.exTotal, rounds: r.rounds, rpe: r.rpe || null,
+      t: r.start,
+      d: k,
+      secs: r.secs,
+      cals: r.cals,
+      done: !!r.complete,
+      ex: r.exDone,
+      of: r.exTotal,
+      rounds: r.rounds,
+      rpe: r.rpe || null,
     });
     s.history.length = Math.min(s.history.length, 60);
     var earned = false;
@@ -251,7 +269,9 @@
   function encodeRoutine(r) {
     var head = [r.rounds, r.rest, r.roundRest == null ? r.rest : r.roundRest];
     var items = (r.items || []).slice(0, 50).map(function (p) {
-      return p.id + "." + p.time + (p.mode === "reps" && p.reps ? ".r" + p.reps : "");
+      return (
+        p.id + "." + p.time + (p.mode === "reps" && p.reps ? ".r" + p.reps : "")
+      );
     });
     return head.concat(items).join(",");
   }
@@ -263,7 +283,8 @@
       return /^\d{1,3}$/.test(v) ? +v : NaN;
     });
     if (h.some(isNaN)) return null;
-    var seen = {}, items = [];
+    var seen = {},
+      items = [];
     parts.slice(3, 53).forEach(function (t) {
       var m = /^([a-z0-9]{1,30})\.(\d{1,3})(?:\.r(\d{1,3}))?$/.exec(t);
       if (!m || seen[m[1]] || (isValid && !isValid(m[1]))) return;

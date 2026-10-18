@@ -84,7 +84,10 @@
     var chip = $("streakChip");
     if (chip) {
       chip.textContent = r.current
-        ? "🔥 " + r.current + "-day streak" + (r.today ? " · done today ✓" : " · train today to keep it")
+        ? "🔥 " +
+          r.current +
+          "-day streak" +
+          (r.today ? " · done today ✓" : " · train today to keep it")
         : "Start a streak today";
       chip.classList.toggle("done", !!r.today);
     }
@@ -99,7 +102,10 @@
     $("stNext").textContent =
       sv >= 3
         ? "Streak savers full"
-        : dots + "  " + st.streak.progress + " of 5 workout days to your next saver";
+        : dots +
+          "  " +
+          st.streak.progress +
+          " of 5 workout days to your next saver";
   }
 
   function render() {
@@ -187,10 +193,19 @@
           rest: m.rest,
           prep: m.prep,
           sound: a.sound !== false,
-          theme: ["system", "light", "dark"].indexOf(a.theme) > -1 ? a.theme : "system",
-          weight: typeof a.weight === "number" && a.weight >= 25 && a.weight <= 250 ? a.weight : null,
+          theme:
+            ["system", "light", "dark"].indexOf(a.theme) > -1
+              ? a.theme
+              : "system",
+          weight:
+            typeof a.weight === "number" && a.weight >= 25 && a.weight <= 250
+              ? a.weight
+              : null,
           unit: a.unit === "lb" ? "lb" : "kg",
-          roundRest: typeof a.roundRest === "number" ? Math.min(300, Math.max(0, a.roundRest)) : m.rest,
+          roundRest:
+            typeof a.roundRest === "number"
+              ? Math.min(300, Math.max(0, a.roundRest))
+              : m.rest,
           audio: a.audio && typeof a.audio === "object" ? a.audio : m.audio,
           vibrate: m.vibrate,
           stats: {

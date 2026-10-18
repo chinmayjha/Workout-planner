@@ -154,7 +154,7 @@ To allow Reps mode for one of these, add its `id` to the `REPS_OK` set.
 
 ## About the Author
 
-**Chinmay Jha** *Student • Web Developer • Freelancer*
+**Chinmay Jha** _Student • Web Developer • Freelancer_
 
 I am a 17-year-old web developer from India. I started coding at 11, and I specialize in building fun, functional, and highly polished web projects and user interfaces.
 

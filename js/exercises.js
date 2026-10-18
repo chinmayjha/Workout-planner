@@ -144,32 +144,93 @@
 /* Filters + preset routines. tagExercise() gives every exercise a muscle group (g) and gear (eq). */
 (function () {
   "use strict";
-  var G = [["chest","Chest"],["back","Back"],["shoulders","Shoulders"],["arms","Arms"],["legs","Legs"],["glutes","Glutes"],["core","Core"],["cardio","Cardio"],["full","Full Body"],["stretch","Stretch"]];
-  var Q = [["bw","Bodyweight"],["db","Dumbbell"],["bb","Barbell"],["mc","Machine"],["cb","Cable"],["kb","Kettlebell"],["other","Other"]];
-  var GR = [ // first match wins
-    ["full", /renegade|man maker|thruster|clean|snatch|swing|get-up|carry|slam|burpee|sprawl|bear crawl|inchworm/i],
+  var G = [
+    ["chest", "Chest"],
+    ["back", "Back"],
+    ["shoulders", "Shoulders"],
+    ["arms", "Arms"],
+    ["legs", "Legs"],
+    ["glutes", "Glutes"],
+    ["core", "Core"],
+    ["cardio", "Cardio"],
+    ["full", "Full Body"],
+    ["stretch", "Stretch"],
+  ];
+  var Q = [
+    ["bw", "Bodyweight"],
+    ["db", "Dumbbell"],
+    ["bb", "Barbell"],
+    ["mc", "Machine"],
+    ["cb", "Cable"],
+    ["kb", "Kettlebell"],
+    ["other", "Other"],
+  ];
+  var GR = [
+    // first match wins
+    [
+      "full",
+      /renegade|man maker|thruster|clean|snatch|swing|get-up|carry|slam|burpee|sprawl|bear crawl|inchworm/i,
+    ],
     ["glutes", /glute|hip thrust|donkey/i],
-    ["core", /plank|crunch|twist|leg raise|hollow|ab wheel|dead bug|bird dog|wood chop|v-up|flutter|toe touch|pallof|superman/i],
-    ["shoulders", /overhead press|shoulder press|arnold|lateral raise|front raise|rear delt|upright row|pike/i],
-    ["legs", /leg |squat|lunge|deadlift|calf|step-up|nordic|jump|good morning|hack/i],
+    [
+      "core",
+      /plank|crunch|twist|leg raise|hollow|ab wheel|dead bug|bird dog|wood chop|v-up|flutter|toe touch|pallof|superman/i,
+    ],
+    [
+      "shoulders",
+      /overhead press|shoulder press|arnold|lateral raise|front raise|rear delt|upright row|pike/i,
+    ],
+    [
+      "legs",
+      /leg |squat|lunge|deadlift|calf|step-up|nordic|jump|good morning|hack/i,
+    ],
     ["arms", /curl|tricep|skull|kickback|close-grip|wrist|diamond|hammer/i],
     ["chest", /bench|fly|pec deck|crossover|push-up|chest dip/i],
-    ["back", /pull-up|chin-up|row|pulldown|face pull|shrug/i]
+    ["back", /pull-up|chin-up|row|pulldown|face pull|shrug/i],
   ];
   var QR = [
     ["cb", /cable|pushdown|face pull|pulldown|pallof|wood chop/i],
-    ["mc", /pec deck|leg press|leg extension|leg curl|hack squat|seated calf|stair|rowing machine|cycling/i],
+    [
+      "mc",
+      /pec deck|leg press|leg extension|leg curl|hack squat|seated calf|stair|rowing machine|cycling/i,
+    ],
     ["kb", /kettlebell/i],
-    ["db", /dumbbell|arnold|hammer|lateral raise|front raise|rear delt|upright|kickback|shrug|wrist|goblet|thruster|renegade|man maker|farmer|get-up|overhead triceps/i],
-    ["bb", /barbell|bench press|overhead press|front squat|deadlift|good morning|skull|preacher/i],
-    ["other", /pull-up|chin-up|inverted|hanging|ab wheel|jump rope|battle|medicine|box jump|dips|step-up|tricep dip/i]
+    [
+      "db",
+      /dumbbell|arnold|hammer|lateral raise|front raise|rear delt|upright|kickback|shrug|wrist|goblet|thruster|renegade|man maker|farmer|get-up|overhead triceps/i,
+    ],
+    [
+      "bb",
+      /barbell|bench press|overhead press|front squat|deadlift|good morning|skull|preacher/i,
+    ],
+    [
+      "other",
+      /pull-up|chin-up|inverted|hanging|ab wheel|jump rope|battle|medicine|box jump|dips|step-up|tricep dip/i,
+    ],
   ];
-  function pick(rules, name, fb) { for (var i = 0; i < rules.length; i++) if (rules[i][1].test(name)) return rules[i][0]; return fb; }
-  function label(list, id) { for (var i = 0; i < list.length; i++) if (list[i][0] === id) return list[i][1]; return ""; }
+  function pick(rules, name, fb) {
+    for (var i = 0; i < rules.length; i++)
+      if (rules[i][1].test(name)) return rules[i][0];
+    return fb;
+  }
+  function label(list, id) {
+    for (var i = 0; i < list.length; i++)
+      if (list[i][0] === id) return list[i][1];
+    return "";
+  }
   window.EX_GROUPS = G;
   window.EX_GEAR = Q;
   window.tagExercise = function (x) {
-    x.g = x.cat === "flex" ? "stretch" : pick(GR, x.name, { lower: "legs", core: "core", cardio: "cardio", full: "full" }[x.cat] || "arms");
+    x.g =
+      x.cat === "flex"
+        ? "stretch"
+        : pick(
+            GR,
+            x.name,
+            { lower: "legs", core: "core", cardio: "cardio", full: "full" }[
+              x.cat
+            ] || "arms",
+          );
     x.eq = pick(QR, x.name, "bw");
     x.gl = label(G, x.g);
     x.el = label(Q, x.eq);
@@ -177,14 +238,140 @@
   };
   // [exercise id, seconds]
   window.TEMPLATES = [
-    { id: "push", name: "Push Day", desc: "Chest, shoulders, triceps", rounds: 3, rest: 45, items: [["bench",45],["incdb",45],["dbshoulder",45],["latraise",40],["pushdown",40],["ohext",40]] },
-    { id: "pull", name: "Pull Day", desc: "Back and biceps", rounds: 3, rest: 45, items: [["pullup",40],["bentrow",45],["latpull",45],["facepull",40],["bicepcurl",40],["hammer",40]] },
-    { id: "legs", name: "Leg Day", desc: "Quads, hamstrings, calves", rounds: 3, rest: 60, items: [["backsquat",45],["rdl",45],["legpress",45],["walklunge",45],["legcurl",40],["calfraise",40]] },
-    { id: "hiit", name: "10-Min HIIT", desc: "No equipment, max burn", rounds: 2, rest: 15, items: [["jj",35],["highknees",35],["burpee",35],["mountain",35],["skaters",35],["jumpsquat",35]] },
-    { id: "home", name: "Home Bodyweight", desc: "Full body, zero gear", rounds: 3, rest: 30, items: [["pushup",40],["squat",40],["lunge",40],["plank",40],["gluteb",40],["mountain",30]] },
-    { id: "core", name: "Core Crusher", desc: "Abs and obliques", rounds: 3, rest: 20, items: [["plank",35],["bicycle",35],["legraise",35],["russiantwist",35],["deadbug",35],["sideplank",30]] },
-    { id: "dbfull", name: "Dumbbell Full Body", desc: "One pair of dumbbells", rounds: 3, rest: 40, items: [["goblet",40],["dbpress",40],["dbrow",40],["thruster",40],["hammer",40],["bicycle",35]] },
-    { id: "warm", name: "Warm-Up (4 min)", desc: "Loosen up before you train", rounds: 1, rest: 5, items: [["armcircle",30],["legswing",30],["hipcircle",30],["catcow",30],["worldgreat",40],["jj",30]] },
-    { id: "cool", name: "Cool-Down (5 min)", desc: "Stretch out afterwards", rounds: 1, rest: 5, items: [["hamstretch",40],["quadstretch",30],["hipflexor",40],["pigeon",40],["chestopener",30],["childpose",45]] }
+    {
+      id: "push",
+      name: "Push Day",
+      desc: "Chest, shoulders, triceps",
+      rounds: 3,
+      rest: 45,
+      items: [
+        ["bench", 45],
+        ["incdb", 45],
+        ["dbshoulder", 45],
+        ["latraise", 40],
+        ["pushdown", 40],
+        ["ohext", 40],
+      ],
+    },
+    {
+      id: "pull",
+      name: "Pull Day",
+      desc: "Back and biceps",
+      rounds: 3,
+      rest: 45,
+      items: [
+        ["pullup", 40],
+        ["bentrow", 45],
+        ["latpull", 45],
+        ["facepull", 40],
+        ["bicepcurl", 40],
+        ["hammer", 40],
+      ],
+    },
+    {
+      id: "legs",
+      name: "Leg Day",
+      desc: "Quads, hamstrings, calves",
+      rounds: 3,
+      rest: 60,
+      items: [
+        ["backsquat", 45],
+        ["rdl", 45],
+        ["legpress", 45],
+        ["walklunge", 45],
+        ["legcurl", 40],
+        ["calfraise", 40],
+      ],
+    },
+    {
+      id: "hiit",
+      name: "10-Min HIIT",
+      desc: "No equipment, max burn",
+      rounds: 2,
+      rest: 15,
+      items: [
+        ["jj", 35],
+        ["highknees", 35],
+        ["burpee", 35],
+        ["mountain", 35],
+        ["skaters", 35],
+        ["jumpsquat", 35],
+      ],
+    },
+    {
+      id: "home",
+      name: "Home Bodyweight",
+      desc: "Full body, zero gear",
+      rounds: 3,
+      rest: 30,
+      items: [
+        ["pushup", 40],
+        ["squat", 40],
+        ["lunge", 40],
+        ["plank", 40],
+        ["gluteb", 40],
+        ["mountain", 30],
+      ],
+    },
+    {
+      id: "core",
+      name: "Core Crusher",
+      desc: "Abs and obliques",
+      rounds: 3,
+      rest: 20,
+      items: [
+        ["plank", 35],
+        ["bicycle", 35],
+        ["legraise", 35],
+        ["russiantwist", 35],
+        ["deadbug", 35],
+        ["sideplank", 30],
+      ],
+    },
+    {
+      id: "dbfull",
+      name: "Dumbbell Full Body",
+      desc: "One pair of dumbbells",
+      rounds: 3,
+      rest: 40,
+      items: [
+        ["goblet", 40],
+        ["dbpress", 40],
+        ["dbrow", 40],
+        ["thruster", 40],
+        ["hammer", 40],
+        ["bicycle", 35],
+      ],
+    },
+    {
+      id: "warm",
+      name: "Warm-Up (4 min)",
+      desc: "Loosen up before you train",
+      rounds: 1,
+      rest: 5,
+      items: [
+        ["armcircle", 30],
+        ["legswing", 30],
+        ["hipcircle", 30],
+        ["catcow", 30],
+        ["worldgreat", 40],
+        ["jj", 30],
+      ],
+    },
+    {
+      id: "cool",
+      name: "Cool-Down (5 min)",
+      desc: "Stretch out afterwards",
+      rounds: 1,
+      rest: 5,
+      items: [
+        ["hamstretch", 40],
+        ["quadstretch", 30],
+        ["hipflexor", 40],
+        ["pigeon", 40],
+        ["chestopener", 30],
+        ["childpose", 45],
+      ],
+    },
   ];
 })();
