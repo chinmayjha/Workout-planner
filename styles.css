@@ -2009,3 +2009,33 @@ h4 {
 .about-blurb.faq-card h2{font-family:var(--ff-h);font-size:1.5rem;margin-bottom:6px}
 .about-blurb.faq-card>p{color:var(--muted);margin-bottom:14px;font-size:.9rem}
 #faqPane{border:0;padding:0;margin:0;background:none}
+
+/* ---------- v4.1: popup + plan card fixes ---------- */
+/* Popups are flex columns: without this, overflow:auto children (tab chips etc.) shrink to slivers once the content is long. */
+.modal-sheet > * { flex-shrink: 0; }
+.modal-head { background: var(--bg2); }
+@media (max-width: 560px) {
+  .plan-card { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto auto auto; align-items: center; gap: 8px; }
+  .plan-card .ex-icon { grid-row: 1; grid-column: 1; }
+  .plan-card .ex-info { grid-row: 1; grid-column: 2 / 4; min-width: 0; }
+  .plan-card .ex-info h4 { white-space: normal; line-height: 1.25; }
+  .plan-card .plan-remove { grid-row: 1; grid-column: 4; }
+  .plan-card .drag-handle { grid-row: 1; grid-column: 5; }
+  .plan-card .mv-wrap { grid-row: 2; grid-column: 2; justify-self: start; }
+  .plan-card .mode-btn { grid-row: 2; grid-column: 3; }
+  .plan-card .plan-time-stepper { grid-row: 2; grid-column: 4 / 6; justify-self: end; }
+}
+[data-pane="guide"] .field { margin-bottom: 10px; }
+/* Same compact plan-card layout whenever the plan column itself is narrow (desktop two-column view too). */
+.plan-col { container-type: inline-size; container-name: plan; }
+@container plan (max-width: 470px) {
+  .plan-card { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto auto auto; align-items: center; gap: 8px; }
+  .plan-card .ex-icon { grid-row: 1; grid-column: 1; }
+  .plan-card .ex-info { grid-row: 1; grid-column: 2 / 4; min-width: 0; }
+  .plan-card .ex-info h4 { white-space: normal; line-height: 1.25; }
+  .plan-card .plan-remove { grid-row: 1; grid-column: 4; }
+  .plan-card .drag-handle { grid-row: 1; grid-column: 5; }
+  .plan-card .mv-wrap { grid-row: 2; grid-column: 2; justify-self: start; }
+  .plan-card .mode-btn { grid-row: 2; grid-column: 3; }
+  .plan-card .plan-time-stepper { grid-row: 2; grid-column: 4 / 6; justify-self: end; }
+}
