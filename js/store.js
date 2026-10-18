@@ -247,7 +247,46 @@
     return earned;
   }
 
+  /* Share-link codec: "rounds,rest,roundRest,id.time,id.time.rReps". Strictly validated on decode. */
+  function encodeRoutine(r) {
+    var head = [r.rounds, r.rest, r.roundRest == null ? r.rest : r.roundRest];
+    var items = (r.items || []).slice(0, 50).map(function (p) {
+      return p.id + "." + p.time + (p.mode === "reps" && p.reps ? ".r" + p.reps : "");
+    });
+    return head.concat(items).join(",");
+  }
+  function decodeRoutine(str, isValid) {
+    if (typeof str !== "string" || str.length > 2000) return null;
+    var parts = str.split(",");
+    if (parts.length < 4) return null;
+    var h = parts.slice(0, 3).map(function (v) {
+      return /^\d{1,3}$/.test(v) ? +v : NaN;
+    });
+    if (h.some(isNaN)) return null;
+    var seen = {}, items = [];
+    parts.slice(3, 53).forEach(function (t) {
+      var m = /^([a-z0-9]{1,30})\.(\d{1,3})(?:\.r(\d{1,3}))?$/.exec(t);
+      if (!m || seen[m[1]] || (isValid && !isValid(m[1]))) return;
+      seen[m[1]] = 1;
+      var it = { id: m[1], time: Math.min(300, Math.max(5, +m[2])) };
+      if (m[3] && +m[3] > 0) {
+        it.mode = "reps";
+        it.reps = Math.min(200, +m[3]);
+      }
+      items.push(it);
+    });
+    if (!items.length) return null;
+    return {
+      rounds: Math.min(20, Math.max(1, h[0])),
+      rest: Math.min(180, h[1]),
+      roundRest: Math.min(300, h[2]),
+      items: items,
+    };
+  }
+
   var api = {
+    encodeRoutine: encodeRoutine,
+    decodeRoutine: decodeRoutine,
     KEY: KEY,
     dateKey: dateKey,
     dayNum: dayNum,

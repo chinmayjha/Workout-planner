@@ -324,6 +324,7 @@
     rest: 30,
     roundRest: null, // break between rounds (null = follow rest until loaded)
     unit: "kg",
+    routines: [], // saved "My routines"
     prep: 5,
     sound: true,
     theme: "system",
@@ -377,6 +378,17 @@
     } catch (e) {}
     if (typeof state.roundRest !== "number") state.roundRest = state.rest;
     if (state.unit !== "lb") state.unit = "kg";
+    state.routines = (Array.isArray(state.routines) ? state.routines : [])
+      .filter((r) => r && typeof r.name === "string" && typeof r.id === "string" && Array.isArray(r.items))
+      .slice(0, 12)
+      .map((r) => ({
+        id: r.id, name: r.name.slice(0, 24),
+        rounds: Math.min(20, Math.max(1, +r.rounds || 1)),
+        rest: Math.min(180, Math.max(0, +r.rest || 0)),
+        roundRest: Math.min(300, Math.max(0, +r.roundRest || 0)),
+        items: r.items.filter((p) => p && EXERCISES.some((x) => x.id === p.id)),
+      }))
+      .filter((r) => r.items.length);
   }
   function saveState() {
     try {
@@ -938,30 +950,119 @@
       });
   }
 
-  /* ---------- Quick-start routines ---------- */
+  /* ---------- Routines: presets, My routines, share links ---------- */
+  const SX = window.Store;
+  const toast = (m) => window.Profile && Profile.toast(m);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
   function renderTemplates() {
-    document.getElementById("tplRow").innerHTML = (window.TEMPLATES || [])
-      .map((t) => `<button type="button" class="tpl-card hover-elevate" data-tpl="${t.id}"><b>${t.name}</b><span>${t.desc}</span><em>${t.items.length} moves · ${t.rounds} rounds</em></button>`)
-      .join("");
+    const card = (attr, id, name, sub, meta, cls) =>
+      `<div class="tpl-wrap"><button type="button" class="tpl-card ${cls} hover-elevate" data-${attr}="${id}"><b>${esc(name)}</b><span>${esc(sub)}</span><em>${meta}</em></button>` +
+      (attr === "mine" ? `<button type="button" class="tpl-del" data-del="${id}" aria-label="Delete ${esc(name)}">✕</button>` : "") + "</div>";
+    const mine = state.routines.map((r) => card("mine", r.id, r.name, "My routine", r.items.length + " moves · " + r.rounds + " rounds", "mine"));
+    const presets = (window.TEMPLATES || []).map((t) => card("tpl", t.id, t.name, t.desc, t.items.length + " moves · " + t.rounds + " rounds", ""));
+    document.getElementById("tplRow").innerHTML = mine.concat(presets).join("");
   }
-  function loadTemplate(t) {
-    state.plan = t.items.filter(([id]) => EXERCISES.some((x) => x.id === id)).map(([id, time]) => ({ id, time }));
-    state.rounds = t.rounds;
-    state.rest = t.rest;
+  function applyRoutine(r) {
+    state.plan = r.items
+      .filter((p) => EXERCISES.some((x) => x.id === p.id))
+      .map((p) => (p.mode === "reps" && p.reps ? { id: p.id, time: p.time, mode: "reps", reps: p.reps } : { id: p.id, time: p.time }));
+    state.rounds = r.rounds;
+    state.rest = r.rest;
+    if (typeof r.roundRest === "number") state.roundRest = r.roundRest;
     saveState();
     renderPlan();
     renderLibrary();
     renderSettings();
     renderWorkoutIdle();
-    if (window.Profile) Profile.toast("Loaded " + t.name);
+    toast("Loaded " + r.name);
+  }
+  function confirmLoad(r) {
+    if (!state.plan.length) return applyRoutine(r);
+    askConfirm("Replace your plan?", "Loading " + r.name + " replaces the exercises in your current plan.", "Replace", () => applyRoutine(r));
   }
   document.getElementById("tplRow").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-tpl]");
-    const t = b && (window.TEMPLATES || []).find((x) => x.id === b.dataset.tpl);
-    if (!t) return;
-    if (!state.plan.length) return loadTemplate(t);
-    askConfirm("Replace your plan?", "Loading " + t.name + " replaces the exercises in your current plan.", "Replace", () => loadTemplate(t));
+    const del = e.target.closest("[data-del]");
+    if (del) {
+      const r = state.routines.find((x) => x.id === del.dataset.del);
+      if (r) askConfirm("Delete routine?", "Delete " + r.name + " from My routines?", "Delete", () => {
+        state.routines = state.routines.filter((x) => x.id !== r.id);
+        saveState();
+        renderTemplates();
+      });
+      return;
+    }
+    const m = e.target.closest("[data-mine]"), p = e.target.closest("[data-tpl]");
+    if (m) {
+      const r = state.routines.find((x) => x.id === m.dataset.mine);
+      if (r) confirmLoad(r);
+    } else if (p) {
+      const t = (window.TEMPLATES || []).find((x) => x.id === p.dataset.tpl);
+      if (t) confirmLoad({ name: t.name, rounds: t.rounds, rest: t.rest, items: t.items.map((i) => ({ id: i[0], time: i[1] })) });
+    }
   });
+
+  function syncRoutineBtns() {
+    ["btnSaveRoutine", "btnShareRoutine"].forEach((id) => {
+      const b = document.getElementById(id);
+      if (b) b.disabled = !state.plan.length;
+    });
+  }
+  document.getElementById("btnSaveRoutine").addEventListener("click", () => {
+    document.getElementById("routineName").value = "";
+    openModal("routineModal");
+  });
+  function saveRoutine() {
+    const input = document.getElementById("routineName");
+    const name = input.value.trim().slice(0, 24);
+    if (!name) return triggerShake(input);
+    const i = state.routines.findIndex((x) => x.name.toLowerCase() === name.toLowerCase());
+    if (i < 0 && state.routines.length >= 12) {
+      closeModal("routineModal");
+      return toast("You can save up to 12 routines. Delete one first.");
+    }
+    const r = {
+      id: i > -1 ? state.routines[i].id : "r" + Date.now().toString(36),
+      name, rounds: state.rounds, rest: state.rest, roundRest: state.roundRest,
+      items: state.plan.map((p) => Object.assign({}, p)),
+    };
+    if (i > -1) state.routines[i] = r;
+    else state.routines.push(r);
+    saveState();
+    renderTemplates();
+    closeModal("routineModal");
+    toast(i > -1 ? "Updated " + name : "Saved " + name);
+  }
+  document.getElementById("btnRoutineSave").addEventListener("click", saveRoutine);
+  document.getElementById("routineName").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // otherwise the refocused Save button also receives this keypress
+      saveRoutine();
+    }
+  });
+
+  document.getElementById("btnShareRoutine").addEventListener("click", () => {
+    if (!state.plan.length) return;
+    const url = location.origin + location.pathname + "#r=" + SX.encodeRoutine({ rounds: state.rounds, rest: state.rest, roundRest: state.roundRest, items: state.plan });
+    const manual = () => window.prompt("Copy this link", url);
+    if (navigator.share && /Android|iPhone|iPad/i.test(navigator.userAgent))
+      navigator.share({ title: "My workout routine", url }).catch(() => {});
+    else if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast("Link copied"), manual);
+    else manual();
+  });
+  // Opening a shared link (or pasting one into an open tab) asks before replacing anything.
+  function checkHash() {
+    const m = /^#r=([\w.,-]+)$/.exec(location.hash);
+    if (!m) return;
+    if (typeof activeWorkout === "function" && activeWorkout()) return;
+    history.replaceState(null, "", location.pathname + location.search);
+    const r = SX.decodeRoutine(m[1], (id) => EXERCISES.some((x) => x.id === id));
+    if (!r) return toast("That routine link isn't valid");
+    r.name = "shared routine";
+    askConfirm("Load shared routine?", r.items.length + " exercises · " + r.rounds + " round" + (r.rounds > 1 ? "s" : "") + ". This replaces your current plan.", "Load", () => applyRoutine(r));
+  }
+  window.addEventListener("hashchange", checkHash);
+  setTimeout(checkHash, 300);
 
   /* ---------- Plan & Drag-n-Drop ---------- */
   let dragSourceIdx = null;
@@ -987,6 +1088,7 @@
   });
 
   function renderPlan() {
+    syncRoutineBtns();
     document.getElementById("roundsVal").textContent = state.rounds;
     const list = document.getElementById("planList");
     const clearBtn = document.getElementById("btnClearPlan");
@@ -1876,6 +1978,22 @@
   document
     .getElementById("btnHelp")
     .addEventListener("click", () => openModal("helpModal"));
+  const helpTabs = document.getElementById("helpTabs");
+  helpTabs.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-help]");
+    if (!b) return;
+    helpTabs.querySelectorAll("[data-help]").forEach((x) => {
+      x.classList.toggle("active", x === b);
+      x.setAttribute("aria-pressed", String(x === b));
+    });
+    document.querySelectorAll("[data-pane]").forEach((p) => (p.hidden = p.dataset.pane !== b.dataset.help));
+    document.querySelector("#helpModal .modal-sheet").scrollTop = 0;
+  });
+  document.getElementById("vidSearch").addEventListener("input", (e) => {
+    const q = e.target.value.toLowerCase().trim();
+    [...document.getElementById("vidList").children].forEach((el) => (el.style.display = el.textContent.toLowerCase().includes(q) ? "" : "none"));
+  });
+  document.querySelectorAll("#about details").forEach((d) => document.getElementById("faqPane").appendChild(d.cloneNode(true)));
   document
     .getElementById("btnCloseHelp")
     .addEventListener("click", () => closeModal("helpModal"));

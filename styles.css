@@ -1987,3 +1987,25 @@ h4 {
 .active-controls{grid-template-columns:repeat(4,1fr)}
 .active-controls .full{grid-column:span 4}
 .active-controls .btn-sm{padding-left:6px;padding-right:6px;font-size:.8rem;white-space:nowrap}
+
+/* ---------- v4: My routines, share, help tabs, FAQ card ---------- */
+.tpl-wrap{position:relative;flex:0 0 168px;display:flex}
+.tpl-wrap .tpl-card{flex:1}
+.tpl-card.mine{border-style:dashed;border-color:var(--accent-text)}
+.tpl-del{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:.8rem}
+.tpl-del:hover,.tpl-del:focus-visible{color:var(--text);background:var(--line)}
+.plan-actions{display:flex;gap:8px;margin:-4px 0 12px}
+.plan-actions .btn{width:auto;flex:1}
+.plan-actions .btn:disabled{opacity:.4;pointer-events:none}
+.help-tabs{margin:2px 0 14px}
+#vidSearch{width:100%}
+.faq-card details{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;background:var(--soft)}
+.faq-card summary{cursor:pointer;font-weight:600;color:var(--text);list-style:none;display:flex;justify-content:space-between;gap:12px}
+.faq-card summary::-webkit-details-marker{display:none}
+.faq-card summary::after{content:"+";color:var(--accent-text);font-weight:700}
+.faq-card details[open] summary::after{content:"–"}
+.faq-card details p{margin-top:8px;color:var(--muted);font-size:.9rem;line-height:1.55}
+.about-blurb.faq-card{max-width:760px;margin:36px auto 0;padding:0 20px}
+.about-blurb.faq-card h2{font-family:var(--ff-h);font-size:1.5rem;margin-bottom:6px}
+.about-blurb.faq-card>p{color:var(--muted);margin-bottom:14px;font-size:.9rem}
+#faqPane{border:0;padding:0;margin:0;background:none}

@@ -11,23 +11,27 @@
 
 ## Overview
 
-Build a routine from a 122-exercise gym and bodyweight library (or start from a ready-made routine), run it with a hands-free timer and voice coach, then watch your streak and 30-day activity heatmap grow. Everything runs in the browser with vanilla HTML, CSS and JavaScript. There is no backend, no account and no tracking: your data stays on your device.
+Build a routine from a 143-exercise gym and bodyweight library (or start from a ready-made routine), run it with a hands-free timer and voice coach, then watch your streak and 30-day activity heatmap grow. Everything runs in the browser with vanilla HTML, CSS and JavaScript. There is no backend, no account and no tracking: your data stays on your device.
 
 ## Features
 
 **Planning**
 
-- Exercise library of 122 moves across chest, back, shoulders, arms, legs, glutes, core, cardio and full body. Filter by muscle group and by equipment (bodyweight, dumbbell, barbell, machine, cable, kettlebell, other), or search by name, muscle or gear.
-- **Quick-start routines:** Push Day, Pull Day, Leg Day, 10-Min HIIT, Home Bodyweight, Core Crusher and Dumbbell Full Body load in one tap (you are asked before your current plan is replaced).
+- Exercise library of 143 moves across chest, back, shoulders, arms, legs, glutes, core, cardio, full body and stretching. Filter by muscle group and by equipment (bodyweight, dumbbell, barbell, machine, cable, kettlebell, other), or search by name, muscle or gear.
+- **Quick-start routines:** Push Day, Pull Day, Leg Day, 10-Min HIIT, Home Bodyweight, Core Crusher and Dumbbell Full Body, plus a 4-minute Warm-Up and a 5-minute Cool-Down, load in one tap (you are asked before your current plan is replaced).
+- **My routines:** save your current plan under a name (up to 12) and reload or delete it later.
+- **Share link:** copy a link that contains your plan. Anyone who opens it is asked before it replaces their plan. Invalid or tampered links are rejected.
 - Drag-and-drop ordering and per-exercise time.
 - Strength moves can switch to **Reps** mode with a target rep count. Holds and cardio stay timed.
-- Adjustable rounds, rest, prep time and an adaptive rest button.
+- Adjustable rounds, rest between exercises, a separate break between rounds, prep time and an adaptive rest button.
 - Live time and calorie estimate for the plan.
 
 **Workout**
 
 - Prep, work and rest phases with a live timer, progress bar and phase colours.
 - Voice coaching split into three switches: **Announcements**, **Form coaching** and **Pacing & chimes** (beeps and a halfway cue on timed exercises of 20s or more).
+- **Round-break panel:** between rounds, adjust the time per exercise and the number of rounds for that workout only (your saved plan is untouched).
+- **Back button** replays the previous exercise.
 - Screen wake lock keeps the display on during a workout.
 - Ending early still saves your time and calories and takes you to the share screen.
 - "How did that feel?" rating (Light / Hard / Brutal) after every session.
@@ -38,7 +42,8 @@ Build a routine from a 122-exercise gym and bodyweight library (or start from a 
 - A streak chip on the Plan tab shows your streak and whether you have trained today.
 - **Streak Savers:** earn 1 for every 5 days with a completed workout (max 3). A saver automatically covers missed days so a streak survives, but only when it can cover the whole gap.
 - JSON backup (export / import) and a hold-to-confirm "clear all data" button.
-- Optional name and body weight (set up from a dismissible card) for greetings and calorie estimates.
+- Optional name and body weight (kg or lb, set up from a dismissible card) for greetings and calorie estimates. Calories use the standard MET formula.
+- A help popup with Shortcuts, a searchable Exercise guide and the FAQ.
 
 **Share**
 
@@ -117,8 +122,8 @@ Add one line to the `ROWS` list in `js/exercises.js`:
 ```
 
 - `id`: unique, lowercase, never changed once published (saved plans use it).
-- `category`: `upper`, `lower`, `core`, `cardio` or `full`.
-- `mode`: `r` for reps (can switch to timed), `t` for timed cardio, `h` for a timed hold.
+- `category`: `upper`, `lower`, `core`, `cardio`, `full` or `flex` (stretching).
+- `mode`: `r` for reps (can switch to timed), `t` for timed cardio, `h` for a timed hold, `s` for a timed stretch.
 - The muscle group and equipment filters are assigned automatically from the exercise name. If one is misfiled, adjust the keyword rules in `GR` (muscle group) or `QR` (equipment) in the same file.
 - New exercises reuse a generic icon for their category. For a custom icon, add a matching key to `EX_ICONS` in `app.js`.
 
@@ -141,9 +146,10 @@ To allow Reps mode for one of these, add its `id` to the `REPS_OK` set.
 
 - New visual identity and workout screen, light/dark theme switch
 - Landing page and per-exercise pages for search
-- A workout generator, saved routines and share links
+- A workout generator
 - Touch-friendly drag reordering and a drift-proof timer
-- Stretching and mobility exercises
+- Optional weight history with a trend line
+- Roomier plan cards on small phones
 - Merge planner and activity data into one storage key
 
 ## About the Author
