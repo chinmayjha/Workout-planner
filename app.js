@@ -1220,12 +1220,14 @@
       return;
     }
 
+    const prevLen =
+      typeof renderPlan.prev === "number" ? renderPlan.prev : state.plan.length; // only animate newly added cards
     list.innerHTML = state.plan
       .map((p, i) => {
         const ex = EXERCISES.find((x) => x.id === p.id);
-        return `<div class="plan-card pop-in" draggable="true" data-idx="${i}" style="animation-delay: ${i * 0.03}s">
+        return `<div class="plan-card${i >= prevLen ? " pop-in" : ""}" draggable="true" data-idx="${i}">
         <div class="ex-icon" style="width:38px;height:38px;flex:0 0 38px;background:${CAT_COLOR[ex.cat]}22;color:${CAT_COLOR[ex.cat]}">${getIcon(ex)}</div>
-        <div class="ex-info"><h4 style="font-size:.88rem">${ex.name}</h4></div>
+        <div class="ex-info"><h4 style="font-size:.88rem">${ex.name}</h4><p class="plan-sub">${[ex.gl, ex.el].filter(Boolean).join(" · ")}</p></div>
         <div class="mv-wrap"><button class="mv-btn" data-move="${i}" data-dir="-1" type="button" aria-label="Move ${ex.name} up" ${i === 0 ? "disabled" : ""}>${UP}</button><button class="mv-btn" data-move="${i}" data-dir="1" type="button" aria-label="Move ${ex.name} down" ${i === state.plan.length - 1 ? "disabled" : ""}>${DOWN}</button></div>
         ${canRep(ex) ? `<button class="mode-btn" data-mode="${i}" type="button" aria-label="Switch ${ex.name} between time and reps">${p.mode === "reps" ? "Reps" : "Time"}</button>` : ""}
         ${canRep(ex) && p.mode === "reps" ? `<div class="plan-time-stepper"><button data-rmod="-1" data-idx="${i}" aria-label="Fewer reps">−</button><span>${p.reps || 12} reps</span><button data-rmod="1" data-idx="${i}" aria-label="More reps">+</button></div>` : `<div class="plan-time-stepper"><button data-mod="-5" data-idx="${i}">−</button><span>${p.time}s</span><button data-mod="5" data-idx="${i}">+</button></div>`}
@@ -1234,6 +1236,7 @@
       </div>`;
       })
       .join("");
+    renderPlan.prev = state.plan.length;
 
     list.querySelectorAll("[data-mod]").forEach((btn) =>
       btn.addEventListener("click", () => {

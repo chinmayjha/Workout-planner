@@ -182,7 +182,7 @@
     ],
     [
       "legs",
-      /leg |squat|lunge|deadlift|calf|step-up|nordic|jump|good morning|hack/i,
+      /leg |squat|lunge|deadlift|calf|step-up|nordic|box jump|broad jump|good morning|hack/i,
     ],
     ["arms", /curl|tricep|skull|kickback|close-grip|wrist|diamond|hammer/i],
     ["chest", /bench|fly|pec deck|crossover|push-up|chest dip/i],

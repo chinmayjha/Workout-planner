@@ -2404,3 +2404,87 @@ h4 {
     min-height: 280px;
   }
 }
+
+/* ---------- v4.4: redesigned plan cards ---------- */
+.plan-sub {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin: 2px 0 0;
+}
+.hint-touch {
+  display: none;
+}
+@media (hover: none) {
+  .drag-handle {
+    display: none;
+  }
+  .hint-mouse {
+    display: none;
+  }
+  .hint-touch {
+    display: inline;
+  }
+}
+@container plan (max-width: 470px) {
+  .plan-card {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto auto;
+    grid-template-areas: "icon info remove handle" "icon step mode mv";
+    align-items: center;
+    gap: 8px 10px;
+    padding: 12px;
+  }
+  .plan-card .ex-icon {
+    grid-area: icon;
+    width: 44px !important;
+    height: 44px !important;
+    flex: none !important;
+  }
+  .plan-card .ex-info {
+    grid-area: info;
+    min-width: 0;
+  }
+  .plan-card .plan-remove {
+    grid-area: remove;
+  }
+  .plan-card .drag-handle {
+    grid-area: handle;
+  }
+  .plan-card .plan-time-stepper {
+    grid-area: step;
+    justify-self: start;
+  }
+  .plan-card .mode-btn {
+    grid-area: mode;
+    justify-self: center;
+  }
+  .plan-card .mv-wrap {
+    grid-area: mv;
+    flex-direction: row;
+    gap: 4px;
+    justify-self: end;
+  }
+}
+@container plan (max-width: 470px) {
+  .plan-card {
+    grid-template-areas: "icon info handle remove" "icon step mode mv";
+  }
+  .plan-card .plan-remove {
+    justify-self: end;
+  }
+  .plan-card .drag-handle {
+    justify-self: center;
+  }
+  .plan-card .plan-time-stepper span {
+    white-space: nowrap;
+    min-width: 52px;
+    text-align: center;
+  }
+}
+@media (hover: hover) {
+  @container plan (max-width: 470px) {
+    .plan-card {
+      grid-template-columns: 44px minmax(0, 1fr) 56px auto;
+    }
+  }
+}

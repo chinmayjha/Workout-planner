@@ -1,5 +1,5 @@
 /* Offline support: stale-while-revalidate for the app shell. Bump CACHE to force a clean refresh. */
-const CACHE = "workout-planner-v7";
+const CACHE = "workout-planner-v9";
 const SHELL = [
   "./",
   "index.html",
