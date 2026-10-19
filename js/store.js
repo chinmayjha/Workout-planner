@@ -9,7 +9,8 @@
   var OLD_KEY = "forge_state_v6";
   var MIN_ACTIVE_SECS = 60; // a day counts for the streak at 60s or more
   var SAVER_CAP = 3;
-  var SAVER_EVERY = 5; // completed workouts per saver
+  var SAVER_EVERY = 5; // qualifying DAYS per saver
+  var MIN_SAVER_SECS = 300; // a day counts toward a saver with a finished workout AND this much training in total
 
   function pad(n) {
     return n < 10 ? "0" + n : "" + n;
@@ -109,6 +110,10 @@
               secs: num(e.secs, 0),
               cals: num(e.cals, 0),
               completed: num(e.completed, 0),
+              credited:
+                e.credited !== undefined
+                  ? !!e.credited
+                  : num(e.completed, 0) > 0, // older days are grandfathered
             };
           }
         });
@@ -226,14 +231,14 @@
   }
 
   /* Record one finished or partial session. r: { start, secs, cals, complete,
-     exDone, exTotal, rounds, rpe }. Saver progress counts DAYS with a completed
-     workout (a 2nd workout the same day adds nothing). Returns true if a saver was earned. */
+     exDone, exTotal, rounds, rpe }. Saver progress counts DAYS with a finished workout
+     and at least MIN_SAVER_SECS of training that day (a 2nd workout the same day adds nothing once credited). Returns { earned, status: credited|already|short|incomplete, needSecs }. */
   function logSession(s, r) {
     var k = dateKey(r.start, s.rollHour); // credited to the day it started
     settle(s, k); // resolve gaps before this session so a stale open tab can't lose a saver
     var day =
       s.log[k] || (s.log[k] = { sessions: 0, secs: 0, cals: 0, completed: 0 });
-    var firstDone = !!r.complete && day.completed === 0;
+    var wasCredited = !!day.credited;
     day.sessions++;
     day.secs += r.secs;
     day.cals += r.cals;
@@ -250,19 +255,28 @@
       rpe: r.rpe || null,
     });
     s.history.length = Math.min(s.history.length, 60);
-    var earned = false;
-    if (firstDone) {
-      s.streak.completed++;
-      s.streak.progress++;
-      if (s.streak.progress >= SAVER_EVERY) {
-        s.streak.progress = 0;
-        if (s.streak.savers < SAVER_CAP) {
-          s.streak.savers++;
-          earned = true;
+    var earned = false,
+      status = wasCredited ? "already" : "incomplete";
+    if (!wasCredited && day.completed > 0) {
+      if (day.secs >= MIN_SAVER_SECS) {
+        day.credited = true;
+        status = "credited";
+        s.streak.completed++;
+        s.streak.progress++;
+        if (s.streak.progress >= SAVER_EVERY) {
+          s.streak.progress = 0;
+          if (s.streak.savers < SAVER_CAP) {
+            s.streak.savers++;
+            earned = true;
+          }
         }
-      }
+      } else status = "short";
     }
-    return earned;
+    return {
+      earned: earned,
+      status: status,
+      needSecs: Math.max(0, MIN_SAVER_SECS - day.secs),
+    };
   }
 
   /* Share-link codec: "rounds,rest,roundRest,id.time,id.time.rReps". Strictly validated on decode. */

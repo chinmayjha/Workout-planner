@@ -105,7 +105,7 @@
         : dots +
           "  " +
           st.streak.progress +
-          " of 5 workout days to your next saver";
+          " of 5 days to your next saver (finish a workout and train 5+ minutes that day)";
   }
 
   function render() {
@@ -265,11 +265,37 @@
 
   window.Profile = {
     record: function (r) {
-      var earned = S.logSession(st, r);
+      var res = S.logSession(st, r);
       S.settle(st);
       S.save(st);
       render();
-      if (earned) toast("You earned a Streak Saver");
+      var mins = Math.ceil(res.needSecs / 60),
+        note;
+      if (res.earned) {
+        toast("You earned a Streak Saver");
+        note = "You earned a Streak Saver!";
+      } else if (res.status === "credited")
+        note =
+          "Counts toward your next saver: " +
+          st.streak.progress +
+          " of 5 days.";
+      else if (res.status === "already")
+        note = "Today already counts toward your next saver.";
+      else if (res.status === "short")
+        note =
+          "Streak kept! To count toward your next saver, train " +
+          mins +
+          " more minute" +
+          (mins === 1 ? "" : "s") +
+          " today (5 minutes a day, with a finished workout).";
+      else
+        note =
+          "Ended early, so it won't count toward your next saver. Finish a full workout to earn it.";
+      var el = $("completeNote");
+      if (el) {
+        el.textContent = note;
+        el.hidden = false;
+      }
     },
     rate: function (v) {
       if (st.history[0]) {

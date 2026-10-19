@@ -40,7 +40,7 @@ Build a routine from a 143-exercise gym and bodyweight library (or start from a 
 
 - Lifetime stats, current and best streak, and a 30-day heatmap with tap/hover details.
 - A streak chip on the Plan tab shows your streak and whether you have trained today.
-- **Streak Savers:** earn 1 for every 5 days with a completed workout (max 3). A saver automatically covers missed days so a streak survives, but only when it can cover the whole gap.
+- **Streak Savers:** earn 1 for every 5 days with a finished workout and 5+ minutes of training (max 3). A saver automatically covers missed days so a streak survives, but only when it can cover the whole gap.
 - JSON backup (export / import) and a hold-to-confirm "clear all data" button.
 - Optional name and body weight (kg or lb, set up from a dismissible card) for greetings and calorie estimates. Calories use the standard MET formula.
 - A help popup with Shortcuts, a searchable Exercise guide and the FAQ.
@@ -66,11 +66,12 @@ Build a routine from a 143-exercise gym and bodyweight library (or start from a 
 
 ## How streaks work
 
-- A day counts once its sessions add up to at least 60 seconds. Dates use your local timezone.
-- Several sessions in one day count as one active day.
-- The "5 to your next saver" counter counts **days**, not workouts. A day adds one only if it has a completed workout (finished, at least 60 seconds, and at least half its planned time). A second workout the same day adds nothing.
+- A day keeps your streak alive once its sessions add up to at least 60 seconds. Dates use your local timezone.
+- A day counts toward your next **Streak Saver** only if you finish a full workout (it reaches the end, lasts at least 60 seconds and covers at least half its planned time) **and** you train at least 5 minutes in total that day. Several shorter workouts the same day can add up.
+- Every 5 such days in a row earn a saver (max 3). A second workout the same day adds nothing once the day has counted.
 - If you miss a day and hold a saver, it is spent automatically and your streak and counter carry on.
 - If you miss a day and have no saver, your streak **and** the 5-day counter reset to zero.
+- After each workout the app tells you whether it counted toward your next saver, and if not, why.
 - Missed days are resolved when you open the app and again before each session is saved, so leaving a tab open overnight cannot cost you a saver.
 
 ## Project structure
